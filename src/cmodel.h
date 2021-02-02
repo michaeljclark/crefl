@@ -22,13 +22,12 @@ struct decl_ref;
 typedef struct decl decl;
 typedef struct decl_ref decl_ref;
 typedef struct decl_db decl_db;
-
 typedef union _raw _raw;
 typedef struct _decl _decl;
 
 typedef u32 _Tag;
-typedef u32 _Id;
 typedef u32 _Set;
+typedef u32 _Id;
 typedef u64 _Size;
 
 #define IDfmt "d"
@@ -66,6 +65,7 @@ enum {
     _decl_enum,
     _decl_struct,
     _decl_union,
+    _decl_field,
     _decl_array,
     _decl_constant,
     _decl_variable,
@@ -130,9 +130,10 @@ enum _decl_attrs
     _float          = _real     | _ieee754,
 
     /*
-     * bit[31] top level
+     * bit[30:31] general type flags
      */
 
+    _bitfield       = 1 << 30,
     _top            = 1 << 31
 };
 
@@ -149,13 +150,13 @@ struct decl_ref
 
 /*
  * - void       (* empty type *)
- * - name       (* an object name *)
  * - typedef    (* alias to another type definition *)
  * - intrinsic  (* machine type quantified with width in bits *)
  * - set        (* machine type with many-of sequence of bit mask constants *)
  * - enum       (* machine type with one-of sequence of integral constants *)
  * - struct     (* sequence of non-overlapping types *)
  * - union      (* sequence of overlapping types *)
+ * - field      (* named field within struct or union *)
  * - array      (* sequence of one type *)
  * - constant   (* named constant *)
  * - variable   (* named variable that is unique to each thread *)
@@ -172,18 +173,18 @@ struct decl
     _Id _next;    /*        _signed,     _unsigned,   _ieee754,  */
 
     union {
-        struct { _Size _idx; _Size _size; } _decl_name;
         struct { _Id _decl;               } _decl_typedef;
         struct { _Size _width;            } _decl_intrinsic;
-        struct { _Id _constant;           } _decl_set;
-        struct { _Id _constant;           } _decl_enum;
+        struct { _Id _link;               } _decl_set;
+        struct { _Id _link;               } _decl_enum;
         struct { _Id _link;               } _decl_struct;
         struct { _Id _link;               } _decl_union;
+        struct { _Id _decl; _Size _width; } _decl_field;
         struct { _Id _decl; _Size _size;  } _decl_array;
-        struct { _Id _decl; _Size _addr;  } _decl_constant;
+        struct { _Id _decl; _Size _value; } _decl_constant;
         struct { _Id _decl; _Size _addr;  } _decl_variable;
         struct { _Id _decl; _Size _addr;  } _decl_uniform;
-        struct { _Id _param; _Size _addr; } _decl_function;
+        struct { _Id _link; _Size _addr;  } _decl_function;
         struct { _Id _decl;               } _decl_param;
     };
 };
@@ -203,6 +204,7 @@ int decl_is_set(decl *d);
 int decl_is_enum(decl *d);
 int decl_is_struct(decl *d);
 int decl_is_union(decl *d);
+int decl_is_field(decl *d);
 int decl_is_array(decl *d);
 int decl_is_constant(decl *d);
 int decl_is_variable(decl *d);
@@ -211,9 +213,12 @@ int decl_is_function(decl *d);
 int decl_is_param(decl *d);
 
 decl_db * decl_db_new();
-void  decl_db_destroy(decl_db *db);
+void decl_db_defaults(decl_db *db);
+void decl_db_dump(decl_db *db);
+void decl_db_destroy(decl_db *db);
 decl_ref decl_new(decl_db *db, _Tag tag, _Set attrs);
 decl_ref decl_at(decl_db *db, size_t decl_idx);
+decl_ref decl_find_intrinsic(decl_db *db, _Set attrs, size_t width);
 decl * decl_ptr(decl_ref r);
 _Id decl_ref_idx(decl_ref d);
 _Tag decl_ref_tag(decl_ref d);
@@ -241,7 +246,7 @@ int decl_set_constants(decl_ref d, decl_ref *r, size_t *s);
 int decl_struct_types(decl_ref d, decl_ref *r, size_t *s);
 int decl_union_types(decl_ref d, decl_ref *r, size_t *s);
 int decl_function_params(decl_ref d, decl_ref *r, size_t *s);
-void * decl_constant_addr(decl_ref d);
+_Size decl_constant_value(decl_ref d);
 void * decl_variable_addr(decl_ref d);
 void * decl_uniform_addr(decl_ref d);
 void * decl_function_addr(decl_ref d);
