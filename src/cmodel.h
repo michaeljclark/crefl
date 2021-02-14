@@ -168,10 +168,6 @@ struct decl
  * reflection api
  */
 
-decl_tag crefl_tag(decl *d);
-const char * crefl_tag_name(decl_tag tag);
-decl_set crefl_attrs(decl *d);
-
 int crefl_is_top(decl *d);
 int crefl_is_type(decl *d);
 int crefl_is_typedef(decl *d);
@@ -196,9 +192,12 @@ decl_ref crefl_new(decl_db *db, decl_tag tag, decl_set attrs);
 decl_ref crefl_at(decl_db *db, size_t decl_idx);
 decl_ref crefl_find_intrinsic(decl_db *db, decl_set attrs, size_t width);
 decl * crefl_ptr(decl_ref r);
+decl_tag crefl_tag(decl *d);
+decl_set crefl_attrs(decl *d);
 decl_id crefl_ref_idx(decl_ref d);
 decl_tag crefl_ref_tag(decl_ref d);
 decl_set crefl_ref_attrs(decl_ref d);
+const char * crefl_tag_name(decl_tag tag);
 const char* crefl_name_new(decl_ref d, const char *name);
 const char* crefl_name(decl_ref d);
 int crefl_types(decl_db *db, decl_ref *r, size_t *s);
