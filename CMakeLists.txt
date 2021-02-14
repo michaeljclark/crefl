@@ -18,7 +18,7 @@ separate_arguments(LLVM_LIBS UNIX_COMMAND "${LLVM_LIBS}")
 
 include_directories(src)
 
-add_library(cmodel STATIC src/cmodel.cc src/ctypes.cc src/cdump.cc)
+add_library(cmodel STATIC src/cmodel.cc src/ctypes.cc src/cdump.cc src/cfileio.cc)
 
 add_library(crefl SHARED src/creflect.cc)
 target_compile_options(crefl PRIVATE ${LLVM_CXXFLAGS})

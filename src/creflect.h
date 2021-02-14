@@ -6,30 +6,28 @@
 #include "clang/Frontend/FrontendActions.h"
 #include "clang/Tooling/Tooling.h"
 
-namespace crefl {
+#include <string>
 
+namespace crefl {
 
 class CReflectAction : public clang::PluginASTAction {
 public:
-  	CReflectAction() {}
+    std::string outputFile;
+    bool debug, dump;
 
-  	std::unique_ptr<clang::ASTConsumer>
-  	CreateASTConsumer(clang::CompilerInstance &ci, llvm::StringRef) override {
-    	ci.getDiagnostics().setClient(new clang::IgnoringDiagConsumer());
-    	return std::make_unique<clang::ASTConsumer>();
-  	}
+    CReflectAction();
 
-  	bool ParseArgs(const clang::CompilerInstance &ci,
-            	   const std::vector<std::string>& args) override {
-    	return true;
-  	}
+    std::unique_ptr<clang::ASTConsumer> CreateASTConsumer
+        (clang::CompilerInstance &ci, llvm::StringRef) override;
+    bool ParseArgs(const clang::CompilerInstance &ci,
+                 const std::vector<std::string>& args) override;
 
 protected:
-  	void EndSourceFileAction() override;
+    void EndSourceFileAction() override;
 
-  	clang::PluginASTAction::ActionType getActionType() override {
-    	return ReplaceAction;
-  	}
+    clang::PluginASTAction::ActionType getActionType() override {
+      return ReplaceAction;
+    }
 };
 
 }

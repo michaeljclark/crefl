@@ -39,6 +39,18 @@ width or size quantifier or address and a link to child nodes.
 | function   | `id parm, sz addr` | function with input and output parameter list  |
 | param      | `id decl`          | named parameter with link to next              |
 
+### crefl implementation notes
+
+The _crefl_ implementation is to be considered alpha software.
+
+- integer types are stored using desugared types.
+- const, volatile and restrict are not yet supported.
+- GNU style attributes (`__attribute__`) are not yet supported.
+- file format is subject to change and needs to be more succinct.
+- variable, uniform and function addresses are not implemented.
+- the pointed to type is not yet recorded for pointers.
+- complex number types are not supported.
+
 ### crefl dependencies
 
 tested on ubuntu 20.04 LTS:
@@ -58,13 +70,27 @@ cmake --build build -- --verbose
 
 ### invoking crefl plugin
 
-tested on ubuntu 20.04 LTS:
+to run the crefl plugin and dump the reflection table to stdout:
 
 ```
-clang test/h1.h \
+clang test/simple-struct-1.h \
       -Xclang -load -Xclang build/libcrefl.so \
-      -Xclang -plugin -Xclang crefl
-clang test/h2.h \
+      -Xclang -plugin -Xclang crefl \
+      -Xclang -plugin-arg-crefl -Xclang -dump
+```
+
+to run the crefl plugin and write the reflection data to a file:
+
+```
+clang test/simple-struct-1.h \
       -Xclang -load -Xclang build/libcrefl.so \
-      -Xclang -plugin -Xclang crefl
+      -Xclang -plugin -Xclang crefl \
+      -Xclang -plugin-arg-crefl -Xclang -o \
+      -Xclang -plugin-arg-crefl -Xclang tmp/simple-struct-1.refl
+```
+
+to enable crefl plugin debugging, add the following option:
+
+```
+      -Xclang -plugin-arg-crefl -Xclang -debug
 ```

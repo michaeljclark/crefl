@@ -10,6 +10,7 @@
 #include <clang/Frontend/FrontendPluginRegistry.h>
 
 #include "cmodel.h"
+#include "cfileio.h"
 #include "creflect.h"
 
 using namespace clang;
@@ -49,8 +50,8 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
     llvm::SmallMapVector<int64_t,decl_id, 16> idmap;
     bool debug;
 
-    CReflectVisitor(ASTContext &context, decl_db *db)
-        : context(context), db(db), last(), debug(true) {}
+    CReflectVisitor(ASTContext &context, decl_db *db, bool debug = false)
+        : context(context), db(db), last(), debug(debug) {}
 
     std::string crefl_path(Decl *d)
     {
@@ -500,6 +501,43 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
     }
 };
 
+crefl::CReflectAction::CReflectAction()
+    : outputFile(), debug(false), dump(false) {}
+
+std::unique_ptr<clang::ASTConsumer> crefl::CReflectAction::CreateASTConsumer
+    (clang::CompilerInstance &ci, llvm::StringRef)
+{
+    ci.getDiagnostics().setClient(new clang::IgnoringDiagConsumer());
+    return std::make_unique<clang::ASTConsumer>();
+}
+
+bool crefl::CReflectAction::ParseArgs
+    (const clang::CompilerInstance &ci, const std::vector<std::string>& argv)
+{
+    int i = 0, argc = argv.size();
+    while (i < argc) {
+        if (argv[i] == "-o") {
+            if (++i == argc) {
+                fprintf(stderr, "error: -o requires parameter\n");
+                exit(0);
+            }
+            outputFile = argv[i++];
+        } else if (argv[i] == "-debug") {
+            ++i; debug = true;
+        } else if (argv[i] == "-dump") {
+            ++i; dump = true;
+        } else {
+            fprintf(stderr, "error: unknown option: %s\n", argv[i].c_str());
+            exit(0);
+        }
+    }
+    if (!dump && !debug && !outputFile.size()) {
+        fprintf(stderr, "error: missing args: -dump, -debug, -o <outputFile>\n");
+        exit(0);
+    }
+    return true;
+}
+
 void crefl::CReflectAction::EndSourceFileAction()
 {
     auto &ci      = getCompilerInstance();
@@ -508,13 +546,23 @@ void crefl::CReflectAction::EndSourceFileAction()
 
     decl_db *db = crefl_db_new();
     crefl_db_defaults(db);
-    CReflectVisitor v(context, db);
+    CReflectVisitor v(context, db, debug);
 
     llvm::StringRef fileName = input.getFile();
-    if (v.debug) log_debug("File %s\n", fileName.str().c_str());
+    if (debug) {
+        log_debug("Input file  : %s\n", fileName.str().c_str());
+        if (outputFile.size() != 0) {
+            log_debug("Output file : %s\n", outputFile.c_str());
+        }
+    }
 
     v.TraverseDecl(context.getTranslationUnitDecl());
-    crefl_db_dump(db);
+    if (dump) {
+        crefl_db_dump(db);
+    }
+    if (outputFile.size()) {
+        crefl_write_db(db, outputFile.c_str());
+    }
     crefl_db_destroy(db);
 
     clang::ASTFrontendAction::EndSourceFileAction();
