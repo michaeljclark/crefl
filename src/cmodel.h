@@ -236,6 +236,9 @@ struct decl
  * - decl_set       - type used to indicate many-of set enumerations
  */
 
+/*
+ * decl types
+ */
 int crefl_is_top(decl_ref d);
 int crefl_is_type(decl_ref d);
 int crefl_is_typedef(decl_ref d);
@@ -253,21 +256,31 @@ int crefl_is_uniform(decl_ref d);
 int crefl_is_function(decl_ref d);
 int crefl_is_param(decl_ref d);
 
+/*
+ * decl database
+ */
+decl_db * crefl_db_new();
+void crefl_db_defaults(decl_db *db);
+void crefl_db_dump(decl_db *db);
+void crefl_db_destroy(decl_db *db);
+
+/*
+ * decl properties
+ */
 decl * crefl_ptr(decl_ref d);
 decl_tag crefl_tag(decl_ref d);
 decl_set crefl_attrs(decl_ref d);
 decl_id crefl_idx(decl_ref d);
 decl_ref crefl_next(decl_ref d);
-
-decl_db * crefl_db_new();
-void crefl_db_defaults(decl_db *db);
-void crefl_db_dump(decl_db *db);
-void crefl_db_destroy(decl_db *db);
 decl_ref crefl_new(decl_db *db, decl_tag tag, decl_set attrs);
-decl_ref crefl_lookup(decl_db *db, size_t decl_idx);
-decl_ref crefl_find_intrinsic(decl_db *db, decl_set attrs, size_t width);
-const char * crefl_tag_name(decl_tag tag);
 const char* crefl_name_new(decl_ref d, const char *name);
+
+/*
+ * decl queries
+ */
+decl_ref crefl_find_intrinsic(decl_db *db, decl_set attrs, size_t width);
+decl_ref crefl_lookup(decl_db *db, size_t decl_idx);
+const char * crefl_tag_name(decl_tag tag);
 const char* crefl_name(decl_ref d);
 int crefl_types(decl_db *db, decl_ref *r, size_t *s);
 int crefl_constants(decl_db *db, decl_ref *r, size_t *s);
