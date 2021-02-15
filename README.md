@@ -54,15 +54,15 @@ width or size quantifier or address and a link to child nodes.
 
 ### crefl implementation notes
 
-The _crefl_ implementation is to be considered alpha software.
+The _crefl_ implementation is currently _alpha software_.
 
-- integer types are stored using desugared types.
+- intrinsic types such as integer and float are stored desugared.
 - const, volatile and restrict are not yet supported.
-- GNU style attributes (`__attribute__`) are not yet supported.
-- file format is subject to change and needs to be more succinct.
-- variable, uniform and function addresses are not implemented.
-- the pointed to type is not yet recorded for pointers.
-- complex number types are not supported.
+- GNU attributes (`__attribute__`) are not yet supported.
+- file format is subject to change and needs to be more compact.
+- variable, uniform and function addresses are not yet supported.
+- the pointed-to type for pointers are not yet supported.
+- complex number types are not yet supported.
 
 ### crefl dependencies
 
