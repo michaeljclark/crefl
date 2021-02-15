@@ -358,10 +358,10 @@ int crefl_function_params(decl_ref d, decl_ref *r, size_t *s)
     return _decl_array_fetch(d, r, s, crefl_ptr(d)->_decl_function._link);
 }
 
-decl_sz crefl_constant_value(decl_ref d)
+decl_raw crefl_constant_value(decl_ref d)
 {
-    if (!crefl_is_constant(d)) return 0;
-    return crefl_ptr(d)->_decl_constant._value;
+    if (!crefl_is_constant(d)) return decl_raw { 0 };
+    return decl_raw { crefl_ptr(d)->_decl_constant._value };
 }
 
 void * crefl_variable_addr(decl_ref d)

@@ -36,6 +36,8 @@ typedef signed int s32;
 typedef unsigned int u32;
 typedef signed long long s64;
 typedef unsigned long long u64;
+typedef float f32;
+typedef double f64;
 
 struct decl;
 struct decl_db;
@@ -84,10 +86,19 @@ enum {
  */
 union decl_raw
 {
-    s64    sx;
-    u64    ux;
-    char   cx[sizeof(void*)];
-    void*  vx;
+    u64   ux;
+    s64   sx;
+    void* px;
+    u8    ub[8];
+    s8    sb[8];
+    u16   uw[4];
+    s16   sw[4];
+    u32   ud[2];
+    s32   sd[2];
+    u64   uq[1];
+    s64   sq[1];
+    f32   fs[2];
+    f64   fd[1];
 };
 
 /*
@@ -303,7 +314,7 @@ int crefl_set_constants(decl_ref d, decl_ref *r, size_t *s);
 int crefl_struct_types(decl_ref d, decl_ref *r, size_t *s);
 int crefl_union_types(decl_ref d, decl_ref *r, size_t *s);
 int crefl_function_params(decl_ref d, decl_ref *r, size_t *s);
-decl_sz crefl_constant_value(decl_ref d);
+decl_raw crefl_constant_value(decl_ref d);
 void * crefl_variable_addr(decl_ref d);
 void * crefl_uniform_addr(decl_ref d);
 void * crefl_function_addr(decl_ref d);
