@@ -2,12 +2,25 @@
 
 > _crefl_ is a runtime library and compiler plug-in to support reflection in C.
 
-The _crefl_ library provides an interface to allow runtime reflection on C
-interface declarations with support for arbitrarily nested combination of
-intrinsic, struct, union, enum, array and function declarations. The _crefl_
-clang compiler plug-in outputs C reflection meta-data used by the library.
+The _crefl_ API provides access to runtime reflection metadata for C
+structure declarations with support for arbitrarily nested combinations
+of intrinsic, set, enum, struct, union, field, array, constant, variable,
+uniform and function declarations. The _crefl_ clang compiler plug-in
+outputs C reflection meta-data used by the library.
 
 ### crefl data types
+
+The _crefl_ API graph database use a small number of primary data types
+for the reflection database it graph nodes and their types and attributes.
+
+| Type       | Description                                    |
+| :--------- | :--------------------------------------------- |
+| `decl_db`  | graph database containing the declarations     |
+| `decl_ref` | reference to a single declaration graph node   |
+| `decl_tag` | enumeration indicating graph node type         |
+| `decl_id`  | indice of a graph node in the graph database   |
+| `decl_sz`  | size type used for array size and bit widths   |
+| `decl_set` | type used to indicate many-of set enumerations |
 
 The _crefl_ data structure consists of an array of _decl_ nodes which have a
 type tag, a set of attributes, an interned name, and a link to the next item.
