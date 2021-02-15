@@ -177,7 +177,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             decl_ref ti = get_intrinsic_type(q);
 
             tr = crefl_new(db, _decl_array, _top);
-            crefl_ptr(tr)->_decl_array._decl = crefl_ref_idx(ti);
+            crefl_ptr(tr)->_decl_array._decl = crefl_idx(ti);
             if (cat) {
                 u64 _size = cat->getSize().getLimitedValue();
                 crefl_ptr(tr)->_decl_array._size = _size;
@@ -253,18 +253,18 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         /* create typedef */
         decl_ref r = crefl_new(db, _decl_typedef, _top);
         crefl_name_new(r, d->clang::NamedDecl::getNameAsString().c_str());
-        idmap[d->clang::Decl::getID()] = crefl_ref_idx(r);
-        crefl_ptr(r)->_decl_typedef._decl = crefl_ref_idx(get_intrinsic_type(q));
+        idmap[d->clang::Decl::getID()] = crefl_idx(r);
+        crefl_ptr(r)->_decl_typedef._decl = crefl_idx(get_intrinsic_type(q));
 
         /* create prev next link */
-        if (crefl_ref_idx(last) && !crefl_ptr(last)->_next) {
-            crefl_ptr(last)->_next = crefl_ref_idx(r);
+        if (crefl_idx(last) && !crefl_ptr(last)->_next) {
+            crefl_ptr(last)->_next = crefl_idx(r);
         }
 
         /* create parent link */
         decl_ref p = get_parent<RecordDecl>(d);
-        if (crefl_ref_idx(p) && !crefl_ptr(p)->_decl_struct._link) {
-            crefl_ptr(p)->_decl_struct._link = crefl_ref_idx(r);
+        if (crefl_idx(p) && !crefl_ptr(p)->_decl_struct._link) {
+            crefl_ptr(p)->_decl_struct._link = crefl_idx(r);
         }
 
         last = r;
@@ -289,17 +289,17 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         /* create enum */
         decl_ref r = crefl_new(db, _decl_enum, _top);
         crefl_name_new(r, d->clang::NamedDecl::getNameAsString().c_str());
-        idmap[d->clang::Decl::getID()] = crefl_ref_idx(r);
+        idmap[d->clang::Decl::getID()] = crefl_idx(r);
 
         /* create prev next link */
-        if (crefl_ref_idx(last) && !crefl_ptr(last)->_next) {
-            crefl_ptr(last)->_next = crefl_ref_idx(r);
+        if (crefl_idx(last) && !crefl_ptr(last)->_next) {
+            crefl_ptr(last)->_next = crefl_idx(r);
         }
 
         /* create parent link */
         decl_ref p = get_parent<RecordDecl>(d);
-        if (crefl_ref_idx(p) && !crefl_ptr(p)->_decl_struct._link) {
-            crefl_ptr(p)->_decl_struct._link = crefl_ref_idx(r);
+        if (crefl_idx(p) && !crefl_ptr(p)->_decl_struct._link) {
+            crefl_ptr(p)->_decl_struct._link = crefl_idx(r);
         }
 
         stack.push_back(r);
@@ -324,19 +324,19 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         /* create constant */
         decl_ref r = crefl_new(db, _decl_constant, _top);
         crefl_name_new(r, d->clang::NamedDecl::getNameAsString().c_str());
-        idmap[d->clang::Decl::getID()] = crefl_ref_idx(r);
+        idmap[d->clang::Decl::getID()] = crefl_idx(r);
         crefl_ptr(r)->_decl_constant._value = value;
-        crefl_ptr(r)->_decl_constant._decl = crefl_ref_idx(get_intrinsic_type(q));
+        crefl_ptr(r)->_decl_constant._decl = crefl_idx(get_intrinsic_type(q));
 
         /* create prev next link */
-        if (crefl_ref_idx(last) && !crefl_ptr(last)->_next) {
-            crefl_ptr(last)->_next = crefl_ref_idx(r);
+        if (crefl_idx(last) && !crefl_ptr(last)->_next) {
+            crefl_ptr(last)->_next = crefl_idx(r);
         }
 
         /* create parent link */
         decl_ref p = get_parent<EnumDecl>(d);
-        if (crefl_ref_idx(p) && !crefl_ptr(p)->_decl_enum._link) {
-            crefl_ptr(p)->_decl_enum._link = crefl_ref_idx(r);
+        if (crefl_idx(p) && !crefl_ptr(p)->_decl_enum._link) {
+            crefl_ptr(p)->_decl_enum._link = crefl_idx(r);
         }
 
         last = r;
@@ -383,17 +383,17 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             /* create struct */
             r = crefl_new(db, tag, _top);
             crefl_name_new(r, d->clang::NamedDecl::getNameAsString().c_str());
-            idmap[d->clang::Decl::getID()] = crefl_ref_idx(r);
+            idmap[d->clang::Decl::getID()] = crefl_idx(r);
 
             /* create prev next link */
-            if (crefl_ref_idx(last) && !crefl_ptr(last)->_next) {
-                crefl_ptr(last)->_next = crefl_ref_idx(r);
+            if (crefl_idx(last) && !crefl_ptr(last)->_next) {
+                crefl_ptr(last)->_next = crefl_idx(r);
             }
 
             /* create parent link */
             p = get_parent<RecordDecl>(d);
-            if (crefl_ref_idx(p) && !crefl_ptr(p)->_decl_struct._link) {
-                crefl_ptr(p)->_decl_struct._link = crefl_ref_idx(r);
+            if (crefl_idx(p) && !crefl_ptr(p)->_decl_struct._link) {
+                crefl_ptr(p)->_decl_struct._link = crefl_idx(r);
             }
 
             stack.push_back(r);
@@ -424,20 +424,20 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         /* create field */
         decl_ref r = crefl_new(db, _decl_field, _top);
         crefl_name_new(r, d->clang::NamedDecl::getNameAsString().c_str());
-        idmap[d->clang::Decl::getID()] = crefl_ref_idx(r);
+        idmap[d->clang::Decl::getID()] = crefl_idx(r);
         crefl_ptr(r)->_attrs |= -d->isBitField() & _bitfield;
-        crefl_ptr(r)->_decl_field._decl = crefl_ref_idx(get_intrinsic_type(q));
+        crefl_ptr(r)->_decl_field._decl = crefl_idx(get_intrinsic_type(q));
         crefl_ptr(r)->_decl_field._width = width;
 
         /* create prev next link */
-        if (crefl_ref_idx(last) && !crefl_ptr(last)->_next) {
-            crefl_ptr(last)->_next = crefl_ref_idx(r);
+        if (crefl_idx(last) && !crefl_ptr(last)->_next) {
+            crefl_ptr(last)->_next = crefl_idx(r);
         }
 
         /* create parent link */
         decl_ref p = { db, idmap[d->getParent()->getID()] };
         if (!crefl_ptr(p)->_decl_struct._link) {
-            crefl_ptr(p)->_decl_struct._link = crefl_ref_idx(r);
+            crefl_ptr(p)->_decl_struct._link = crefl_idx(r);
         }
 
         last = r;
@@ -465,17 +465,17 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         /* create constant */
         decl_ref r = crefl_new(db, _decl_function, _top);
         crefl_name_new(r, d->clang::NamedDecl::getNameAsString().c_str());
-        idmap[d->clang::Decl::getID()] = crefl_ref_idx(r);
+        idmap[d->clang::Decl::getID()] = crefl_idx(r);
 
         /* create prev next link */
-        if (crefl_ref_idx(last) && !crefl_ptr(last)->_next) {
-            crefl_ptr(last)->_next = crefl_ref_idx(r);
+        if (crefl_idx(last) && !crefl_ptr(last)->_next) {
+            crefl_ptr(last)->_next = crefl_idx(r);
         }
 
         /* create parent link */
         decl_ref p = get_parent<RecordDecl>(d);
-        if (crefl_ref_idx(p) && !crefl_ptr(p)->_decl_struct._link) {
-            crefl_ptr(p)->_decl_struct._link = crefl_ref_idx(r);
+        if (crefl_idx(p) && !crefl_ptr(p)->_decl_struct._link) {
+            crefl_ptr(p)->_decl_struct._link = crefl_idx(r);
         }
 
         last = r;
@@ -484,8 +484,8 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
 
         /* create return param */
         decl_ref pr = crefl_new(db, _decl_param, _top);
-        crefl_ptr(last)->_decl_function._link = crefl_ref_idx(pr);
-        crefl_ptr(pr)->_decl_param._decl = crefl_ref_idx(get_intrinsic_type(qr));
+        crefl_ptr(last)->_decl_function._link = crefl_idx(pr);
+        crefl_ptr(pr)->_decl_param._decl = crefl_idx(get_intrinsic_type(qr));
 
         /* create argument params */
         const ArrayRef<ParmVarDecl*> parms = d->parameters();
@@ -495,8 +495,8 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
 
             decl_ref ar = crefl_new(db, _decl_param, _top);
             crefl_name_new(ar, parm->clang::NamedDecl::getNameAsString().c_str());
-            crefl_ptr(pr)->_next = crefl_ref_idx(ar);
-            crefl_ptr(ar)->_decl_param._decl = crefl_ref_idx(get_intrinsic_type(q));
+            crefl_ptr(pr)->_next = crefl_idx(ar);
+            crefl_ptr(ar)->_decl_param._decl = crefl_idx(get_intrinsic_type(q));
             pr = ar;
         }
 

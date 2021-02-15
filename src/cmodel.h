@@ -165,38 +165,39 @@ struct decl
 };
 
 /*
- * reflection api
+ * crefl reflection api
  */
 
-int crefl_is_top(decl *d);
-int crefl_is_type(decl *d);
-int crefl_is_typedef(decl *d);
-int crefl_is_intrinsic(decl *d);
-int crefl_is_set(decl *d);
-int crefl_is_enum(decl *d);
-int crefl_is_struct(decl *d);
-int crefl_is_union(decl *d);
-int crefl_is_field(decl *d);
-int crefl_is_array(decl *d);
-int crefl_is_constant(decl *d);
-int crefl_is_variable(decl *d);
-int crefl_is_uniform(decl *d);
-int crefl_is_function(decl *d);
-int crefl_is_param(decl *d);
+int crefl_is_top(decl_ref d);
+int crefl_is_type(decl_ref d);
+int crefl_is_typedef(decl_ref d);
+int crefl_is_intrinsic(decl_ref d);
+int crefl_is_set(decl_ref d);
+int crefl_is_setr(decl_ref d);
+int crefl_is_enum(decl_ref d);
+int crefl_is_struct(decl_ref d);
+int crefl_is_union(decl_ref d);
+int crefl_is_field(decl_ref d);
+int crefl_is_array(decl_ref d);
+int crefl_is_constant(decl_ref d);
+int crefl_is_variable(decl_ref d);
+int crefl_is_uniform(decl_ref d);
+int crefl_is_function(decl_ref d);
+int crefl_is_param(decl_ref d);
+
+decl * crefl_ptr(decl_ref d);
+decl_tag crefl_tag(decl_ref d);
+decl_set crefl_attrs(decl_ref d);
+decl_id crefl_idx(decl_ref d);
+decl_ref crefl_next(decl_ref d);
 
 decl_db * crefl_db_new();
 void crefl_db_defaults(decl_db *db);
 void crefl_db_dump(decl_db *db);
 void crefl_db_destroy(decl_db *db);
 decl_ref crefl_new(decl_db *db, decl_tag tag, decl_set attrs);
-decl_ref crefl_at(decl_db *db, size_t decl_idx);
+decl_ref crefl_lookup(decl_db *db, size_t decl_idx);
 decl_ref crefl_find_intrinsic(decl_db *db, decl_set attrs, size_t width);
-decl * crefl_ptr(decl_ref r);
-decl_tag crefl_tag(decl *d);
-decl_set crefl_attrs(decl *d);
-decl_id crefl_ref_idx(decl_ref d);
-decl_tag crefl_ref_tag(decl_ref d);
-decl_set crefl_ref_attrs(decl_ref d);
 const char * crefl_tag_name(decl_tag tag);
 const char* crefl_name_new(decl_ref d, const char *name);
 const char* crefl_name(decl_ref d);
