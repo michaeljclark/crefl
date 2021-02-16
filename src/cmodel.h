@@ -126,8 +126,10 @@ enum decl_attrs
     _pad_bit        = 1 << 6,
     _pad_byte       = 1 << 7,
 
-    /* qualifiers */
+    /* field */
     _bitfield       = 1 << 8,
+
+    /* qualifiers */
     _const          = 1 << 9,
     _volatile       = 1 << 10,
     _restrict       = 1 << 11,
@@ -173,21 +175,24 @@ struct decl_ref
  * decl is comprised of a set of shared fields, including name and index
  * of the next node. node type specific properties are stored in a union.
  *
- * decl fields
+ * fields
  *
  * - decl_tag tag   - union type tag indicating active properties
  * - decl_set attrs - type specific declaration attributes
  * - decl_id name   - offset of name in symbol table
  * - decl_id next   - pointer to next node in a sequence
  *
- * attributes values
+ * attributes
  *
  * - intrinsic      - sint, uint, float
  * - padding        - pad_pow2, pad_bit, pad_byte
  * - field          - bitfield
+ * - qualifiers     - const, volatile, restrict
+ * - binding        - local, global, weak
+ * - visibility     - default, hidden
  * - general        - top
  *
- * tag descriptions
+ * tagged types
  *
  * - void           - empty type
  * - typedef        - alias to another type definition
