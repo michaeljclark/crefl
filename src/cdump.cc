@@ -20,30 +20,23 @@
 #include <cstdlib>
 #include <cstring>
 
-#include <string>
-
 #include "cmodel.h"
 #include "cdump.h"
 
-static std::string _pretty_name(std::string l, decl_db *db, size_t decl_idx)
+static const char * _pretty_name(const char* l, decl_db *db, size_t decl_idx)
 {
+    static char buf[1024];
+
     decl_ref d = crefl_lookup(db, decl_idx);
-    std::string s;
-    s += l;
-    s += "=[";
-    s += crefl_tag_name(crefl_tag(d));
-    s += ":";
-    s += std::to_string(crefl_idx(d));
-    s += ",";
     if (strlen(crefl_name(d)) > 0) {
-        s += "(\"";
-        s += crefl_name(d);
-        s += "\")";
+        snprintf(buf, sizeof(buf), "%s=[%s:%u,(\"%s\")]",
+            l, crefl_tag_name(crefl_tag(d)), crefl_idx(d), crefl_name(d));
     } else {
-        s += "(anonymous)";
+        snprintf(buf, sizeof(buf), "%s=[%s:%u,(anonymous)]",
+            l, crefl_tag_name(crefl_tag(d)), crefl_idx(d));
     }
-    s += "]";
-    return s;
+
+    return buf;
 }
 
 void crefl_db_header_names()
@@ -65,7 +58,7 @@ void crefl_db_dump_row(decl_db *db, decl_ref r)
     switch (crefl_tag(r)) {
     case _decl_typedef:
         snprintf(buf, sizeof(buf), "%s",
-            _pretty_name("decl", db, d->_decl_typedef._decl).c_str());
+            _pretty_name("decl", db, d->_decl_typedef._decl));
         break;
     case _decl_intrinsic:
         snprintf(buf, sizeof(buf), "width=" fmt_SZ,
@@ -73,58 +66,58 @@ void crefl_db_dump_row(decl_db *db, decl_ref r)
         break;
     case _decl_set:
         snprintf(buf, sizeof(buf), "%s",
-            _pretty_name("link", db, d->_decl_set._link).c_str());
+            _pretty_name("link", db, d->_decl_set._link));
         break;
     case _decl_enum:
         snprintf(buf, sizeof(buf), "%s",
-            _pretty_name("link", db, d->_decl_enum._link).c_str());
+            _pretty_name("link", db, d->_decl_enum._link));
         break;
     case _decl_struct:
         snprintf(buf, sizeof(buf), "%s",
-            _pretty_name("link", db, d->_decl_struct._link).c_str());
+            _pretty_name("link", db, d->_decl_struct._link));
         break;
     case _decl_union:
         snprintf(buf, sizeof(buf), "%s",
-            _pretty_name("link", db, d->_decl_union._link).c_str());
+            _pretty_name("link", db, d->_decl_union._link));
         break;
     case _decl_field:
         if ((crefl_attrs(r) & _bitfield) > 0) {
             snprintf(buf, sizeof(buf), "%s width=" fmt_SZ,
-                _pretty_name("decl", db, d->_decl_field._decl).c_str(),
+                _pretty_name("decl", db, d->_decl_field._decl),
                 d->_decl_field._width);
         } else {
             snprintf(buf, sizeof(buf), "%s",
-                _pretty_name("decl", db, d->_decl_field._decl).c_str());
+                _pretty_name("decl", db, d->_decl_field._decl));
         }
         break;
     case _decl_array:
         snprintf(buf, sizeof(buf), "%s size=" fmt_SZ,
-            _pretty_name("decl", db, d->_decl_array._decl).c_str(),
+            _pretty_name("decl", db, d->_decl_array._decl),
             d->_decl_array._size);
         break;
     case _decl_constant:
         snprintf(buf, sizeof(buf), "%s value=" fmt_SZ,
-            _pretty_name("decl", db, d->_decl_constant._decl).c_str(),
+            _pretty_name("decl", db, d->_decl_constant._decl),
             d->_decl_constant._value);
         break;
     case _decl_variable:
         snprintf(buf, sizeof(buf), "%s addr=" fmt_AD,
-            _pretty_name("decl", db, d->_decl_variable._decl).c_str(),
+            _pretty_name("decl", db, d->_decl_variable._decl),
             d->_decl_variable._addr);
         break;
     case _decl_uniform:
         snprintf(buf, sizeof(buf), "%s addr=" fmt_AD,
-            _pretty_name("decl", db, d->_decl_uniform._decl).c_str(),
+            _pretty_name("decl", db, d->_decl_uniform._decl),
             d->_decl_uniform._addr);
         break;
     case _decl_function:
         snprintf(buf, sizeof(buf), "%s addr=" fmt_AD,
-            _pretty_name("link", db, d->_decl_function._link).c_str(),
+            _pretty_name("link", db, d->_decl_function._link),
             d->_decl_function._addr);
         break;
     case _decl_param:
         snprintf(buf, sizeof(buf), "%s",
-            _pretty_name("decl", db, d->_decl_param._decl).c_str());
+            _pretty_name("decl", db, d->_decl_param._decl));
         break;
     default: buf[0] = '\0'; break;
     }
