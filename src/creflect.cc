@@ -28,6 +28,7 @@
 #include <clang/Frontend/FrontendPluginRegistry.h>
 
 #include "cmodel.h"
+#include "cdump.h"
 #include "cfileio.h"
 #include "creflect.h"
 

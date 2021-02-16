@@ -1,5 +1,5 @@
 /*
- * crefltool - tool to dump crefl reflection metadata.
+ * crefl runtime library and compiler plug-in to support reflection in C.
  *
  * Copyright (c) 2020 Michael Clark <michaeljclark@mac.com>
  *
@@ -16,20 +16,18 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <cstdio>
+#pragma once
 
-#include "cmodel.h"
-#include "cdump.h"
-#include "cfileio.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-int main(int argc, const char **argv)
-{
-    if (argc != 2) {
-        fprintf(stderr, "usage: %s <filename.refl>", argv[0]);
-    }
+void crefl_db_header_names();
+void crefl_db_header_lines();
 
-    decl_db *db = crefl_db_new();
-    crefl_read_db(db, argv[1]);
-    crefl_db_dump(db);
-    crefl_db_destroy(db);
+void crefl_db_dump(decl_db *db);
+void crefl_db_dump_row(decl_db *db, decl_ref r);
+
+#ifdef __cplusplus
 }
+#endif

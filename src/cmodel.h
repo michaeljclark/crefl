@@ -272,7 +272,6 @@ int crefl_is_param(decl_ref d);
  */
 decl_db * crefl_db_new();
 void crefl_db_defaults(decl_db *db);
-void crefl_db_dump(decl_db *db);
 void crefl_db_destroy(decl_db *db);
 
 /*
