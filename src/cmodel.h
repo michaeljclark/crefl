@@ -73,8 +73,6 @@ enum {
     _decl_field,
     _decl_array,
     _decl_constant,
-    _decl_variable,
-    _decl_uniform,
     _decl_function,
     _decl_param,
 };
@@ -142,9 +140,6 @@ enum decl_attrs
     /* visibility */
     _default        = 1 << 15,
     _hidden         = 1 << 16,
-
-    /* general */
-    _top            = 1 << 31
 };
 
 /*
@@ -156,6 +151,8 @@ struct decl_db
 {
     char* data;  size_t data_offset,  data_size;
     decl *decl;  size_t decl_offset,  decl_size;
+
+    decl_id root_element;
 };
 
 /*
@@ -190,7 +187,6 @@ struct decl_ref
  * - qualifiers     - const, volatile, restrict
  * - binding        - local, global, weak
  * - visibility     - default, hidden
- * - general        - top
  *
  * tagged types
  *
@@ -201,11 +197,9 @@ struct decl_ref
  * - enum           - machine type with one-of sequence of integral constants
  * - struct         - sequence of non-overlapping types
  * - union          - sequence of overlapping types
- * - field          - named field within struct or union
+ * - field          - top-level, struct and union field definitions
  * - array          - sequence of one type
  * - constant       - named constant
- * - variable       - named variable that is unique to each thread
- * - uniform        - named variable that is uniform across threads
  * - function       - function with input and output parameter list
  * - param          - named parameter with link to next
  *
@@ -227,8 +221,6 @@ struct decl
         struct { decl_id _decl; decl_sz _width; } _decl_field;
         struct { decl_id _decl; decl_sz _size;  } _decl_array;
         struct { decl_id _decl; decl_sz _value; } _decl_constant;
-        struct { decl_id _decl; decl_sz _addr;  } _decl_variable;
-        struct { decl_id _decl; decl_sz _addr;  } _decl_uniform;
         struct { decl_id _link; decl_sz _addr;  } _decl_function;
         struct { decl_id _decl;                 } _decl_param;
     };
@@ -239,8 +231,7 @@ struct decl
  *
  * the crefl API provides access to runtime reflection metadata for C
  * structure declarations with support for arbitrarily nested combinations
- * of intrinsic, set, enum, struct, union, field, array, constant, variable,
- * uniform and function declarations.
+ * of: intrinsic, set, enum, struct, union, field, array, constant, variable.
  *
  * primary types
  *
@@ -255,20 +246,18 @@ struct decl
 /*
  * decl types
  */
+int crefl_is_any(decl_ref d);
 int crefl_is_top(decl_ref d);
 int crefl_is_type(decl_ref d);
 int crefl_is_typedef(decl_ref d);
 int crefl_is_intrinsic(decl_ref d);
 int crefl_is_set(decl_ref d);
-int crefl_is_setr(decl_ref d);
 int crefl_is_enum(decl_ref d);
 int crefl_is_struct(decl_ref d);
 int crefl_is_union(decl_ref d);
 int crefl_is_field(decl_ref d);
 int crefl_is_array(decl_ref d);
 int crefl_is_constant(decl_ref d);
-int crefl_is_variable(decl_ref d);
-int crefl_is_uniform(decl_ref d);
 int crefl_is_function(decl_ref d);
 int crefl_is_param(decl_ref d);
 
@@ -287,7 +276,7 @@ decl_tag crefl_tag(decl_ref d);
 decl_set crefl_attrs(decl_ref d);
 decl_id crefl_idx(decl_ref d);
 decl_ref crefl_next(decl_ref d);
-decl_ref crefl_new(decl_db *db, decl_tag tag, decl_set attrs);
+decl_ref crefl_new(decl_db *db, decl_tag tag);
 const char* crefl_name_new(decl_ref d, const char *name);
 
 /*
@@ -297,10 +286,9 @@ decl_ref crefl_find_intrinsic(decl_db *db, decl_set attrs, size_t width);
 decl_ref crefl_lookup(decl_db *db, size_t decl_idx);
 const char * crefl_tag_name(decl_tag tag);
 const char* crefl_name(decl_ref d);
+int crefl_decls(decl_db *db, decl_ref *r, size_t *s);
 int crefl_types(decl_db *db, decl_ref *r, size_t *s);
-int crefl_constants(decl_db *db, decl_ref *r, size_t *s);
-int crefl_variables(decl_db *db, decl_ref *r, size_t *s);
-int crefl_uniforms(decl_db *db, decl_ref *r, size_t *s);
+int crefl_fields(decl_db *db, decl_ref *r, size_t *s);
 int crefl_functions(decl_db *db, decl_ref *r, size_t *s);
 size_t crefl_type_width(decl_ref d);
 size_t crefl_intrinsic_width(decl_ref d);
@@ -308,19 +296,16 @@ size_t crefl_struct_width(decl_ref d);
 size_t crefl_union_width(decl_ref d);
 size_t crefl_array_size(decl_ref d);
 decl_ref crefl_typedef_type(decl_ref d);
+decl_ref crefl_field_type(decl_ref d);
 decl_ref crefl_array_type(decl_ref d);
 decl_ref crefl_constant_type(decl_ref d);
-decl_ref crefl_variable_type(decl_ref d);
-decl_ref crefl_uniform_type(decl_ref d);
 decl_ref crefl_param_type(decl_ref d);
 int crefl_enum_constants(decl_ref d, decl_ref *r, size_t *s);
 int crefl_set_constants(decl_ref d, decl_ref *r, size_t *s);
-int crefl_struct_types(decl_ref d, decl_ref *r, size_t *s);
-int crefl_union_types(decl_ref d, decl_ref *r, size_t *s);
+int crefl_struct_fields(decl_ref d, decl_ref *r, size_t *s);
+int crefl_union_fields(decl_ref d, decl_ref *r, size_t *s);
 int crefl_function_params(decl_ref d, decl_ref *r, size_t *s);
 decl_raw crefl_constant_value(decl_ref d);
-void * crefl_variable_addr(decl_ref d);
-void * crefl_uniform_addr(decl_ref d);
 void * crefl_function_addr(decl_ref d);
 
 #ifdef __cplusplus

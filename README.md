@@ -4,9 +4,8 @@
 
 The _crefl_ API provides access to runtime reflection metadata for C
 structure declarations with support for arbitrarily nested combinations
-of intrinsic, set, enum, struct, union, field, array, constant, variable,
-uniform and function declarations. The _crefl_ clang compiler plug-in
-outputs C reflection meta-data used by the library.
+of: intrinsic, set, enum, struct, union, field, array, constant, variable.
+The _crefl_ clang plug-in outputs C reflection meta-data used by the library.
 
 ### crefl data types
 
@@ -47,8 +46,6 @@ width or size quantifier or address and a link to child nodes.
 | field      | `id decl, sz width`| named field within struct or union             |
 | array      | `id decl, sz size` | sequence of one type                           |
 | constant   | `id decl, sz val`  | named constant                                 |
-| variable   | `id decl, sz addr` | named variable that is unique to each thread   |
-| uniform    | `id decl, sz addr` | named variable that is uniform across threads  |
 | function   | `id parm, sz addr` | function with input and output parameter list  |
 | param      | `id decl`          | named parameter with link to next              |
 
@@ -60,9 +57,9 @@ The _crefl_ implementation is currently _alpha software_.
 - const, volatile and restrict are not yet supported.
 - GNU attributes (`__attribute__`) are not yet supported.
 - file format is subject to change and needs to be more compact.
-- variable, uniform and function addresses are not yet supported.
 - the pointed-to type for pointers are not yet supported.
 - complex number types are not yet supported.
+- function addresses are not yet supported.
 
 ### crefl dependencies
 

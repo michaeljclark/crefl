@@ -105,6 +105,7 @@ void crefl_read_db(decl_db *db, const char *input_filename)
     /* copy data from temporary buffer */
     db->decl_offset = hdr->decl_entry_count;
     db->data_offset = hdr->symbol_table_size;
+    db->root_element = hdr->root_element;
     memcpy(db->decl, &buf[hdr_sz], decl_sz);
     memcpy(db->data, &buf[hdr_sz + decl_sz], data_sz);
 }
@@ -123,6 +124,7 @@ void crefl_write_db(decl_db *db, const char *output_filename)
     memcpy(hdr->magic, decl_db_magic, sizeof(decl_db_magic));
     hdr->decl_entry_count = db->decl_offset;
     hdr->symbol_table_size = db->data_offset;
+    hdr->root_element = db->root_element;
     memcpy(&buf[hdr_sz], db->decl, decl_sz);
     memcpy(&buf[hdr_sz + decl_sz], db->data, data_sz);
 

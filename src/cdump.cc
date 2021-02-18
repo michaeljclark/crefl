@@ -100,16 +100,6 @@ void crefl_db_dump_row(decl_db *db, decl_ref r)
             _pretty_name("decl", db, d->_decl_constant._decl),
             d->_decl_constant._value);
         break;
-    case _decl_variable:
-        snprintf(buf, sizeof(buf), "%s addr=" fmt_AD,
-            _pretty_name("decl", db, d->_decl_variable._decl),
-            d->_decl_variable._addr);
-        break;
-    case _decl_uniform:
-        snprintf(buf, sizeof(buf), "%s addr=" fmt_AD,
-            _pretty_name("decl", db, d->_decl_uniform._decl),
-            d->_decl_uniform._addr);
-        break;
     case _decl_function:
         snprintf(buf, sizeof(buf), "%s addr=" fmt_AD,
             _pretty_name("link", db, d->_decl_function._link),
@@ -131,7 +121,7 @@ void crefl_db_dump(decl_db *db)
     crefl_db_header_names();
     crefl_db_header_lines();
 
-    for (size_t i = 0; i < db->decl_offset; i++) {
+    for (size_t i = db->root_element; i < db->decl_offset; i++) {
         decl_ref r = crefl_lookup(db, i);
         crefl_db_dump_row(db, r);
     }

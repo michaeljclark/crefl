@@ -17,14 +17,40 @@ int decl_functions(decl_db *db, decl_ref *r, size_t *s);
 #define array_size(a) (sizeof(a)/sizeof(a[0]))
 static decl_ref r[16];
 
+void t2_decls()
+{
+	decl_db *db = crefl_db_new();
+	assert(db != NULL);
+
+	decl_ref r1 = crefl_new(db, _decl_intrinsic);
+	db->root_element = crefl_idx(r1);
+	decl_ref r2 = crefl_new(db, _decl_struct);
+	crefl_ptr(r1)->_next = crefl_idx(r2);
+	decl_ref r3 = crefl_new(db, _decl_enum);
+	crefl_ptr(r2)->_next = crefl_idx(r3);
+	decl_ref r4 = crefl_new(db, _decl_field);
+	crefl_ptr(r3)->_next = crefl_idx(r4);
+	decl_ref r5 = crefl_new(db, _decl_function);
+	crefl_ptr(r4)->_next = crefl_idx(r5);
+
+	size_t s = array_size(r);
+	crefl_decls(db, r, &s);
+	assert(s == 5);
+
+	crefl_db_destroy(db);
+}
+
 void t2_types()
 {
 	decl_db *db = crefl_db_new();
 	assert(db != NULL);
 
-	decl_ref r1 = crefl_new(db, _decl_intrinsic, _top);
-	decl_ref r2 = crefl_new(db, _decl_struct, _top);
-	decl_ref r3 = crefl_new(db, _decl_enum, _top);
+	decl_ref r1 = crefl_new(db, _decl_intrinsic);
+	db->root_element = crefl_idx(r1);
+	decl_ref r2 = crefl_new(db, _decl_struct);
+	crefl_ptr(r1)->_next = crefl_idx(r2);
+	decl_ref r3 = crefl_new(db, _decl_enum);
+	crefl_ptr(r2)->_next = crefl_idx(r3);
 
 	size_t s = array_size(r);
 	crefl_types(db, r, &s);
@@ -33,47 +59,17 @@ void t2_types()
 	crefl_db_destroy(db);
 }
 
-void t2_constants()
+void t2_fields()
 {
 	decl_db *db = crefl_db_new();
 	assert(db != NULL);
 
-	decl_ref r1 = crefl_new(db, _decl_constant, _top);
-	decl_ref r2 = crefl_new(db, _decl_constant, _top);
+	decl_ref r1 = crefl_new(db, _decl_field);
+	db->root_element = crefl_idx(r1);
 
 	size_t s = array_size(r);
-	crefl_constants(db, r, &s);
-	assert(s == 2);
-
-	crefl_db_destroy(db);
-}
-
-void t2_variables()
-{
-	decl_db *db = crefl_db_new();
-	assert(db != NULL);
-
-	decl_ref r1 = crefl_new(db, _decl_variable, _top);
-	decl_ref r2 = crefl_new(db, _decl_variable, _top);
-
-	size_t s = array_size(r);
-	crefl_variables(db, r, &s);
-	assert(s == 2);
-
-	crefl_db_destroy(db);
-}
-
-void t2_uniforms()
-{
-	decl_db *db = crefl_db_new();
-	assert(db != NULL);
-
-	decl_ref r1 = crefl_new(db, _decl_uniform, _top);
-	decl_ref r2 = crefl_new(db, _decl_uniform, _top);
-
-	size_t s = array_size(r);
-	crefl_uniforms(db, r, &s);
-	assert(s == 2);
+	crefl_fields(db, r, &s);
+	assert(s == 1);
 
 	crefl_db_destroy(db);
 }
@@ -83,8 +79,10 @@ void t2_functions()
 	decl_db *db = crefl_db_new();
 	assert(db != NULL);
 
-	decl_ref r1 = crefl_new(db, _decl_function, _top);
-	decl_ref r2 = crefl_new(db, _decl_function, _top);
+	decl_ref r1 = crefl_new(db, _decl_function);
+	db->root_element = crefl_idx(r1);
+	decl_ref r2 = crefl_new(db, _decl_function);
+	crefl_ptr(r1)->_next = crefl_idx(r2);
 
 	size_t s = array_size(r);
 	crefl_functions(db, r, &s);
@@ -95,9 +93,8 @@ void t2_functions()
 
 int main()
 {
+	t2_decls();
 	t2_types();
-	t2_constants();
-	t2_variables();
-	t2_uniforms();
+	t2_fields();
 	t2_functions();
 }
