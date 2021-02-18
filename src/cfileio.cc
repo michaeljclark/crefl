@@ -88,7 +88,7 @@ void crefl_read_db(decl_db *db, const char *input_filename)
     decl_db_hdr *hdr = (decl_db_hdr*)&buf[0];
     size_t hdr_sz = sizeof(decl_db_hdr);
     size_t decl_sz = sizeof(decl) * hdr->decl_entry_count;
-    size_t data_sz = hdr->symbol_table_size;
+    size_t name_sz = hdr->name_table_size;
 
     /* resize buffers */
     if (db->decl_size < decl_sz) {
@@ -96,18 +96,18 @@ void crefl_read_db(decl_db *db, const char *input_filename)
         db->decl_size = hdr->decl_entry_count;
         db->decl = (decl*)malloc(sizeof(decl) * db->decl_size);
     }
-    if (db->data_size < data_sz) {
-        free(db->data);
-        db->data_size = hdr->symbol_table_size;
-        db->data = (char*)malloc(db->data_size);
+    if (db->name_size < name_sz) {
+        free(db->name);
+        db->name_size = hdr->name_table_size;
+        db->name = (char*)malloc(db->name_size);
     }
 
     /* copy data from temporary buffer */
     db->decl_offset = hdr->decl_entry_count;
-    db->data_offset = hdr->symbol_table_size;
+    db->name_offset = hdr->name_table_size;
     db->root_element = hdr->root_element;
     memcpy(db->decl, &buf[hdr_sz], decl_sz);
-    memcpy(db->data, &buf[hdr_sz + decl_sz], data_sz);
+    memcpy(db->name, &buf[hdr_sz + decl_sz], name_sz);
 }
 
 void crefl_write_db(decl_db *db, const char *output_filename)
@@ -116,17 +116,17 @@ void crefl_write_db(decl_db *db, const char *output_filename)
 
     size_t hdr_sz = sizeof(decl_db_hdr);
     size_t decl_sz = sizeof(decl) * db->decl_offset;
-    size_t data_sz = db->data_offset;
+    size_t name_sz = db->name_offset;
 
     /* stage header and data in temporary buffer */
-    buf.resize(hdr_sz + decl_sz + data_sz);
+    buf.resize(hdr_sz + decl_sz + name_sz);
     decl_db_hdr *hdr = (decl_db_hdr*)&buf[0];
     memcpy(hdr->magic, decl_db_magic, sizeof(decl_db_magic));
     hdr->decl_entry_count = db->decl_offset;
-    hdr->symbol_table_size = db->data_offset;
+    hdr->name_table_size = db->name_offset;
     hdr->root_element = db->root_element;
     memcpy(&buf[hdr_sz], db->decl, decl_sz);
-    memcpy(&buf[hdr_sz + decl_sz], db->data, data_sz);
+    memcpy(&buf[hdr_sz + decl_sz], db->name, name_sz);
 
     write_file(buf, output_filename);
 }

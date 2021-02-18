@@ -149,7 +149,7 @@ enum decl_attrs
  */
 struct decl_db
 {
-    char* data;  size_t data_offset,  data_size;
+    char* name;  size_t name_offset,  name_size;
     decl *decl;  size_t decl_offset,  decl_size;
 
     decl_id root_element;

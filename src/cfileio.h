@@ -34,7 +34,7 @@ struct decl_db_hdr
         struct {
             u8 magic[8];
             u32 decl_entry_count;
-            u32 symbol_table_size;
+            u32 name_table_size;
             u32 root_element;
         };
     };

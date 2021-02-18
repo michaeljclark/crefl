@@ -99,10 +99,10 @@ decl_db * crefl_db_new()
 {
     decl_db *db = (decl_db*)malloc(sizeof(decl_db));
 
-    db->data_offset = 1; /* offset 0 holds empty string */
-    db->data_size = 128;
-    db->data = (char*)malloc(db->data_size);
-    memset(db->data, 0, db->data_size);
+    db->name_offset = 1; /* offset 0 holds empty string */
+    db->name_size = 128;
+    db->name = (char*)malloc(db->name_size);
+    memset(db->name, 0, db->name_size);
 
     db->decl_offset = 1; /* offset 0 slot is empty */
     db->decl_size = 128;
@@ -130,7 +130,7 @@ void crefl_db_defaults(decl_db *db)
 
 void crefl_db_destroy(decl_db *db)
 {
-    free(db->data);
+    free(db->name);
     free(db->decl);
     free(db);
 }
@@ -151,22 +151,22 @@ const char* crefl_name_new(decl_ref d, const char *name)
 {
     size_t len = strlen(name) + 1;
     if (len == 1) return "";
-    if (d.db->data_offset + len > d.db->data_size) {
-        while (d.db->data_offset + len > d.db->data_size) {
-            d.db->data_size <<= 1;
+    if (d.db->name_offset + len > d.db->name_size) {
+        while (d.db->name_offset + len > d.db->name_size) {
+            d.db->name_size <<= 1;
         }
-        d.db->data = (char*)realloc(d.db->data, d.db->data_size);
+        d.db->name = (char*)realloc(d.db->name, d.db->name_size);
     }
-    size_t name_offset = d.db->data_offset;
-    d.db->data_offset += len;
+    size_t name_offset = d.db->name_offset;
+    d.db->name_offset += len;
     crefl_ptr(d)->_name = name_offset;
-    memcpy(d.db->data + name_offset, name, len);
-    return d.db->data + name_offset;
+    memcpy(d.db->name + name_offset, name, len);
+    return d.db->name + name_offset;
 }
 
 const char* crefl_name(decl_ref d)
 {
-    return crefl_ptr(d)->_name ? d.db->data + crefl_ptr(d)->_name : "";
+    return crefl_ptr(d)->_name ? d.db->name + crefl_ptr(d)->_name : "";
 }
 
 decl_ref crefl_find_intrinsic(decl_db *db, decl_set attrs, size_t width)
