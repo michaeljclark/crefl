@@ -77,7 +77,7 @@ void crefl_read_db(decl_db *db, const char *input_filename)
     read_file(buf, input_filename);
 
     if (buf.size() < sizeof(decl_db_hdr)) {
-        fprintf(stderr, "crefl: *** rror: header too short\n");
+        fprintf(stderr, "crefl: *** error: header too short\n");
         exit(1);
     }
     if (crefl_check_magic(buf.data()) != 0) {
