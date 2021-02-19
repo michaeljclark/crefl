@@ -80,8 +80,6 @@ static const char * crefl_tag_names_arr[] = {
     "field",
     "array",
     "constant",
-    "variable",
-    "uniform",
     "function",
     "param"
 };
