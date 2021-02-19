@@ -544,6 +544,9 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         debugf("\tname:\"%s\"\n",
             d->clang::NamedDecl::getNameAsString().c_str());
 
+        /* FunctionDecl handles params */
+        if (d->isLocalVarDeclOrParm()) return true;
+
         /* create field */
         decl_ref r = crefl_new(db, _decl_field);
         crefl_name_new(r, d->clang::NamedDecl::getNameAsString().c_str());
@@ -569,6 +572,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             db->root_element = crefl_idx(r);
         }
 
+        last = r;
 
         return true;
     }
