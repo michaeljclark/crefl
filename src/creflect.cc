@@ -634,7 +634,7 @@ void crefl::CReflectAction::EndSourceFileAction()
         crefl_db_dump(db);
     }
     if (outputFile.size()) {
-        crefl_write_db(db, outputFile.c_str());
+        crefl_db_write_file(db, outputFile.c_str());
     }
     crefl_db_destroy(db);
 

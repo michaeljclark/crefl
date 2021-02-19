@@ -16,7 +16,7 @@ void t3()
     decl_db *db = crefl_db_new();
     assert(db != NULL);
 
-    crefl_read_db(db, DB_DIR "adjacent-structs-1.h.refl");
+    crefl_db_read_file(db, DB_DIR "adjacent-structs-1.h.refl");
 
     size_t ntypes = 0;
     crefl_types(db, NULL, &ntypes);

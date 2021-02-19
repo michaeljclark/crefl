@@ -29,7 +29,7 @@ int main(int argc, const char **argv)
     }
 
     decl_db *db = crefl_db_new();
-    crefl_read_db(db, argv[1]);
+    crefl_db_read_file(db, argv[1]);
     crefl_db_dump(db);
     crefl_db_destroy(db);
 }

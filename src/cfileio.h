@@ -18,31 +18,39 @@
 
 #pragma once
 
+#include <stddef.h>
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-static const u8 decl_db_magic[8] = { 'c', 'r', 'e', 'f', 'l', '_', '0', '0' };
-
 struct decl_db_hdr;
 typedef struct decl_db_hdr decl_db_hdr;
 
+/* decl db magic constant */
+static const u8 decl_db_magic[8] = { 'c', 'r', 'e', 'f', 'l', '_', '0', '0' };
+
+/* decl db header */
 struct decl_db_hdr
 {
-    union {
-        char hdr[32];
-        struct {
-            u8 magic[8];
-            u32 decl_entry_count;
-            u32 name_table_size;
-            u32 root_element;
-        };
-    };
+    u8 magic[8];
+    u32 decl_entry_count;
+    u32 name_table_size;
+    u32 root_element;
 };
 
-int crefl_check_magic(void *addr);
-void crefl_read_db(decl_db *db, const char *input_filename);
-void crefl_write_db(decl_db *db, const char *output_filename);
+/* decl db magic and size */
+int crefl_db_magic(const void *addr);
+size_t crefl_db_size(decl_db *db);
+
+/* decl db memory io */
+int crefl_db_read_mem(decl_db *db, const uint8_t *buf, size_t input_sz);
+int crefl_db_write_mem(decl_db *db, uint8_t *buf, size_t output_sz);
+
+/* decl db file io */
+int crefl_db_read_file(decl_db *db, const char *input_filename);
+int crefl_db_write_file(decl_db *db, const char *output_filename);
 
 #ifdef __cplusplus
 }
