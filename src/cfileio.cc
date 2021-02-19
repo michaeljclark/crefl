@@ -89,6 +89,20 @@ void crefl_read_db(decl_db *db, const char *input_filename)
     size_t hdr_sz = sizeof(decl_db_hdr);
     size_t decl_sz = sizeof(decl) * hdr->decl_entry_count;
     size_t name_sz = hdr->name_table_size;
+    size_t root_idx = hdr->root_element;
+
+    /*
+     * for space compactness we elide builtin types from the output.
+     * initialize builtin types then check the first element is root.
+     * check ensures we don't load a db if the defaults have changed.
+     *
+     * note: this implies a restriction that the first element is the root
+     */
+    crefl_db_defaults(db);
+    if (db->decl_offset != root_idx || db->decl_builtin != root_idx) {
+        fprintf(stderr, "crefl: *** error: incompatible builtin types\n");
+        exit(1);
+    }
 
     /* resize buffers */
     if (db->decl_size < decl_sz) {
@@ -102,12 +116,21 @@ void crefl_read_db(decl_db *db, const char *input_filename)
         db->name = (char*)malloc(db->name_size);
     }
 
-    /* copy data from temporary buffer */
-    db->decl_offset = hdr->decl_entry_count;
-    db->name_offset = hdr->name_table_size;
+    /* append decls from temporary buffer */
+    memcpy(db->decl + db->decl_offset, &buf[hdr_sz], decl_sz);
+    db->decl_offset += hdr->decl_entry_count;
+
+    /* append names from temporary buffer */
+    memcpy(db->name + db->name_offset, &buf[hdr_sz + decl_sz], name_sz);
+    db->name_offset += hdr->name_table_size;
     db->root_element = hdr->root_element;
-    memcpy(db->decl, &buf[hdr_sz], decl_sz);
-    memcpy(db->name, &buf[hdr_sz + decl_sz], name_sz);
+
+    /*
+     * - TODO add safety checks
+     *
+     *   - TODO verify all decl link are within bounds.
+     *   - TODO verify all name offsets are within bounds.
+     */
 }
 
 void crefl_write_db(decl_db *db, const char *output_filename)
@@ -115,18 +138,18 @@ void crefl_write_db(decl_db *db, const char *output_filename)
     std::vector<uint8_t> buf;
 
     size_t hdr_sz = sizeof(decl_db_hdr);
-    size_t decl_sz = sizeof(decl) * db->decl_offset;
-    size_t name_sz = db->name_offset;
+    size_t decl_sz = sizeof(decl) * (db->decl_offset - db->decl_builtin);
+    size_t name_sz = db->name_offset - db->name_builtin;
 
     /* stage header and data in temporary buffer */
     buf.resize(hdr_sz + decl_sz + name_sz);
     decl_db_hdr *hdr = (decl_db_hdr*)&buf[0];
     memcpy(hdr->magic, decl_db_magic, sizeof(decl_db_magic));
-    hdr->decl_entry_count = db->decl_offset;
-    hdr->name_table_size = db->name_offset;
+    hdr->decl_entry_count = db->decl_offset - db->decl_builtin;
+    hdr->name_table_size = name_sz;
     hdr->root_element = db->root_element;
-    memcpy(&buf[hdr_sz], db->decl, decl_sz);
-    memcpy(&buf[hdr_sz + decl_sz], db->name, name_sz);
+    memcpy(&buf[hdr_sz], db->decl + db->decl_builtin, decl_sz);
+    memcpy(&buf[hdr_sz + decl_sz], db->name + db->name_builtin, name_sz);
 
     write_file(buf, output_filename);
 }
