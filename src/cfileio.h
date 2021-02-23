@@ -29,7 +29,7 @@ struct decl_db_hdr;
 typedef struct decl_db_hdr decl_db_hdr;
 
 /* decl db magic constant */
-static const u8 decl_db_magic[8] = { 'c', 'r', 'e', 'f', 'l', '_', '0', '0' };
+static const u8 decl_db_magic[8] = { 'c', 'r', 'e', 'f', 'l', '0', '0', '0' };
 
 /* decl db header */
 struct decl_db_hdr
