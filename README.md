@@ -9,6 +9,53 @@ of: intrinsic, set, enum, struct, union, field, array, constant, variable.
 - The _crefl_ clang plug-in outputs C reflection meta-data used by the library.
 - The _crefl_ API provides task-oriented query access to C reflection meta-data.
 
+### crefl example
+
+This example has an outer-loop iterating through _struct types_ and an
+inner-loop iterating through _struct fields_.
+
+```C
+#include <stdio.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include <assert.h>
+
+#include "cmodel.h"
+#include "cfileio.h"
+
+int main(int argc, const char **argv)
+{
+    if (argc != 2) {
+        fprintf(stderr, "error: usage: %s <filename>\n", argv[0]);
+        exit(1);
+    }
+
+    decl_db *db = crefl_db_new();
+    crefl_db_read_file(db, argv[1]);
+
+    size_t ntypes = 0;
+    crefl_types(db, NULL, &ntypes);
+    decl_ref *_types = calloc(ntypes, sizeof(decl_ref));
+    assert(_types);
+    crefl_types(db, _types, &ntypes);
+
+    for (size_t i = 0; i < ntypes; i++) {
+        size_t nfields = 0;
+        if (crefl_is_struct(_types[i])) {
+            crefl_struct_fields(_types[i], NULL, &nfields);
+            decl_ref *_fields = calloc(nfields, sizeof(decl_ref));
+            assert(_fields);
+            crefl_struct_fields(_types[i], _fields, &nfields);
+            for (size_t j = 0; j < nfields; j++) {
+                printf("%s : %s\n", crefl_name(_types[i]), crefl_name(_fields[j]));
+            }
+        }
+    }
+
+    crefl_db_destroy(db);
+}
+```
+
 ### crefl data types
 
 The _crefl_ API graph database use a small number of primary data types
