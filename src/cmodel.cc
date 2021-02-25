@@ -227,6 +227,9 @@ size_t crefl_type_width(decl_ref d)
     case _decl_intrinsic: return crefl_intrinsic_width(d);
     case _decl_struct: return crefl_struct_width(d);
     case _decl_union: return crefl_union_width(d);
+    case _decl_field: return crefl_type_width(
+            decl_ref {d.db, crefl_ptr(d)->_decl_field._decl}
+        );
     }
     return 0;
 }
@@ -239,16 +242,102 @@ size_t crefl_intrinsic_width(decl_ref d)
     return 0;
 }
 
+#if defined _MSC_VER && defined _M_X64
+static inline unsigned _clz(size_t val)
+{
+    unsigned long count;
+    return _BitScanReverse64(&count, val) ? 63 - count : 64;
+}
+#elif defined _MSC_VER && defined _M_IX86
+static inline unsigned _clz(size_t val)
+{
+    unsigned long hi_count;
+    unsigned long lo_count;
+    int hi_res = _BitScanReverse(&hi_count, uint32_t(val >> 32));
+    int lo_res = _BitScanReverse(&lo_count, uint32_t(val));
+    return hi_res ? 31 - hi_count : (lo_res ? 63 - lo_count : 64);
+}
+#elif defined __GNUC__
+static inline unsigned _clz(size_t val)
+{
+    return __builtin_clzll(val);
+}
+#endif
+
+static inline size_t _pad_align(intptr_t offset, intptr_t width, decl_set attrs)
+{
+    intptr_t n = 63 - _clz(width), addend;
+
+    if ((attrs & _pad_byte)) {
+        n = (n > 3) ? n : 3;
+        addend = 1lu << n;
+    }
+    else if ((attrs & _pad_pow2)) {
+        addend = 1lu << n;
+        offset &= ~(addend-1);
+    }
+    else {
+        addend = n;
+    }
+
+    return offset + addend;
+}
+
 size_t crefl_struct_width(decl_ref d)
 {
-    /* todo */
-    return 0;
+    decl_ref t;
+    size_t offset = 0;
+
+    if (crefl_tag(d) != _decl_struct) return 0;
+
+    decl_ref dx = crefl_lookup(d.db, crefl_ptr(d)->_decl_struct._link);
+    while (crefl_idx(dx)) {
+        switch (crefl_tag(dx)) {
+        case _decl_field:
+            t = crefl_lookup(d.db, crefl_ptr(dx)->_decl_field._decl);
+            offset = _pad_align(offset, crefl_type_width(t), crefl_attrs(t));
+            break;
+        case _decl_intrinsic:
+        case _decl_struct:
+        case _decl_union:
+        default:
+            /* type definitions don't add any width to a struct or union */
+            break;
+        }
+
+        dx = crefl_next(dx);
+    }
+
+    return offset;
 }
 
 size_t crefl_union_width(decl_ref d)
 {
-    /* todo */
-    return 0;
+    decl_ref t;
+    size_t offset = 0, width;
+
+    if (crefl_tag(d) != _decl_union) return 0;
+
+    decl_ref dx = crefl_lookup(d.db, crefl_ptr(d)->_decl_struct._link);
+    while (crefl_idx(dx)) {
+        switch (crefl_tag(dx)) {
+        case _decl_field:
+            t = crefl_lookup(d.db, crefl_ptr(dx)->_decl_field._decl);
+            width = _pad_align(0, crefl_type_width(t), crefl_attrs(t));
+            if (width > offset) offset = width;
+            break;
+        case _decl_intrinsic:
+        case _decl_struct:
+        case _decl_union:
+        default:
+            /* type definitions don't add any width to a struct or union */
+            break;
+        }
+
+        dx = crefl_next(dx);
+    }
+
+    return offset;
 }
 
 size_t crefl_array_size(decl_ref d)
