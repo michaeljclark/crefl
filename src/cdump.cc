@@ -28,6 +28,7 @@ static const char * _pretty_name(const char* l, decl_db *db, size_t decl_idx)
     static char buf[1024];
 
     decl_ref d = crefl_lookup(db, decl_idx);
+
     if (strlen(crefl_name(d)) > 0) {
         snprintf(buf, sizeof(buf), "%s=[%s:%u,(\"%s\")]",
             l, crefl_tag_name(crefl_tag(d)), crefl_idx(d), crefl_name(d));
