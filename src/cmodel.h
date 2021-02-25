@@ -271,11 +271,11 @@ void crefl_db_destroy(decl_db *db);
 /*
  * decl properties
  */
-decl * crefl_ptr(decl_ref d);
-decl_tag crefl_tag(decl_ref d);
-decl_set crefl_attrs(decl_ref d);
-decl_id crefl_idx(decl_ref d);
-decl_ref crefl_next(decl_ref d);
+decl * crefl_decl_ptr(decl_ref d);
+decl_tag crefl_decl_tag(decl_ref d);
+decl_set crefl_decl_attrs(decl_ref d);
+decl_id crefl_decl_idx(decl_ref d);
+decl_ref crefl_decl_next(decl_ref d);
 
 /*
  * decl allocation

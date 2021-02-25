@@ -31,10 +31,10 @@ static const char * _pretty_name(const char* l, decl_db *db, size_t decl_idx)
 
     if (strlen(crefl_decl_name(d)) > 0) {
         snprintf(buf, sizeof(buf), "%s=[%s:%u,(\"%s\")]",
-            l, crefl_tag_name(crefl_tag(d)), crefl_idx(d), crefl_decl_name(d));
+            l, crefl_tag_name(crefl_decl_tag(d)), crefl_decl_idx(d), crefl_decl_name(d));
     } else {
         snprintf(buf, sizeof(buf), "%s=[%s:%u,(anonymous)]",
-            l, crefl_tag_name(crefl_tag(d)), crefl_idx(d));
+            l, crefl_tag_name(crefl_decl_tag(d)), crefl_decl_idx(d));
     }
 
     return buf;
@@ -55,8 +55,8 @@ void crefl_db_header_lines()
 void crefl_db_dump_row(decl_db *db, decl_ref r)
 {
     char buf[256];
-    decl *d = crefl_ptr(r);
-    switch (crefl_tag(r)) {
+    decl *d = crefl_decl_ptr(r);
+    switch (crefl_decl_tag(r)) {
     case _decl_typedef:
         snprintf(buf, sizeof(buf), "%s",
             _pretty_name("decl", db, d->_decl_typedef._decl));
@@ -82,7 +82,7 @@ void crefl_db_dump_row(decl_db *db, decl_ref r)
             _pretty_name("link", db, d->_decl_union._link));
         break;
     case _decl_field:
-        if ((crefl_attrs(r) & _bitfield) > 0) {
+        if ((crefl_decl_attrs(r) & _bitfield) > 0) {
             snprintf(buf, sizeof(buf), "%s width=" fmt_SZ,
                 _pretty_name("decl", db, d->_decl_field._decl),
                 d->_decl_field._width);
@@ -112,8 +112,8 @@ void crefl_db_dump_row(decl_db *db, decl_ref r)
         break;
     default: buf[0] = '\0'; break;
     }
-    printf("%-5u %-5d %-10s %-14s %-14s\n", crefl_idx(r), d->_next,
-        crefl_tag_name(crefl_tag(r)),
+    printf("%-5u %-5d %-10s %-14s %-14s\n", crefl_decl_idx(r), d->_next,
+        crefl_tag_name(crefl_decl_tag(r)),
         strlen(crefl_decl_name(r)) > 0 ? crefl_decl_name(r) : "(anonymous)", buf);
 }
 
