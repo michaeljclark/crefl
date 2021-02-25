@@ -201,22 +201,22 @@ static int _decl_array_fetch(decl_db *db, decl_ref *r, size_t *s, size_t x,
     return 0;
 }
 
-int crefl_decls(decl_db *db, decl_ref *r, size_t *s)
+int crefl_list_decls(decl_db *db, decl_ref *r, size_t *s)
 {
     return _decl_array_fetch(db, r, s, db->root_element, crefl_is_any);
 }
 
-int crefl_types(decl_db *db, decl_ref *r, size_t *s)
+int crefl_list_types(decl_db *db, decl_ref *r, size_t *s)
 {
     return _decl_array_fetch(db, r, s, db->root_element, crefl_is_type);
 }
 
-int crefl_fields(decl_db *db, decl_ref *r, size_t *s)
+int crefl_list_fields(decl_db *db, decl_ref *r, size_t *s)
 {
     return _decl_array_fetch(db, r, s, db->root_element, crefl_is_field);
 }
 
-int crefl_functions(decl_db *db, decl_ref *r, size_t *s)
+int crefl_list_functions(decl_db *db, decl_ref *r, size_t *s)
 {
     return _decl_array_fetch(db, r, s, db->root_element, crefl_is_function);
 }

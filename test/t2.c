@@ -34,7 +34,7 @@ void t2_decls()
 	crefl_decl_ptr(r4)->_next = crefl_decl_idx(r5);
 
 	size_t s = array_size(r);
-	crefl_decls(db, r, &s);
+	crefl_list_decls(db, r, &s);
 	assert(s == 5);
 
 	crefl_db_destroy(db);
@@ -53,7 +53,7 @@ void t2_types()
 	crefl_decl_ptr(r2)->_next = crefl_decl_idx(r3);
 
 	size_t s = array_size(r);
-	crefl_types(db, r, &s);
+	crefl_list_types(db, r, &s);
 	assert(s == 3);
 
 	crefl_db_destroy(db);
@@ -68,7 +68,7 @@ void t2_fields()
 	db->root_element = crefl_decl_idx(r1);
 
 	size_t s = array_size(r);
-	crefl_fields(db, r, &s);
+	crefl_list_fields(db, r, &s);
 	assert(s == 1);
 
 	crefl_db_destroy(db);
@@ -85,7 +85,7 @@ void t2_functions()
 	crefl_decl_ptr(r1)->_next = crefl_decl_idx(r2);
 
 	size_t s = array_size(r);
-	crefl_functions(db, r, &s);
+	crefl_list_functions(db, r, &s);
 	assert(s == 2);
 
 	crefl_db_destroy(db);

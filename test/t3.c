@@ -19,9 +19,9 @@ void t3()
     crefl_db_read_file(db, DB_DIR "adjacent-structs-1.h.refl");
 
     size_t ntypes = 0;
-    crefl_types(db, NULL, &ntypes);
+    crefl_list_types(db, NULL, &ntypes);
     decl_ref *_types = calloc(ntypes, sizeof(decl_ref));
-    crefl_types(db, _types, &ntypes);
+    crefl_list_types(db, _types, &ntypes);
 
     for (size_t i = 0; i < ntypes; i++) {
         size_t nfields = 0;
