@@ -169,7 +169,7 @@ const char* crefl_name_new(decl_ref d, const char *name)
 
 const char* crefl_name(decl_ref d)
 {
-    return crefl_ptr(d)->_name ? d.db->name + crefl_ptr(d)->_name : "";
+    return d.db->name + crefl_ptr(d)->_name;
 }
 
 decl_ref crefl_find_intrinsic(decl_db *db, decl_set attrs, size_t width)
