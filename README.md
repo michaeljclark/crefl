@@ -42,12 +42,20 @@ int main(int argc, const char **argv)
     for (size_t i = 0; i < ntypes; i++) {
         size_t nfields = 0;
         if (crefl_is_struct(_types[i])) {
+            printf("%s %s : %zu\n",
+                crefl_tag_name(crefl_tag(_types[i])),
+                crefl_name(_types[i]),
+                crefl_type_width(_types[i]));
+
             crefl_struct_fields(_types[i], NULL, &nfields);
             decl_ref *_fields = calloc(nfields, sizeof(decl_ref));
             assert(_fields);
             crefl_struct_fields(_types[i], _fields, &nfields);
             for (size_t j = 0; j < nfields; j++) {
-                printf("%s : %s\n", crefl_name(_types[i]), crefl_name(_fields[j]));
+                printf("\t%s %s : %zu\n",
+                    crefl_tag_name(crefl_tag(_fields[j])),
+                    crefl_name(_fields[j]),
+                    crefl_type_width(_fields[j]));
             }
         }
     }
