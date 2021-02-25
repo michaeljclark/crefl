@@ -119,8 +119,8 @@ void crefl_db_defaults(decl_db *db)
     const _ctype **d = all_types;
     while (*d != 0) {
         if ((*d)->_tag == _decl_intrinsic) {
-            decl_ref r = crefl_new(db, _decl_intrinsic);
-            crefl_name_new(r, (*d)->_name);
+            decl_ref r = crefl_decl_new(db, _decl_intrinsic);
+            crefl_ptr(r)->_name = crefl_name_new(db, (*d)->_name);
             crefl_ptr(r)->_attrs = (*d)->_attrs;
             crefl_ptr(r)->_decl_intrinsic._width = (*d)->_width;
         }
@@ -138,7 +138,7 @@ void crefl_db_destroy(decl_db *db)
     free(db);
 }
 
-decl_ref crefl_new(decl_db *db, decl_tag tag)
+decl_ref crefl_decl_new(decl_db *db, decl_tag tag)
 {
     if (db->decl_offset >= db->decl_size) {
         db->decl_size <<= 1;
@@ -147,27 +147,27 @@ decl_ref crefl_new(decl_db *db, decl_tag tag)
     decl_ref d = { db, db->decl_offset++ };
     crefl_ptr(d)->_tag = tag;
     crefl_ptr(d)->_attrs = 0;
+    crefl_ptr(d)->_name = 0;
     return d;
 }
 
-const char* crefl_name_new(decl_ref d, const char *name)
+decl_id crefl_name_new(decl_db *db, const char *name)
 {
     size_t len = strlen(name) + 1;
-    if (len == 1) return "";
-    if (d.db->name_offset + len > d.db->name_size) {
-        while (d.db->name_offset + len > d.db->name_size) {
-            d.db->name_size <<= 1;
+    if (len == 1) return 0;
+    if (db->name_offset + len > db->name_size) {
+        while (db->name_offset + len > db->name_size) {
+            db->name_size <<= 1;
         }
-        d.db->name = (char*)realloc(d.db->name, d.db->name_size);
+        db->name = (char*)realloc(db->name, db->name_size);
     }
-    size_t name_offset = d.db->name_offset;
-    d.db->name_offset += len;
-    crefl_ptr(d)->_name = name_offset;
-    memcpy(d.db->name + name_offset, name, len);
-    return d.db->name + name_offset;
+    size_t name_offset = db->name_offset;
+    db->name_offset += len;
+    memcpy(db->name + name_offset, name, len);
+    return name_offset;
 }
 
-const char* crefl_name(decl_ref d)
+const char* crefl_decl_name(decl_ref d)
 {
     return d.db->name + crefl_ptr(d)->_name;
 }

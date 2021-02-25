@@ -276,8 +276,12 @@ decl_tag crefl_tag(decl_ref d);
 decl_set crefl_attrs(decl_ref d);
 decl_id crefl_idx(decl_ref d);
 decl_ref crefl_next(decl_ref d);
-decl_ref crefl_new(decl_db *db, decl_tag tag);
-const char* crefl_name_new(decl_ref d, const char *name);
+
+/*
+ * decl allocation
+ */
+decl_id crefl_name_new(decl_db *db, const char *name);
+decl_ref crefl_decl_new(decl_db *db, decl_tag tag);
 
 /*
  * decl queries
@@ -285,7 +289,7 @@ const char* crefl_name_new(decl_ref d, const char *name);
 decl_ref crefl_find_intrinsic(decl_db *db, decl_set attrs, size_t width);
 decl_ref crefl_lookup(decl_db *db, size_t decl_idx);
 const char * crefl_tag_name(decl_tag tag);
-const char* crefl_name(decl_ref d);
+const char* crefl_decl_name(decl_ref d);
 int crefl_decls(decl_db *db, decl_ref *r, size_t *s);
 int crefl_types(decl_db *db, decl_ref *r, size_t *s);
 int crefl_fields(decl_db *db, decl_ref *r, size_t *s);

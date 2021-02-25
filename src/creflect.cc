@@ -177,18 +177,18 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
 
             decl_ref ti = get_intrinsic_type(q);
 
-            tr = crefl_new(db, _decl_array);
+            tr = crefl_decl_new(db, _decl_array);
             crefl_ptr(tr)->_decl_array._decl = crefl_idx(ti);
             if (cat) {
                 u64 _size = cat->getSize().getLimitedValue();
                 crefl_ptr(tr)->_decl_array._size = _size;
                 snprintf(namebuf, sizeof(namebuf), "%s[%llu]",
-                    crefl_name(ti), _size);
+                    crefl_decl_name(ti), _size);
             } else {
                 snprintf(namebuf, sizeof(namebuf), "%s[]",
-                    crefl_name(ti));
+                    crefl_decl_name(ti));
             }
-            crefl_name_new(tr, namebuf);
+            crefl_ptr(tr)->_name = crefl_name_new(db, namebuf);
         }
         else if (_is_complex) {
             const ComplexType *ct = q->getAs<ComplexType>();
@@ -252,8 +252,9 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             q.getAsString().c_str());
 
         /* create typedef */
-        decl_ref r = crefl_new(db, _decl_typedef);
-        crefl_name_new(r, d->clang::NamedDecl::getNameAsString().c_str());
+        decl_ref r = crefl_decl_new(db, _decl_typedef);
+        crefl_ptr(r)->_name = crefl_name_new(db,
+            d->clang::NamedDecl::getNameAsString().c_str());
         idmap[d->clang::Decl::getID()] = crefl_idx(r);
         crefl_ptr(r)->_decl_typedef._decl = crefl_idx(get_intrinsic_type(q));
 
@@ -293,8 +294,9 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             d->getNumPositiveBits());
 
         /* create enum */
-        decl_ref r = crefl_new(db, _decl_enum);
-        crefl_name_new(r, d->clang::NamedDecl::getNameAsString().c_str());
+        decl_ref r = crefl_decl_new(db, _decl_enum);
+        crefl_ptr(r)->_name = crefl_name_new(db,
+            d->clang::NamedDecl::getNameAsString().c_str());
         idmap[d->clang::Decl::getID()] = crefl_idx(r);
 
         /* create prev next link */
@@ -333,8 +335,9 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             q.getAsString().c_str(), value);
 
         /* create constant */
-        decl_ref r = crefl_new(db, _decl_constant);
-        crefl_name_new(r, d->clang::NamedDecl::getNameAsString().c_str());
+        decl_ref r = crefl_decl_new(db, _decl_constant);
+        crefl_ptr(r)->_name = crefl_name_new(db,
+            d->clang::NamedDecl::getNameAsString().c_str());
         idmap[d->clang::Decl::getID()] = crefl_idx(r);
         crefl_ptr(r)->_decl_constant._value = value;
         crefl_ptr(r)->_decl_constant._decl = crefl_idx(get_intrinsic_type(q));
@@ -397,8 +400,9 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             }
 
             /* create struct */
-            r = crefl_new(db, tag);
-            crefl_name_new(r, d->clang::NamedDecl::getNameAsString().c_str());
+            r = crefl_decl_new(db, tag);
+            crefl_ptr(r)->_name = crefl_name_new(db,
+                d->clang::NamedDecl::getNameAsString().c_str());
             idmap[d->clang::Decl::getID()] = crefl_idx(r);
 
             /* create prev next link */
@@ -443,8 +447,9 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         decl_sz width = d->isBitField() ? d->getBitWidthValue(context) : 0;
 
         /* create field */
-        decl_ref r = crefl_new(db, _decl_field);
-        crefl_name_new(r, d->clang::NamedDecl::getNameAsString().c_str());
+        decl_ref r = crefl_decl_new(db, _decl_field);
+        crefl_ptr(r)->_name = crefl_name_new(db,
+            d->clang::NamedDecl::getNameAsString().c_str());
         idmap[d->clang::Decl::getID()] = crefl_idx(r);
         crefl_ptr(r)->_attrs |= -d->isBitField() & _bitfield;
         crefl_ptr(r)->_decl_field._decl = crefl_idx(get_intrinsic_type(q));
@@ -489,8 +494,9 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             d->getNameInfo().getName().getAsString().c_str(), d->hasBody());
 
         /* create constant */
-        decl_ref r = crefl_new(db, _decl_function);
-        crefl_name_new(r, d->clang::NamedDecl::getNameAsString().c_str());
+        decl_ref r = crefl_decl_new(db, _decl_function);
+        crefl_ptr(r)->_name = crefl_name_new(db,
+            d->clang::NamedDecl::getNameAsString().c_str());
         idmap[d->clang::Decl::getID()] = crefl_idx(r);
 
         /* create prev next link */
@@ -514,7 +520,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         QualType qr = d->getReturnType();
 
         /* create return param */
-        decl_ref pr = crefl_new(db, _decl_param);
+        decl_ref pr = crefl_decl_new(db, _decl_param);
         crefl_ptr(last)->_decl_function._link = crefl_idx(pr);
         crefl_ptr(pr)->_decl_param._decl = crefl_idx(get_intrinsic_type(qr));
 
@@ -524,8 +530,9 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             const ParmVarDecl* parm = parms[i];
             const QualType q = parm->getOriginalType();
 
-            decl_ref ar = crefl_new(db, _decl_param);
-            crefl_name_new(ar, parm->clang::NamedDecl::getNameAsString().c_str());
+            decl_ref ar = crefl_decl_new(db, _decl_param);
+            crefl_ptr(ar)->_name = crefl_name_new(db,
+                parm->clang::NamedDecl::getNameAsString().c_str());
             crefl_ptr(pr)->_next = crefl_idx(ar);
             crefl_ptr(ar)->_decl_param._decl = crefl_idx(get_intrinsic_type(q));
             pr = ar;
@@ -548,8 +555,9 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         if (d->isLocalVarDeclOrParm()) return true;
 
         /* create field */
-        decl_ref r = crefl_new(db, _decl_field);
-        crefl_name_new(r, d->clang::NamedDecl::getNameAsString().c_str());
+        decl_ref r = crefl_decl_new(db, _decl_field);
+        crefl_ptr(r)->_name = crefl_name_new(db,
+            d->clang::NamedDecl::getNameAsString().c_str());
         idmap[d->clang::Decl::getID()] = crefl_idx(r);
         const QualType q = d->getTypeSourceInfo()->getType();
         crefl_ptr(r)->_decl_field._decl = crefl_idx(get_intrinsic_type(q));

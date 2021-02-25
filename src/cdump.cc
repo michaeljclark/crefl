@@ -29,9 +29,9 @@ static const char * _pretty_name(const char* l, decl_db *db, size_t decl_idx)
 
     decl_ref d = crefl_lookup(db, decl_idx);
 
-    if (strlen(crefl_name(d)) > 0) {
+    if (strlen(crefl_decl_name(d)) > 0) {
         snprintf(buf, sizeof(buf), "%s=[%s:%u,(\"%s\")]",
-            l, crefl_tag_name(crefl_tag(d)), crefl_idx(d), crefl_name(d));
+            l, crefl_tag_name(crefl_tag(d)), crefl_idx(d), crefl_decl_name(d));
     } else {
         snprintf(buf, sizeof(buf), "%s=[%s:%u,(anonymous)]",
             l, crefl_tag_name(crefl_tag(d)), crefl_idx(d));
@@ -114,7 +114,7 @@ void crefl_db_dump_row(decl_db *db, decl_ref r)
     }
     printf("%-5u %-5d %-10s %-14s %-14s\n", crefl_idx(r), d->_next,
         crefl_tag_name(crefl_tag(r)),
-        strlen(crefl_name(r)) > 0 ? crefl_name(r) : "(anonymous)", buf);
+        strlen(crefl_decl_name(r)) > 0 ? crefl_decl_name(r) : "(anonymous)", buf);
 }
 
 void crefl_db_dump(decl_db *db)

@@ -44,7 +44,7 @@ int main(int argc, const char **argv)
         if (crefl_is_struct(_types[i])) {
             printf("%s %s : %zu\n",
                 crefl_tag_name(crefl_tag(_types[i])),
-                crefl_name(_types[i]),
+                crefl_decl_name(_types[i]),
                 crefl_type_width(_types[i]));
 
             crefl_struct_fields(_types[i], NULL, &nfields);
@@ -54,7 +54,7 @@ int main(int argc, const char **argv)
             for (size_t j = 0; j < nfields; j++) {
                 printf("\t%s %s : %zu\n",
                     crefl_tag_name(crefl_tag(_fields[j])),
-                    crefl_name(_fields[j]),
+                    crefl_decl_name(_fields[j]),
                     crefl_type_width(_fields[j]));
             }
         }
