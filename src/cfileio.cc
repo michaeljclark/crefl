@@ -121,14 +121,12 @@ int crefl_db_read_mem(decl_db *db, const uint8_t *buf, size_t input_sz)
 
     /* resize buffers */
     if (db->decl_size < decl_sz) {
-        free(db->decl);
-        db->decl_size = hdr->decl_entry_count;
-        db->decl = (decl*)malloc(sizeof(decl) * db->decl_size);
+        db->decl_size = decl_sz;
+        db->decl = (decl*)realloc(db->decl, sizeof(decl) * db->decl_size);
     }
     if (db->name_size < name_sz) {
-        free(db->name);
-        db->name_size = hdr->name_table_size;
-        db->name = (char*)malloc(db->name_size);
+        db->name_size = name_sz;
+        db->name = (char*)realloc(db->name, db->name_size);
     }
 
     /* append decls from temporary buffer */
