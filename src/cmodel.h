@@ -210,19 +210,15 @@ struct decl
     decl_set _attrs;
     decl_id _name;
     decl_id _next;
+    decl_id _link;
 
+    /* quantifier used by intrinsic, field, array, constant, function */
     union {
-        struct { decl_id _decl;                 } _decl_typedef;
-        struct { decl_sz _width;                } _decl_intrinsic;
-        struct { decl_id _link;                 } _decl_set;
-        struct { decl_id _link;                 } _decl_enum;
-        struct { decl_id _link;                 } _decl_struct;
-        struct { decl_id _link;                 } _decl_union;
-        struct { decl_id _decl; decl_sz _width; } _decl_field;
-        struct { decl_id _decl; decl_sz _size;  } _decl_array;
-        struct { decl_id _decl; decl_sz _value; } _decl_constant;
-        struct { decl_id _link; decl_sz _addr;  } _decl_function;
-        struct { decl_id _decl;                 } _decl_param;
+        decl_sz _quantity;
+        decl_sz _width;
+        decl_sz _count;
+        decl_sz _value;
+        decl_sz _addr;
     };
 };
 
@@ -298,7 +294,7 @@ size_t crefl_type_width(decl_ref d);
 size_t crefl_intrinsic_width(decl_ref d);
 size_t crefl_struct_width(decl_ref d);
 size_t crefl_union_width(decl_ref d);
-size_t crefl_array_size(decl_ref d);
+size_t crefl_array_count(decl_ref d);
 decl_ref crefl_typedef_type(decl_ref d);
 decl_ref crefl_field_type(decl_ref d);
 decl_ref crefl_array_type(decl_ref d);

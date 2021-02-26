@@ -122,7 +122,7 @@ void crefl_db_defaults(decl_db *db)
             decl_ref r = crefl_decl_new(db, _decl_intrinsic);
             crefl_decl_ptr(r)->_name = crefl_name_new(db, (*d)->_name);
             crefl_decl_ptr(r)->_attrs = (*d)->_attrs;
-            crefl_decl_ptr(r)->_decl_intrinsic._width = (*d)->_width;
+            crefl_decl_ptr(r)->_width = (*d)->_width;
         }
         d++;
     }
@@ -177,7 +177,7 @@ decl_ref crefl_find_intrinsic(decl_db *db, decl_set attrs, size_t width)
     for (size_t i = 0; i < db->decl_offset; i++) {
         decl_ref d = crefl_lookup(db, i);
         if (crefl_decl_tag(d) == _decl_intrinsic &&
-            crefl_decl_ptr(d)->_decl_intrinsic._width == width &&
+            crefl_decl_ptr(d)->_width == width &&
                 ((crefl_decl_attrs(d) & attrs) == attrs)) {
             return decl_ref { db, i };
         }
@@ -228,7 +228,7 @@ size_t crefl_type_width(decl_ref d)
     case _decl_struct: return crefl_struct_width(d);
     case _decl_union: return crefl_union_width(d);
     case _decl_field: return crefl_type_width(
-            decl_ref {d.db, crefl_decl_ptr(d)->_decl_field._decl}
+            decl_ref {d.db, crefl_decl_ptr(d)->_link}
         );
     }
     return 0;
@@ -237,7 +237,7 @@ size_t crefl_type_width(decl_ref d)
 size_t crefl_intrinsic_width(decl_ref d)
 {
     if (crefl_decl_tag(d) == _decl_intrinsic) {
-        return crefl_decl_ptr(d)->_decl_intrinsic._width;
+        return crefl_decl_ptr(d)->_width;
     }
     return 0;
 }
@@ -290,11 +290,11 @@ size_t crefl_struct_width(decl_ref d)
 
     if (crefl_decl_tag(d) != _decl_struct) return 0;
 
-    decl_ref dx = crefl_lookup(d.db, crefl_decl_ptr(d)->_decl_struct._link);
+    decl_ref dx = crefl_lookup(d.db, crefl_decl_ptr(d)->_link);
     while (crefl_decl_idx(dx)) {
         switch (crefl_decl_tag(dx)) {
         case _decl_field:
-            t = crefl_lookup(d.db, crefl_decl_ptr(dx)->_decl_field._decl);
+            t = crefl_lookup(d.db, crefl_decl_ptr(dx)->_link);
             offset = _pad_align(offset, crefl_type_width(t), crefl_decl_attrs(t));
             break;
         case _decl_intrinsic:
@@ -318,11 +318,11 @@ size_t crefl_union_width(decl_ref d)
 
     if (crefl_decl_tag(d) != _decl_union) return 0;
 
-    decl_ref dx = crefl_lookup(d.db, crefl_decl_ptr(d)->_decl_struct._link);
+    decl_ref dx = crefl_lookup(d.db, crefl_decl_ptr(d)->_link);
     while (crefl_decl_idx(dx)) {
         switch (crefl_decl_tag(dx)) {
         case _decl_field:
-            t = crefl_lookup(d.db, crefl_decl_ptr(dx)->_decl_field._decl);
+            t = crefl_lookup(d.db, crefl_decl_ptr(dx)->_link);
             width = _pad_align(0, crefl_type_width(t), crefl_decl_attrs(t));
             if (width > offset) offset = width;
             break;
@@ -340,10 +340,10 @@ size_t crefl_union_width(decl_ref d)
     return offset;
 }
 
-size_t crefl_array_size(decl_ref d)
+size_t crefl_array_count(decl_ref d)
 {
     if (crefl_decl_tag(d) == _decl_array) {
-        return crefl_decl_ptr(d)->_decl_array._size;
+        return crefl_decl_ptr(d)->_count;
     }
     return 0;
 }
@@ -351,7 +351,7 @@ size_t crefl_array_size(decl_ref d)
 decl_ref crefl_typedef_type(decl_ref d)
 {
     if (crefl_decl_tag(d) == _decl_typedef) {
-        return decl_ref { d.db, crefl_decl_ptr(d)->_decl_typedef._decl};
+        return decl_ref { d.db, crefl_decl_ptr(d)->_link};
     }
     return decl_ref { d.db, 0 };
 }
@@ -359,7 +359,7 @@ decl_ref crefl_typedef_type(decl_ref d)
 decl_ref crefl_field_type(decl_ref d)
 {
     if (crefl_decl_tag(d) == _decl_field) {
-        return decl_ref { d.db, crefl_decl_ptr(d)->_decl_field._decl};
+        return decl_ref { d.db, crefl_decl_ptr(d)->_link};
     }
     return decl_ref { d.db, 0 };
 }
@@ -367,7 +367,7 @@ decl_ref crefl_field_type(decl_ref d)
 decl_ref crefl_array_type(decl_ref d)
 {
     if (crefl_decl_tag(d) == _decl_array) {
-        return decl_ref { d.db, crefl_decl_ptr(d)->_decl_array._decl};
+        return decl_ref { d.db, crefl_decl_ptr(d)->_link};
     }
     return decl_ref { d.db, 0 };
 }
@@ -375,7 +375,7 @@ decl_ref crefl_array_type(decl_ref d)
 decl_ref crefl_constant_type(decl_ref d)
 {
     if (crefl_decl_tag(d) == _decl_constant) {
-        return decl_ref { d.db, crefl_decl_ptr(d)->_decl_constant._decl};
+        return decl_ref { d.db, crefl_decl_ptr(d)->_link};
     }
     return decl_ref { d.db, 0 };
 }
@@ -383,7 +383,7 @@ decl_ref crefl_constant_type(decl_ref d)
 decl_ref crefl_param_type(decl_ref d)
 {
     if (crefl_decl_tag(d) == _decl_param) {
-        return decl_ref { d.db, crefl_decl_ptr(d)->_decl_param._decl};
+        return decl_ref { d.db, crefl_decl_ptr(d)->_link};
     }
     return decl_ref { d.db, 0 };
 }
@@ -391,41 +391,41 @@ decl_ref crefl_param_type(decl_ref d)
 int crefl_enum_constants(decl_ref d, decl_ref *r, size_t *s)
 {
     if (!crefl_is_enum(d)) return -1;
-    return _decl_array_fetch(d.db, r, s, crefl_decl_ptr(d)->_decl_enum._link, crefl_is_constant);
+    return _decl_array_fetch(d.db, r, s, crefl_decl_ptr(d)->_link, crefl_is_constant);
 }
 
 int crefl_set_constants(decl_ref d, decl_ref *r, size_t *s)
 {
     if (!crefl_is_set(d)) return -1;
-    return _decl_array_fetch(d.db, r, s, crefl_decl_ptr(d)->_decl_set._link, crefl_is_constant);
+    return _decl_array_fetch(d.db, r, s, crefl_decl_ptr(d)->_link, crefl_is_constant);
 }
 
 int crefl_struct_fields(decl_ref d, decl_ref *r, size_t *s)
 {
     if (!crefl_is_struct(d)) return -1;
-    return _decl_array_fetch(d.db, r, s, crefl_decl_ptr(d)->_decl_struct._link, crefl_is_field);
+    return _decl_array_fetch(d.db, r, s, crefl_decl_ptr(d)->_link, crefl_is_field);
 }
 
 int crefl_union_fields(decl_ref d, decl_ref *r, size_t *s)
 {
     if (!crefl_is_union(d)) return -1;
-    return _decl_array_fetch(d.db, r, s, crefl_decl_ptr(d)->_decl_union._link, crefl_is_field);
+    return _decl_array_fetch(d.db, r, s, crefl_decl_ptr(d)->_link, crefl_is_field);
 }
 
 int crefl_function_params(decl_ref d, decl_ref *r, size_t *s)
 {
     if (!crefl_is_function(d)) return -1;
-    return _decl_array_fetch(d.db, r, s, crefl_decl_ptr(d)->_decl_function._link, crefl_is_param);
+    return _decl_array_fetch(d.db, r, s, crefl_decl_ptr(d)->_link, crefl_is_param);
 }
 
 decl_raw crefl_constant_value(decl_ref d)
 {
     if (!crefl_is_constant(d)) return decl_raw { 0 };
-    return decl_raw { crefl_decl_ptr(d)->_decl_constant._value };
+    return decl_raw { crefl_decl_ptr(d)->_value };
 }
 
 void * crefl_function_addr(decl_ref d)
 {
     if (!crefl_is_function(d)) return nullptr;
-    return (void*)crefl_decl_ptr(d)->_decl_function._addr;
+    return (void*)crefl_decl_ptr(d)->_addr;
 }

@@ -59,56 +59,46 @@ void crefl_db_dump_row(decl_db *db, decl_ref r)
     switch (crefl_decl_tag(r)) {
     case _decl_typedef:
         snprintf(buf, sizeof(buf), "%s",
-            _pretty_name("decl", db, d->_decl_typedef._decl));
+            _pretty_name("decl", db, d->_link));
         break;
     case _decl_intrinsic:
-        snprintf(buf, sizeof(buf), "width=" fmt_SZ,
-            d->_decl_intrinsic._width);
+        snprintf(buf, sizeof(buf), "width=" fmt_SZ, d->_width);
         break;
     case _decl_set:
-        snprintf(buf, sizeof(buf), "%s",
-            _pretty_name("link", db, d->_decl_set._link));
+        snprintf(buf, sizeof(buf), "%s", _pretty_name("link", db, d->_link));
         break;
     case _decl_enum:
-        snprintf(buf, sizeof(buf), "%s",
-            _pretty_name("link", db, d->_decl_enum._link));
+        snprintf(buf, sizeof(buf), "%s", _pretty_name("link", db, d->_link));
         break;
     case _decl_struct:
-        snprintf(buf, sizeof(buf), "%s",
-            _pretty_name("link", db, d->_decl_struct._link));
+        snprintf(buf, sizeof(buf), "%s", _pretty_name("link", db, d->_link));
         break;
     case _decl_union:
-        snprintf(buf, sizeof(buf), "%s",
-            _pretty_name("link", db, d->_decl_union._link));
+        snprintf(buf, sizeof(buf), "%s", _pretty_name("link", db, d->_link));
         break;
     case _decl_field:
         if ((crefl_decl_attrs(r) & _bitfield) > 0) {
             snprintf(buf, sizeof(buf), "%s width=" fmt_SZ,
-                _pretty_name("decl", db, d->_decl_field._decl),
-                d->_decl_field._width);
+                _pretty_name("decl", db, d->_link), d->_width);
         } else {
             snprintf(buf, sizeof(buf), "%s",
-                _pretty_name("decl", db, d->_decl_field._decl));
+                _pretty_name("decl", db, d->_link));
         }
         break;
     case _decl_array:
         snprintf(buf, sizeof(buf), "%s size=" fmt_SZ,
-            _pretty_name("decl", db, d->_decl_array._decl),
-            d->_decl_array._size);
+            _pretty_name("decl", db, d->_link), d->_count);
         break;
     case _decl_constant:
         snprintf(buf, sizeof(buf), "%s value=" fmt_SZ,
-            _pretty_name("decl", db, d->_decl_constant._decl),
-            d->_decl_constant._value);
+            _pretty_name("decl", db, d->_link), d->_value);
         break;
     case _decl_function:
         snprintf(buf, sizeof(buf), "%s addr=" fmt_AD,
-            _pretty_name("link", db, d->_decl_function._link),
-            d->_decl_function._addr);
+            _pretty_name("link", db, d->_link), d->_addr);
         break;
     case _decl_param:
-        snprintf(buf, sizeof(buf), "%s",
-            _pretty_name("decl", db, d->_decl_param._decl));
+        snprintf(buf, sizeof(buf), "%s", _pretty_name("decl", db, d->_link));
         break;
     default: buf[0] = '\0'; break;
     }

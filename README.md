@@ -87,24 +87,27 @@ type tag, a set of attributes, an interned name, and a link to the next item.
 | attributes | `set attrs`        | type specific attributes                       |
 | name       | `id name`          | interned node name                             |
 | next       | `id next`          | link to next item                              |
+| link       | `id link`          | link to child item                             |
 
 The _decl_ nodes also contain a union with type specific properties such as a
-width or size quantifier or address and a link to child nodes.
+width or size quantifier or address and a link to child nodes. Not all types
+use the link field, and type specific properties use a union to hold a quantifer.
 
-| Type       | Properties         | Description                                    |
-| :--------- | :----------------- | :--------------------------------------------- |
-| void       |                    | empty type                                     |
-| typedef    | `id decl`          | alias to another type definition               |
-| intrinsic  | `sz width`         | machine type quantified with width in bits     |
-| set        | `id constant`      | machine type with many-of sequence of masks    |
-| enum       | `id constant`      | machine type with one-of sequence of integers  |
-| struct     | `id link`          | sequence of non-overlapping types              |
-| union      | `id link`          | sequence of overlapping types                  |
-| field      | `id decl, sz width`| named field within struct or union             |
-| array      | `id decl, sz size` | sequence of one type                           |
-| constant   | `id decl, sz val`  | named constant                                 |
-| function   | `id parm, sz addr` | function with input and output parameter list  |
-| param      | `id decl`          | named parameter with link to next              |
+| Type       | Link  | Properties | Description                                    |
+| :--------- | :---- | :--------- | :--------------------------------------------- |
+| void       |       |            | empty type                                     |
+| typedef    | Y     |            | alias to another type definition               |
+| intrinsic  |       | `sz width` | machine type quantified with width in bits     |
+| set        | Y     |            | machine type with many-of sequence of masks    |
+| enum       | Y     |            | machine type with one-of sequence of integers  |
+| struct     | Y     |            | sequence of non-overlapping types              |
+| union      | Y     |            | sequence of overlapping types                  |
+| field      | Y     | `sz width` | named field within struct or union             |
+| array      | Y     | `sz count` | sequence of one type                           |
+| constant   | Y     | `sz value` | named constant                                 |
+| function   | Y     | `sz addr`  | function with input and output parameter list  |
+| param      | Y     |            | named parameter with link to next              |
+
 
 ### crefl implementation notes
 
