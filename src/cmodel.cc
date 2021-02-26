@@ -191,7 +191,7 @@ static int _decl_array_fetch(decl_db *db, decl_ref *r, size_t *s, size_t x,
     size_t count = 0, limit = s ? *s : 0;
     decl_ref dx = crefl_lookup(db, x);
     while (crefl_decl_idx(dx) && decl_lambda(dx))  {
-        if (count < limit) {
+        if (r && count < limit) {
             r[count] = dx;
         }
         count++;
