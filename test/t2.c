@@ -6,13 +6,7 @@
 
 #include "cmodel.h"
 
-/*
-int decl_types(decl_db *db, decl_ref *r, size_t *s);
-int decl_constants(decl_db *db, decl_ref *r, size_t *s);
-int decl_variables(decl_db *db, decl_ref *r, size_t *s);
-int decl_uniforms(decl_db *db, decl_ref *r, size_t *s);
-int decl_functions(decl_db *db, decl_ref *r, size_t *s);
-*/
+/* crefl_list_{decls,types,fields,functions} */
 
 #define array_size(a) (sizeof(a)/sizeof(a[0]))
 static decl_ref r[16];
@@ -36,6 +30,11 @@ void t2_decls()
 	size_t s = array_size(r);
 	crefl_list_decls(db, r, &s);
 	assert(s == 5);
+	assert(crefl_decl_tag(r[0]) == _decl_intrinsic);
+	assert(crefl_decl_tag(r[1]) == _decl_struct);
+	assert(crefl_decl_tag(r[2]) == _decl_enum);
+	assert(crefl_decl_tag(r[3]) == _decl_field);
+	assert(crefl_decl_tag(r[4]) == _decl_function);
 
 	crefl_db_destroy(db);
 }
@@ -55,6 +54,9 @@ void t2_types()
 	size_t s = array_size(r);
 	crefl_list_types(db, r, &s);
 	assert(s == 3);
+	assert(crefl_decl_tag(r[0]) == _decl_intrinsic);
+	assert(crefl_decl_tag(r[1]) == _decl_struct);
+	assert(crefl_decl_tag(r[2]) == _decl_enum);
 
 	crefl_db_destroy(db);
 }
@@ -70,6 +72,7 @@ void t2_fields()
 	size_t s = array_size(r);
 	crefl_list_fields(db, r, &s);
 	assert(s == 1);
+	assert(crefl_decl_tag(r[0]) == _decl_field);
 
 	crefl_db_destroy(db);
 }
@@ -87,6 +90,8 @@ void t2_functions()
 	size_t s = array_size(r);
 	crefl_list_functions(db, r, &s);
 	assert(s == 2);
+	assert(crefl_decl_tag(r[0]) == _decl_function);
+	assert(crefl_decl_tag(r[1]) == _decl_function);
 
 	crefl_db_destroy(db);
 }
