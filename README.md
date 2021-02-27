@@ -64,7 +64,21 @@ int main(int argc, const char **argv)
 }
 ```
 
-### crefl data types
+### crefl model
+
+_crefl_ implements a data model based on the description of the C data types
+in ISO/IEC 9899:9999 with minor changes. The following sections describe:
+
+- primary types to model the type system
+- decl node type to model the metadata graph
+- decl node subtypes to model C structures and interfaces
+  - _typedef, intrinsic, set, enum, struct, union, field, array, constant,
+    function, param_
+
+One variation from the C normative terminology is the use of _field_
+instead of _member_ for structure elements.
+
+#### primary types
 
 The _crefl_ API graph database use a small number of primary data types
 for the reflection database it graph nodes and their types and attributes.
@@ -78,35 +92,39 @@ for the reflection database it graph nodes and their types and attributes.
 | `decl_sz`  | size type used for array size and bit widths   |
 | `decl_set` | type used to indicate many-of set enumerations |
 
+#### decl node
+
 The _crefl_ data structure consists of an array of _decl_ nodes which have a
 type tag, a set of attributes, an interned name, and a link to the next item.
 
-| Type       | Properties         | Description                                    |
+| Type       | Name               | Description                                    |
 | :--------- | :----------------- | :--------------------------------------------- |
-| tag        | `tag tag`          | tagged union node type                         |
-| attributes | `set attrs`        | type specific attributes                       |
-| name       | `id name`          | interned node name                             |
-| next       | `id next`          | link to next item                              |
-| link       | `id link`          | link to child item                             |
+| `decl_tag` | `tag`              | tagged union node type                         |
+| `decl_set` | `attrs`            | type specific attributes                       |
+| `decl_id`  | `name`             | interned node name                             |
+| `decl_id`  | `next`             | link to next item                              |
+| `decl_id`  | `link`             | link to child item                             |
 
-The _decl_ nodes also contain a union with type specific properties such as a
+#### decl subtypes
+
+The _decl_ nodes contain a union with type specific properties such as a
 width or size quantifier or address and a link to child nodes. Not all types
 use the link field, and type specific properties use a union to hold a quantifer.
 
-| Type       | Link  | Properties | Description                                    |
-| :--------- | :---- | :--------- | :--------------------------------------------- |
-| void       |       |            | empty type                                     |
-| typedef    | Y     |            | alias to another type definition               |
-| intrinsic  |       | `sz width` | machine type quantified with width in bits     |
-| set        | Y     |            | machine type with many-of sequence of masks    |
-| enum       | Y     |            | machine type with one-of sequence of integers  |
-| struct     | Y     |            | sequence of non-overlapping types              |
-| union      | Y     |            | sequence of overlapping types                  |
-| field      | Y     | `sz width` | named field within struct or union             |
-| array      | Y     | `sz count` | sequence of one type                           |
-| constant   | Y     | `sz value` | named constant                                 |
-| function   | Y     | `sz addr`  | function with input and output parameter list  |
-| param      | Y     |            | named parameter with link to next              |
+| Type        | Link | Properties | Description                                    |
+| :---------- | :--- | :--------- | :--------------------------------------------- |
+| `void`      |      |            | empty type                                     |
+| `typedef`   | ✓    |            | alias to another type definition               |
+| `intrinsic` |      | `sz width` | machine type quantified with width in bits     |
+| `set`       | ✓    |            | machine type with many-of sequence of masks    |
+| `enum`      | ✓    |            | machine type with one-of sequence of integers  |
+| `struct`    | ✓    |            | sequence of non-overlapping types              |
+| `union`     | ✓    |            | sequence of overlapping types                  |
+| `field`     | ✓    | `sz width` | named field within struct or union             |
+| `array`     | ✓    | `sz count` | sequence of one type                           |
+| `constant`  | ✓    | `sz value` | named constant                                 |
+| `function`  | ✓    | `sz addr`  | function with input and output parameter list  |
+| `param`     | ✓    |            | named parameter with link to next              |
 
 
 ### crefl implementation notes
