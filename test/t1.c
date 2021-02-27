@@ -6,6 +6,8 @@
 
 #include "cmodel.h"
 
+/* crefl_db_new, crefl_decl_new, crefl_name_new, crefl_db_destroy */
+
 void t1()
 {
 	decl_db *db = crefl_db_new();
