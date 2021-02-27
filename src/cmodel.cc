@@ -230,6 +230,8 @@ size_t crefl_type_width(decl_ref d)
     case _decl_field: return crefl_type_width(
             decl_ref {d.db, crefl_decl_ptr(d)->_link}
         );
+    case _decl_array: return crefl_type_width(crefl_array_type(d))
+        * crefl_array_count(d);
     }
     return 0;
 }

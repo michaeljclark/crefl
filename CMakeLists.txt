@@ -33,7 +33,7 @@ target_link_libraries(example1 cmodel)
 
 enable_testing()
 
-foreach(prog IN ITEMS t1 t2 t3)
+foreach(prog IN ITEMS t1 t2 t3 t4)
 	add_executable(${prog} test/${prog}.c)
 	target_link_libraries(${prog} cmodel)
 	add_test(test_${prog} ${prog})
