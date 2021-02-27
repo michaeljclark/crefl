@@ -131,15 +131,32 @@ use the link field, and type specific properties use a union to hold a quantifer
 
 The _crefl_ implementation is currently _alpha software_.
 
-- intrinsic types such as integer and float are stored desugared.
-- const, volatile and restrict are not yet supported.
-- GNU attributes (`__attribute__`) are not yet supported.
-- ~~binary format is subject to change and needs to be more compact.~~
+- binary format is subject to change and needs to be more compact.
   - format was reduced ~20% in size by eliding builtin types.
   - format could be made even smaller using LEB128 or ASN.1.
-- the pointed-to type for pointers are not yet supported.
-- complex number types are not yet supported.
-- function addresses are not yet supported.
+- fields currently link to the desugared type.
+  - intend to store all qualifiers and original typedef links.
+  - implement API to query typedef or the terminal desugared type.
+
+### crefl features
+
+- [x] C intrinsic data types
+  - 8,16,32,64,128-bit signed and unsigned integral types
+  - 16,32,64-bit floating point types
+  - 32,64-bit cpointer
+  - 1-bit cbool
+- [x] nested struct, union, field (_member_) and intrinsic types.
+- [x] bitfield.
+- [x] typedef type aliases.
+- [x] enum and enum constants.
+- [x] functions and function parameters.
+- [ ] typedef links vs desugared types.
+- [ ] custom type qualifiers.
+- [ ] const, volatile and restrict.
+- [ ] attributes (`__attribute__`).
+- [ ] pointed-to types for pointers.
+- [ ] complex number types.
+- [ ] function addresses.
 
 ### crefl dependencies
 
