@@ -126,7 +126,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             auto stk = q->getScalarTypeKind();
             switch (stk) {
             case clang::Type::ScalarTypeKind::STK_CPointer: {
-                 tr = crefl_find_intrinsic(db, _void, t.Width);
+                 tr = crefl_intrinsic(db, _void, t.Width);
                  break;
             }
             case clang::Type::ScalarTypeKind::STK_BlockPointer:
@@ -136,17 +136,19 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             case clang::Type::ScalarTypeKind::STK_MemberPointer:
                 break;
             case clang::Type::ScalarTypeKind::STK_Bool: {
-                tr = crefl_find_intrinsic(db, _sint, 1);
+                tr = crefl_intrinsic(db, _sint, 1);
                 break;
             }
             case clang::Type::ScalarTypeKind::STK_Integral: {
-                bool _is_unsigned = q->isUnsignedIntegerType();
-                tr = crefl_find_intrinsic(db,
-                    (_is_unsigned ? _uint : _sint), t.Width);
+                if (q->isUnsignedIntegerType()) {
+                    tr = crefl_intrinsic(db, _uint, t.Width);
+                } else {
+                    tr = crefl_intrinsic(db, _sint, t.Width);
+                }
                 break;
             }
             case clang::Type::ScalarTypeKind::STK_Floating: {
-                tr = crefl_find_intrinsic(db, _float, t.Width);
+                tr = crefl_intrinsic(db, _float, t.Width);
                 break;
             }
             case clang::Type::ScalarTypeKind::STK_IntegralComplex:

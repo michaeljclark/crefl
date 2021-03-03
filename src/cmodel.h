@@ -282,7 +282,7 @@ decl_ref crefl_decl_new(decl_db *db, decl_tag tag);
 /*
  * decl queries
  */
-decl_ref crefl_find_intrinsic(decl_db *db, decl_set attrs, size_t width);
+decl_ref crefl_intrinsic(decl_db *db, decl_set attrs, size_t width);
 decl_ref crefl_lookup(decl_db *db, size_t decl_idx);
 const char * crefl_tag_name(decl_tag tag);
 const char* crefl_decl_name(decl_ref d);
