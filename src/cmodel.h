@@ -149,8 +149,15 @@ enum decl_attrs
  */
 struct decl_db
 {
-    char* name;  size_t name_builtin,  name_offset,  name_size;
-    decl *decl;  size_t decl_builtin,  decl_offset,  decl_size;
+    char* name;
+    size_t name_builtin;
+    size_t name_offset;
+    size_t name_size;
+
+    decl *decl;
+    size_t decl_builtin;
+    size_t decl_offset;
+    size_t decl_size;
 
     decl_id root_element;
 };
@@ -162,7 +169,8 @@ struct decl_db
  */
 struct decl_ref
 {
-    decl_db *db; size_t decl_idx;
+    decl_db *db;
+    size_t decl_idx;
 };
 
 /*
@@ -192,15 +200,15 @@ struct decl_ref
  *
  * - void           - empty type
  * - typedef        - alias to another type definition
- * - intrinsic      - machine type quantified with width in bits
- * - set            - machine type with many-of sequence of bit mask constants
- * - enum           - machine type with one-of sequence of integral constants
+ * - intrinsic      - machine type with width in bits
+ * - set            - machine type with many-of sequence
+ * - enum           - machine type with one-of sequence
  * - struct         - sequence of non-overlapping types
  * - union          - sequence of overlapping types
- * - field          - top-level, struct and union field definitions
+ * - field          - top-level, struct and union field
  * - array          - sequence of one type
  * - constant       - named constant
- * - function       - function with input and output parameter list
+ * - function       - function with parameter list
  * - param          - named parameter with link to next
  *
  */
