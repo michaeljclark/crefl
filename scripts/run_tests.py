@@ -54,6 +54,9 @@ parser.add_argument('files', nargs='*', default=['test/*.h'],
                     help='files to be processed')
 args = parser.parse_args()
 
+if not os.path.exists('build/tmp'):
+    os.makedirs('build/tmp')
+
 for f in args.files:
     g = glob.glob(f)
     for hdr in g:
