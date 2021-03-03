@@ -95,12 +95,13 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         SourceLocation sl = d->getLocation();
         std::string sls = sl.printToString(context.getSourceManager());
         Decl *nd = d->getNextDeclInContext();
+        std::string mod = d->getLocalOwningModule()->getFullModuleName(true);
         if (nd) {
-            log_debug("(%" PRId64 " -> %" PRId64 ") %s : %s\n",
-                d->getID(), nd->getID(), dps.c_str(), sls.c_str());
+            log_debug("(%" PRId64 " -> %" PRId64 ") %s : %s : module=%s\n",
+                d->getID(), nd->getID(), dps.c_str(), sls.c_str(), mod.c_str());
         } else {
-            log_debug("(%" PRId64 ") %s : %s\n",
-                d->getID(), dps.c_str(), sls.c_str());
+            log_debug("(%" PRId64 ") %s : %s : module=%s\n",
+                d->getID(), dps.c_str(), sls.c_str(), mod.c_str());
         }
     }
 
