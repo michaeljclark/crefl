@@ -60,12 +60,12 @@ void t3()
     assert(crefl_type_width(crefl_field_type(_fields[4])) == 16);
     assert(crefl_type_width(crefl_field_type(_fields[5])) == 32);
     assert(crefl_type_width(crefl_field_type(_fields[0])) == 1);
-    assert((crefl_decl_attrs(crefl_field_type(_fields[0])) & _sint) == _sint);
-    assert((crefl_decl_attrs(crefl_field_type(_fields[1])) & _sint) == _sint);
-    assert((crefl_decl_attrs(crefl_field_type(_fields[2])) & _uint) == _uint);
-    assert((crefl_decl_attrs(crefl_field_type(_fields[3])) & _sint) == _sint);
-    assert((crefl_decl_attrs(crefl_field_type(_fields[4])) & _uint) == _uint);
-    assert((crefl_decl_attrs(crefl_field_type(_fields[5])) & _sint) == _sint);
+    assert((crefl_decl_props(crefl_field_type(_fields[0])) & _sint) == _sint);
+    assert((crefl_decl_props(crefl_field_type(_fields[1])) & _sint) == _sint);
+    assert((crefl_decl_props(crefl_field_type(_fields[2])) & _uint) == _uint);
+    assert((crefl_decl_props(crefl_field_type(_fields[3])) & _sint) == _sint);
+    assert((crefl_decl_props(crefl_field_type(_fields[4])) & _uint) == _uint);
+    assert((crefl_decl_props(crefl_field_type(_fields[5])) & _sint) == _sint);
     free(_fields);
 
     crefl_struct_fields(_types[1], NULL, &nfields);
@@ -97,12 +97,12 @@ void t3()
     assert(crefl_type_width(crefl_field_type(_fields[3])) == 32);
     assert(crefl_type_width(crefl_field_type(_fields[4])) == 64);
     assert(crefl_type_width(crefl_field_type(_fields[5])) == 64);
-    assert((crefl_decl_attrs(crefl_field_type(_fields[0])) & _uint) == _uint);
-    assert((crefl_decl_attrs(crefl_field_type(_fields[1])) & _sint) == _sint);
-    assert((crefl_decl_attrs(crefl_field_type(_fields[2])) & _uint) == _uint);
-    assert((crefl_decl_attrs(crefl_field_type(_fields[3])) & _float) == _float);
-    assert((crefl_decl_attrs(crefl_field_type(_fields[4])) & _float) == _float);
-    assert((crefl_decl_attrs(crefl_field_type(_fields[5])) & _void) == _void);
+    assert((crefl_decl_props(crefl_field_type(_fields[0])) & _uint) == _uint);
+    assert((crefl_decl_props(crefl_field_type(_fields[1])) & _sint) == _sint);
+    assert((crefl_decl_props(crefl_field_type(_fields[2])) & _uint) == _uint);
+    assert((crefl_decl_props(crefl_field_type(_fields[3])) & _float) == _float);
+    assert((crefl_decl_props(crefl_field_type(_fields[4])) & _float) == _float);
+    assert((crefl_decl_props(crefl_field_type(_fields[5])) & _void) == _void);
     free(_fields);
 
     free(_types);

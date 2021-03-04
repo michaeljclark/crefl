@@ -454,7 +454,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         crefl_decl_ptr(r)->_name = crefl_name_new(db,
             d->clang::NamedDecl::getNameAsString().c_str());
         idmap[d->clang::Decl::getID()] = crefl_decl_idx(r);
-        crefl_decl_ptr(r)->_attrs |= -d->isBitField() & _bitfield;
+        crefl_decl_ptr(r)->_props |= -d->isBitField() & _bitfield;
         crefl_decl_ptr(r)->_link = crefl_decl_idx(get_intrinsic_type(q));
         crefl_decl_ptr(r)->_width = width;
 

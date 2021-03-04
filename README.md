@@ -81,7 +81,7 @@ instead of _member_ for structure elements.
 #### primary types
 
 The _crefl_ API graph database use a small number of primary data types
-for the reflection database it graph nodes and their types and attributes.
+for the reflection database it graph nodes and their types and properties.
 
 | Type       | Description                                    |
 | :--------- | :--------------------------------------------- |
@@ -95,12 +95,12 @@ for the reflection database it graph nodes and their types and attributes.
 #### decl node
 
 The _crefl_ data structure consists of an array of _decl_ nodes which have a
-type tag, a set of attributes, an interned name, and a link to the next item.
+type tag, a set of properties, an interned name, and a link to the next item.
 
 | Type       | Name               | Description                                    |
 | :--------- | :----------------- | :--------------------------------------------- |
 | `decl_tag` | `tag`              | tagged union node type                         |
-| `decl_set` | `attrs`            | type specific attributes                       |
+| `decl_set` | `props`            | type specific properties                       |
 | `decl_id`  | `name`             | interned node name                             |
 | `decl_id`  | `next`             | link to next item                              |
 | `decl_id`  | `link`             | link to child item                             |

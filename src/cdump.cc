@@ -77,7 +77,7 @@ void crefl_db_dump_row(decl_db *db, decl_ref r)
         snprintf(buf, sizeof(buf), "%s", _pretty_name("link", db, d->_link));
         break;
     case _decl_field:
-        if ((crefl_decl_attrs(r) & _bitfield) > 0) {
+        if ((crefl_decl_props(r) & _bitfield) > 0) {
             snprintf(buf, sizeof(buf), "%s width=" fmt_SZ,
                 _pretty_name("decl", db, d->_link), d->_width);
         } else {

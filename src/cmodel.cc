@@ -60,7 +60,7 @@ int crefl_is_param(decl_ref d) { return crefl_decl_tag(d) == _decl_param; }
 
 decl * crefl_decl_ptr(decl_ref d) { return d.db->decl + d.decl_idx; }
 decl_tag crefl_decl_tag(decl_ref d) { return (d.db->decl + d.decl_idx)->_tag; }
-decl_set crefl_decl_attrs(decl_ref d) { return (d.db->decl + d.decl_idx)->_attrs; }
+decl_set crefl_decl_props(decl_ref d) { return (d.db->decl + d.decl_idx)->_props; }
 decl_id crefl_decl_idx(decl_ref d) { return d.decl_idx; }
 decl_ref crefl_decl_next(decl_ref d) { return decl_ref { d.db, (d.db->decl + d.decl_idx)->_next }; }
 decl_ref crefl_lookup(decl_db *db, size_t decl_idx) { return decl_ref { db, decl_idx }; }
@@ -121,7 +121,7 @@ void crefl_db_defaults(decl_db *db)
         if ((*d)->_tag == _decl_intrinsic) {
             decl_ref r = crefl_decl_new(db, _decl_intrinsic);
             crefl_decl_ptr(r)->_name = crefl_name_new(db, (*d)->_name);
-            crefl_decl_ptr(r)->_attrs = (*d)->_attrs;
+            crefl_decl_ptr(r)->_props = (*d)->_props;
             crefl_decl_ptr(r)->_width = (*d)->_width;
         }
         d++;
@@ -146,7 +146,7 @@ decl_ref crefl_decl_new(decl_db *db, decl_tag tag)
     }
     decl_ref d = { db, db->decl_offset++ };
     crefl_decl_ptr(d)->_tag = tag;
-    crefl_decl_ptr(d)->_attrs = 0;
+    crefl_decl_ptr(d)->_props = 0;
     crefl_decl_ptr(d)->_name = 0;
     return d;
 }
@@ -172,13 +172,13 @@ const char* crefl_decl_name(decl_ref d)
     return d.db->name + crefl_decl_ptr(d)->_name;
 }
 
-decl_ref crefl_intrinsic(decl_db *db, decl_set attrs, size_t width)
+decl_ref crefl_intrinsic(decl_db *db, decl_set props, size_t width)
 {
     for (size_t i = 0; i < db->decl_offset; i++) {
         decl_ref d = crefl_lookup(db, i);
         if (crefl_decl_tag(d) == _decl_intrinsic &&
             crefl_decl_ptr(d)->_width == width &&
-                ((crefl_decl_attrs(d) & attrs) == attrs)) {
+                ((crefl_decl_props(d) & props) == props)) {
             return decl_ref { db, i };
         }
     }
@@ -266,15 +266,15 @@ static inline unsigned _clz(size_t val)
 }
 #endif
 
-static inline size_t _pad_align(intptr_t offset, intptr_t width, decl_set attrs)
+static inline size_t _pad_align(intptr_t offset, intptr_t width, decl_set props)
 {
     intptr_t n = 63 - _clz(width), addend;
 
-    if ((attrs & _pad_byte)) {
+    if ((props & _pad_byte)) {
         n = (n > 3) ? n : 3;
         addend = 1lu << n;
     }
-    else if ((attrs & _pad_pow2)) {
+    else if ((props & _pad_pow2)) {
         addend = 1lu << n;
         offset &= ~(addend-1);
     }
@@ -297,7 +297,7 @@ size_t crefl_struct_width(decl_ref d)
         switch (crefl_decl_tag(dx)) {
         case _decl_field:
             t = crefl_lookup(d.db, crefl_decl_ptr(dx)->_link);
-            offset = _pad_align(offset, crefl_type_width(t), crefl_decl_attrs(t));
+            offset = _pad_align(offset, crefl_type_width(t), crefl_decl_props(t));
             break;
         case _decl_intrinsic:
         case _decl_struct:
@@ -325,7 +325,7 @@ size_t crefl_union_width(decl_ref d)
         switch (crefl_decl_tag(dx)) {
         case _decl_field:
             t = crefl_lookup(d.db, crefl_decl_ptr(dx)->_link);
-            width = _pad_align(0, crefl_type_width(t), crefl_decl_attrs(t));
+            width = _pad_align(0, crefl_type_width(t), crefl_decl_props(t));
             if (width > offset) offset = width;
             break;
         case _decl_intrinsic:

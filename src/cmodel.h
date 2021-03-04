@@ -100,12 +100,12 @@ union decl_raw
 };
 
 /*
- * decl attrs
+ * decl props
  *
- * many-of set enumeration for graph node type specific attributes such
+ * many-of set enumeration for graph node type specific properties such
  * as the intrinsic type, padding, qualifiers, binding and visibility.
  */
-enum decl_attrs
+enum decl_props
 {
     /* intrinsic type */
     _void           = 0,
@@ -183,11 +183,11 @@ struct decl_ref
  * fields
  *
  * - decl_tag tag   - union type tag indicating active properties
- * - decl_set attrs - type specific declaration attributes
+ * - decl_set props - type specific declaration properties
  * - decl_id name   - offset of name in symbol table
  * - decl_id next   - pointer to next node in a sequence
  *
- * attributes
+ * properties
  *
  * - intrinsic      - sint, uint, float
  * - padding        - pad_pow2, pad_bit, pad_byte
@@ -215,7 +215,7 @@ struct decl_ref
 struct decl
 {
     decl_tag _tag;
-    decl_set _attrs;
+    decl_set _props;
     decl_id _name;
     decl_id _next;
     decl_id _link;
@@ -277,7 +277,7 @@ void crefl_db_destroy(decl_db *db);
  */
 decl * crefl_decl_ptr(decl_ref d);
 decl_tag crefl_decl_tag(decl_ref d);
-decl_set crefl_decl_attrs(decl_ref d);
+decl_set crefl_decl_props(decl_ref d);
 decl_id crefl_decl_idx(decl_ref d);
 decl_ref crefl_decl_next(decl_ref d);
 
@@ -290,7 +290,7 @@ decl_ref crefl_decl_new(decl_db *db, decl_tag tag);
 /*
  * decl queries
  */
-decl_ref crefl_intrinsic(decl_db *db, decl_set attrs, size_t width);
+decl_ref crefl_intrinsic(decl_db *db, decl_set props, size_t width);
 decl_ref crefl_lookup(decl_db *db, size_t decl_idx);
 const char* crefl_tag_name(decl_tag tag);
 const char* crefl_decl_name(decl_ref d);

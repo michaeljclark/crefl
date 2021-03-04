@@ -27,7 +27,7 @@ struct _ctype
 {
     int _tag;
     int _width;
-    int _attrs;
+    int _props;
     const char* _name;
     const struct _ctype **_elements;
 };
