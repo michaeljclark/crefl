@@ -101,9 +101,10 @@ type tag, a set of properties, an interned name, and a link to the next item.
 | :--------- | :----------------- | :--------------------------------------------- |
 | `decl_tag` | `tag`              | tagged union node type                         |
 | `decl_set` | `props`            | type specific properties                       |
-| `decl_id`  | `name`             | interned node name                             |
+| `decl_id`  | `name`             | link to node name                              |
 | `decl_id`  | `next`             | link to next item                              |
 | `decl_id`  | `link`             | link to child item                             |
+| `decl_id`  | `attr`             | link to attribute list                         |
 
 #### decl subtypes
 
@@ -125,6 +126,8 @@ use the link field, and type specific properties use a union to hold a quantifer
 | `constant`  | ✓    | `sz value` | named constant                                 |
 | `function`  | ✓    | `sz addr`  | function with input and output parameter list  |
 | `param`     | ✓    |            | named parameter with link to next              |
+| `attribute` | ✓    |            | custom attribute name                          |
+| `value`     |      |            | custom attribute value                         |
 
 
 ### crefl implementation notes

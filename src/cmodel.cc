@@ -53,6 +53,8 @@ int crefl_is_array(decl_ref d) { return crefl_decl_tag(d) == _decl_array; }
 int crefl_is_constant(decl_ref d) { return crefl_decl_tag(d) == _decl_constant; }
 int crefl_is_function(decl_ref d) { return crefl_decl_tag(d) == _decl_function; }
 int crefl_is_param(decl_ref d) { return crefl_decl_tag(d) == _decl_param; }
+int crefl_is_attribute(decl_ref d) { return crefl_decl_tag(d) == _decl_attribute; }
+int crefl_is_value(decl_ref d) { return crefl_decl_tag(d) == _decl_value; }
 
 /*
  * decl accessors
@@ -63,6 +65,7 @@ decl_tag crefl_decl_tag(decl_ref d) { return (d.db->decl + d.decl_idx)->_tag; }
 decl_set crefl_decl_props(decl_ref d) { return (d.db->decl + d.decl_idx)->_props; }
 decl_id crefl_decl_idx(decl_ref d) { return d.decl_idx; }
 decl_ref crefl_decl_next(decl_ref d) { return decl_ref { d.db, (d.db->decl + d.decl_idx)->_next }; }
+decl_ref crefl_decl_attr(decl_ref d) { return decl_ref { d.db, (d.db->decl + d.decl_idx)->_attr }; }
 decl_ref crefl_lookup(decl_db *db, size_t decl_idx) { return decl_ref { db, decl_idx }; }
 
 /*
@@ -81,7 +84,9 @@ static const char * crefl_tag_names_arr[] = {
     "array",
     "constant",
     "function",
-    "param"
+    "param",
+    "attribute",
+    "value"
 };
 
 const char * crefl_tag_name(decl_tag tag)

@@ -75,6 +75,8 @@ enum {
     _decl_constant,
     _decl_function,
     _decl_param,
+    _decl_attribute,
+    _decl_value
 };
 
 /*
@@ -182,10 +184,12 @@ struct decl_ref
  *
  * fields
  *
- * - decl_tag tag   - union type tag indicating active properties
- * - decl_set props - type specific declaration properties
- * - decl_id name   - offset of name in symbol table
- * - decl_id next   - pointer to next node in a sequence
+ * - decl_tag tag   - tagged union node type
+ * - decl_set props - type specific properties
+ * - decl_id name   - link to node name
+ * - decl_id next   - link to next item
+ * - decl_id link   - link to child item
+ * - decl_id attr   - link to attribute list
  *
  * properties
  *
@@ -210,6 +214,8 @@ struct decl_ref
  * - constant       - named constant
  * - function       - function with parameter list
  * - param          - named parameter with link to next
+ * - attribute      - custom attribute name
+ * - value          - custom attribute value
  *
  */
 struct decl
@@ -219,6 +225,7 @@ struct decl
     decl_id _name;
     decl_id _next;
     decl_id _link;
+    decl_id _attr;
 
     /* quantifier used by intrinsic, field, array, constant, function */
     union {
@@ -264,6 +271,8 @@ int crefl_is_array(decl_ref d);
 int crefl_is_constant(decl_ref d);
 int crefl_is_function(decl_ref d);
 int crefl_is_param(decl_ref d);
+int crefl_is_attribute(decl_ref d);
+int crefl_is_value(decl_ref d);
 
 /*
  * decl database
@@ -280,6 +289,7 @@ decl_tag crefl_decl_tag(decl_ref d);
 decl_set crefl_decl_props(decl_ref d);
 decl_id crefl_decl_idx(decl_ref d);
 decl_ref crefl_decl_next(decl_ref d);
+decl_ref crefl_decl_attr(decl_ref d);
 
 /*
  * decl allocation
