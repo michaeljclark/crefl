@@ -55,7 +55,7 @@ void crefl_db_header_lines()
 void crefl_db_dump_row(decl_db *db, decl_ref r)
 {
     char buf[256];
-    decl *d = crefl_decl_ptr(r);
+    decl_node *d = crefl_decl_ptr(r);
     switch (crefl_decl_tag(r)) {
     case _decl_typedef:
         snprintf(buf, sizeof(buf), "%s",

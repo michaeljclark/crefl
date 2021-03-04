@@ -25,6 +25,25 @@ extern "C" {
 #endif
 
 /*
+ * # crefl reflection api
+ *
+ * the crefl API provides access to runtime reflection metadata for C
+ * structure declarations with support for arbitrarily nested combinations
+ * of: intrinsic, set, enum, struct, union, field, array, constant, variable.
+ *
+ * ## primary types
+ *
+ * - decl_node      - graph database declaration node type
+ * - decl_db        - graph database containing the declarations
+ * - decl_ref       - reference to a single declaration graph node
+ * - decl_tag       - enumeration indicating graph node type
+ * - decl_id        - indice of a graph node in the graph database
+ * - decl_sz        - size type used for array size and bit widths
+ * - decl_set       - type used to indicate many-of set enumerations
+ * - decl_raw       - raw value used to store constants
+ */
+
+/*
  * decl base types
  */
 
@@ -39,11 +58,11 @@ typedef unsigned long long u64;
 typedef float f32;
 typedef double f64;
 
-struct decl;
+struct decl_node;
 struct decl_db;
 struct decl_ref;
 
-typedef struct decl decl;
+typedef struct decl_node decl_node;
 typedef struct decl_db decl_db;
 typedef struct decl_ref decl_ref;
 typedef union decl_raw decl_raw;
@@ -58,11 +77,103 @@ typedef u64 decl_sz;
 #define fmt_AD "0x%llx"
 
 /*
+ * # decl node
+ *
+ * primary data structure used to store a graph of reflection metadata.
+ *
+ * ## fields
+ *
+ * - decl_tag tag   - tagged union node type
+ * - decl_set props - type specific properties
+ * - decl_id name   - link to node name
+ * - decl_id next   - link to next item
+ * - decl_id link   - link to child item
+ * - decl_id attr   - link to attribute list
+ *
+ * ## tags
+ *
+ * - void           - empty type
+ * - intrinsic      - machine type with width in bits
+ * - typedef        - alias to another type definition
+ * - set            - machine type with many-of sequence
+ * - enum           - machine type with one-of sequence
+ * - struct         - sequence of non-overlapping types
+ * - union          - sequence of overlapping types
+ * - field          - top-level, struct and union field
+ * - array          - sequence of one type
+ * - constant       - named constant
+ * - function       - function with parameter list
+ * - param          - named parameter with link to next
+ * - attribute      - custom attribute name
+ * - value          - custom attribute value
+ *
+ * ## properties
+ *
+ * - intrinsic      - sint, uint, float
+ * - padding        - pad_pow2, pad_bit, pad_byte
+ * - field          - bitfield
+ * - qualifiers     - const, volatile, restrict
+ * - binding        - local, global, weak
+ * - visibility     - default, hidden
+ *
+ */
+struct decl_node
+{
+    decl_tag _tag;
+    decl_set _props;
+    decl_id _name;
+    decl_id _next;
+    decl_id _link;
+    decl_id _attr;
+
+    /* quantifier used by intrinsic, field, array, constant, function */
+    union {
+        decl_sz _quantity;
+        decl_sz _width;
+        decl_sz _count;
+        decl_sz _value;
+        decl_sz _addr;
+    };
+};
+
+/*
+ * decl db
+ *
+ * reflection database containing decl nodes and symbol table.
+ */
+struct decl_db
+{
+    char* name;
+    size_t name_builtin;
+    size_t name_offset;
+    size_t name_size;
+
+    decl_node *decl;
+    size_t decl_builtin;
+    size_t decl_offset;
+    size_t decl_size;
+
+    decl_id root_element;
+};
+
+/*
+ * decl ref
+ *
+ * reference to a single node in the reflection database.
+ */
+struct decl_ref
+{
+    decl_db *db;
+    size_t decl_idx;
+};
+
+/*
  * decl tag
  *
  * union type tag indicating active properties in decl graph nodes.
  */
-enum {
+enum decl_tags
+{
     _decl_void,
     _decl_intrinsic,
     _decl_typedef,
@@ -77,28 +188,6 @@ enum {
     _decl_param,
     _decl_attribute,
     _decl_value
-};
-
-/*
- * decl raw
- *
- * union to provide access to raw values for intrinsic types.
- */
-union decl_raw
-{
-    u64   ux;
-    s64   sx;
-    void* px;
-    u8    ub[8];
-    s8    sb[8];
-    u16   uw[4];
-    s16   sw[4];
-    u32   ud[2];
-    s32   sd[2];
-    u64   uq[1];
-    s64   sq[1];
-    f32   fs[2];
-    f64   fd[1];
 };
 
 /*
@@ -145,113 +234,29 @@ enum decl_props
 };
 
 /*
- * decl db
+ * decl raw
  *
- * reflection database containing decl nodes and symbol table.
+ * union to provide access to raw values for intrinsic types.
  */
-struct decl_db
+union decl_raw
 {
-    char* name;
-    size_t name_builtin;
-    size_t name_offset;
-    size_t name_size;
-
-    decl *decl;
-    size_t decl_builtin;
-    size_t decl_offset;
-    size_t decl_size;
-
-    decl_id root_element;
+    u64   ux;
+    s64   sx;
+    void* px;
+    u8    ub[8];
+    s8    sb[8];
+    u16   uw[4];
+    s16   sw[4];
+    u32   ud[2];
+    s32   sd[2];
+    u64   uq[1];
+    s64   sq[1];
+    f32   fs[2];
+    f64   fd[1];
 };
 
 /*
- * decl ref
- *
- * reference to a single node in the reflection database.
- */
-struct decl_ref
-{
-    decl_db *db;
-    size_t decl_idx;
-};
-
-/*
- * decl
- *
- * primary data structure used to store a graph of reflection metadata.
- * decl is comprised of a set of shared fields, including name and index
- * of the next node. node type specific properties are stored in a union.
- *
- * fields
- *
- * - decl_tag tag   - tagged union node type
- * - decl_set props - type specific properties
- * - decl_id name   - link to node name
- * - decl_id next   - link to next item
- * - decl_id link   - link to child item
- * - decl_id attr   - link to attribute list
- *
- * properties
- *
- * - intrinsic      - sint, uint, float
- * - padding        - pad_pow2, pad_bit, pad_byte
- * - field          - bitfield
- * - qualifiers     - const, volatile, restrict
- * - binding        - local, global, weak
- * - visibility     - default, hidden
- *
- * tagged types
- *
- * - void           - empty type
- * - intrinsic      - machine type with width in bits
- * - typedef        - alias to another type definition
- * - set            - machine type with many-of sequence
- * - enum           - machine type with one-of sequence
- * - struct         - sequence of non-overlapping types
- * - union          - sequence of overlapping types
- * - field          - top-level, struct and union field
- * - array          - sequence of one type
- * - constant       - named constant
- * - function       - function with parameter list
- * - param          - named parameter with link to next
- * - attribute      - custom attribute name
- * - value          - custom attribute value
- *
- */
-struct decl
-{
-    decl_tag _tag;
-    decl_set _props;
-    decl_id _name;
-    decl_id _next;
-    decl_id _link;
-    decl_id _attr;
-
-    /* quantifier used by intrinsic, field, array, constant, function */
-    union {
-        decl_sz _quantity;
-        decl_sz _width;
-        decl_sz _count;
-        decl_sz _value;
-        decl_sz _addr;
-    };
-};
-
-/*
- * crefl reflection api
- *
- * the crefl API provides access to runtime reflection metadata for C
- * structure declarations with support for arbitrarily nested combinations
- * of: intrinsic, set, enum, struct, union, field, array, constant, variable.
- *
- * primary types
- *
- * - decl_db        - graph database containing the declarations
- * - decl_ref       - reference to a single declaration graph node
- * - decl_tag       - enumeration indicating graph node type
- * - decl_id        - indice of a graph node in the graph database
- * - decl_sz        - size type used for array size and bit widths
- * - decl_set       - type used to indicate many-of set enumerations
+ * # C Interface
  */
 
 /*
@@ -284,7 +289,7 @@ void crefl_db_destroy(decl_db *db);
 /*
  * decl properties
  */
-decl * crefl_decl_ptr(decl_ref d);
+decl_node * crefl_decl_ptr(decl_ref d);
 decl_tag crefl_decl_tag(decl_ref d);
 decl_set crefl_decl_props(decl_ref d);
 decl_id crefl_decl_idx(decl_ref d);

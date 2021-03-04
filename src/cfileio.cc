@@ -78,7 +78,7 @@ int crefl_db_magic(const void *addr)
 size_t crefl_db_size(decl_db *db)
 {
     size_t hdr_sz = sizeof(decl_db_hdr);
-    size_t decl_sz = sizeof(decl) * (db->decl_offset - db->decl_builtin);
+    size_t decl_sz = sizeof(decl_node) * (db->decl_offset - db->decl_builtin);
     size_t name_sz = db->name_offset - db->name_builtin;
     size_t total_sz = hdr_sz + decl_sz + name_sz;
 
@@ -102,7 +102,7 @@ int crefl_db_read_mem(decl_db *db, const uint8_t *buf, size_t input_sz)
 
     decl_db_hdr *hdr = (decl_db_hdr*)&buf[0];
     size_t hdr_sz = sizeof(decl_db_hdr);
-    size_t decl_sz = sizeof(decl) * hdr->decl_entry_count;
+    size_t decl_sz = sizeof(decl_node) * hdr->decl_entry_count;
     size_t name_sz = hdr->name_table_size;
     size_t root_idx = hdr->root_element;
 
@@ -122,7 +122,7 @@ int crefl_db_read_mem(decl_db *db, const uint8_t *buf, size_t input_sz)
     /* resize buffers */
     if (db->decl_size < decl_sz) {
         db->decl_size = decl_sz;
-        db->decl = (decl*)realloc(db->decl, sizeof(decl) * db->decl_size);
+        db->decl = (decl_node*)realloc(db->decl, sizeof(decl_node) * db->decl_size);
     }
     if (db->name_size < name_sz) {
         db->name_size = name_sz;
@@ -151,7 +151,7 @@ int crefl_db_read_mem(decl_db *db, const uint8_t *buf, size_t input_sz)
 int crefl_db_write_mem(decl_db *db, uint8_t *buf, size_t output_sz)
 {
     size_t hdr_sz = sizeof(decl_db_hdr);
-    size_t decl_sz = sizeof(decl) * (db->decl_offset - db->decl_builtin);
+    size_t decl_sz = sizeof(decl_node) * (db->decl_offset - db->decl_builtin);
     size_t name_sz = db->name_offset - db->name_builtin;
     size_t total_sz = hdr_sz + decl_sz + name_sz;
 

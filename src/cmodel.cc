@@ -60,7 +60,7 @@ int crefl_is_value(decl_ref d) { return crefl_decl_tag(d) == _decl_value; }
  * decl accessors
  */
 
-decl * crefl_decl_ptr(decl_ref d) { return d.db->decl + d.decl_idx; }
+decl_node * crefl_decl_ptr(decl_ref d) { return d.db->decl + d.decl_idx; }
 decl_tag crefl_decl_tag(decl_ref d) { return (d.db->decl + d.decl_idx)->_tag; }
 decl_set crefl_decl_props(decl_ref d) { return (d.db->decl + d.decl_idx)->_props; }
 decl_id crefl_decl_idx(decl_ref d) { return d.decl_idx; }
@@ -111,8 +111,8 @@ decl_db * crefl_db_new()
     db->decl_offset = 1; /* offset 0 slot is empty */
     db->decl_builtin = 1;
     db->decl_size = 128;
-    db->decl = (decl*)malloc(sizeof(decl) * db->decl_size);
-    memset(db->decl, 0, sizeof(decl) * db->decl_size);
+    db->decl = (decl_node*)malloc(sizeof(decl_node) * db->decl_size);
+    memset(db->decl, 0, sizeof(decl_node) * db->decl_size);
 
     db->root_element = 0;
 
@@ -147,10 +147,10 @@ decl_ref crefl_decl_new(decl_db *db, decl_tag tag)
 {
     if (db->decl_offset >= db->decl_size) {
         db->decl_size <<= 1;
-        db->decl = (decl*)realloc(db->decl, sizeof(decl) * db->decl_size);
+        db->decl = (decl_node*)realloc(db->decl, sizeof(decl_node) * db->decl_size);
     }
     decl_ref d = { db, db->decl_offset++ };
-    memset(crefl_decl_ptr(d), 0, sizeof(decl));
+    memset(crefl_decl_ptr(d), 0, sizeof(decl_node));
     crefl_decl_ptr(d)->_tag = tag;
     return d;
 }
