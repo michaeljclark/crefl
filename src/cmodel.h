@@ -64,8 +64,8 @@ typedef u64 decl_sz;
  */
 enum {
     _decl_void,
-    _decl_typedef,
     _decl_intrinsic,
+    _decl_typedef,
     _decl_set,
     _decl_enum,
     _decl_struct,
@@ -199,8 +199,8 @@ struct decl_ref
  * tagged types
  *
  * - void           - empty type
- * - typedef        - alias to another type definition
  * - intrinsic      - machine type with width in bits
+ * - typedef        - alias to another type definition
  * - set            - machine type with many-of sequence
  * - enum           - machine type with one-of sequence
  * - struct         - sequence of non-overlapping types
@@ -253,8 +253,8 @@ struct decl
 int crefl_is_any(decl_ref d);
 int crefl_is_top(decl_ref d);
 int crefl_is_type(decl_ref d);
-int crefl_is_typedef(decl_ref d);
 int crefl_is_intrinsic(decl_ref d);
+int crefl_is_typedef(decl_ref d);
 int crefl_is_set(decl_ref d);
 int crefl_is_enum(decl_ref d);
 int crefl_is_struct(decl_ref d);
