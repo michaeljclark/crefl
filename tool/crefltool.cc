@@ -17,6 +17,7 @@
  */
 
 #include <cstdio>
+#include <cstdlib>
 
 #include "cmodel.h"
 #include "cdump.h"
@@ -25,7 +26,8 @@
 int main(int argc, const char **argv)
 {
     if (argc != 2) {
-        fprintf(stderr, "usage: %s <filename.refl>", argv[0]);
+        fprintf(stderr, "usage: %s <filename.refl>\n", argv[0]);
+        exit(1);
     }
 
     decl_db *db = crefl_db_new();
