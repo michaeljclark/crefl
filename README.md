@@ -78,16 +78,16 @@ in ISO/IEC 9899:9999 with minor changes. The following sections describe:
 - primary types to model the type system
 - decl node type to model the metadata graph
 - decl node subtypes to model C structures and interfaces
-  - _typedef, intrinsic, set, enum, struct, union, field, array, constant,
-    function, param_
+  - _intrinsic, typedef, set, enum, struct, union, field, array, constant,
+    function, param, attribute, value_
 
 One variation from the C normative terminology is the use of _field_
 instead of _member_ for structure elements.
 
 #### primary types
 
-The _crefl_ API graph database use a small number of primary data types
-for the reflection database it graph nodes and their types and properties.
+The _crefl_ API uses a small number of primary data types for the reflection
+graph database, the declaration graph nodes and their properties.
 
 | Type       | Description                                    |
 | :--------- | :--------------------------------------------- |
@@ -103,7 +103,8 @@ for the reflection database it graph nodes and their types and properties.
 #### decl node
 
 The _crefl_ data structure consists of an array of _decl_ nodes which have a
-type tag, a set of properties, an interned name, and a link to the next item.
+type tag, a set of properties, an interned name, a link to the next item in a
+list, a link to a child item and a link to an optional attribute list.
 
 | Type       | Name               | Description                                    |
 | :--------- | :----------------- | :--------------------------------------------- |
@@ -122,9 +123,9 @@ on any node type and thus are semantically referred to as _south-east_.
 
 #### decl subtypes
 
-The _decl_ nodes contain a union with type specific properties such as a
-width or size quantifier or address and a link to child nodes. Not all types
-use the link field, and type specific properties use a union to hold a quantifer.
+The _decl_ node contains a union with type specific properties such as a
+count, a width or a size. Not all types use the link field or the quantifer.
+This table table lists the properties used by each subtype:
 
 | Type        | Link | Properties | Description                                    |
 | :---------- | :--- | :--------- | :--------------------------------------------- |
@@ -153,17 +154,17 @@ The _crefl_ implementation is currently _alpha software_.
   - format was reduced ~20% in size by eliding builtin types.
   - format could be made even smaller using LEB128 or ASN.1.
 - fields currently link to the desugared type.
-  - intend to store all qualifiers and original typedef links.
+  - intend to store all qualifiers and links to typedefs.
   - implement API to query typedef or the terminal desugared type.
 
 ### crefl features
 
 - [x] C intrinsic data types
-  - 8,16,32,64,128-bit signed and unsigned integral types
-  - 16,32,64-bit floating point types
-  - 32,64-bit cpointer
-  - 1-bit cbool
-- [x] nested struct, union, field (_member_) and intrinsic types.
+  - _{ 8, 16, 32, 64, 128 }_ bit signed and unsigned integral types
+  - _{ 16, 32, 64 }_ bit floating point types
+  - _{ 32, 64 }_ bit pointer types
+  - _1_ bit boolean type
+- [x] nested struct, union, field and intrinsic types.
 - [x] bitfield.
 - [x] typedef type aliases.
 - [x] enum and enum constants.
