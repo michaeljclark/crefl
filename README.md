@@ -85,12 +85,14 @@ for the reflection database it graph nodes and their types and properties.
 
 | Type       | Description                                    |
 | :--------- | :--------------------------------------------- |
+| `decl_node`| graph database declaration node type           |
 | `decl_db`  | graph database containing the declarations     |
 | `decl_ref` | reference to a single declaration graph node   |
 | `decl_tag` | enumeration indicating graph node type         |
 | `decl_id`  | indice of a graph node in the graph database   |
 | `decl_sz`  | size type used for array size and bit widths   |
 | `decl_set` | type used to indicate many-of set enumerations |
+| `decl_raw` | raw value used to store constants              |
 
 #### decl node
 
