@@ -150,9 +150,8 @@ decl_ref crefl_decl_new(decl_db *db, decl_tag tag)
         db->decl = (decl*)realloc(db->decl, sizeof(decl) * db->decl_size);
     }
     decl_ref d = { db, db->decl_offset++ };
+    memset(crefl_decl_ptr(d), 0, sizeof(decl));
     crefl_decl_ptr(d)->_tag = tag;
-    crefl_decl_ptr(d)->_props = 0;
-    crefl_decl_ptr(d)->_name = 0;
     return d;
 }
 
