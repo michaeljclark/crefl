@@ -9,6 +9,8 @@ of: intrinsic, set, enum, struct, union, field, array, constant, variable.
 - The _crefl_ clang plug-in outputs C reflection meta-data used by the library.
 - The _crefl_ API provides task-oriented query access to C reflection meta-data.
 
+---
+
 ### crefl example
 
 This example has an outer-loop iterating through _struct types_ and an
@@ -63,6 +65,8 @@ int main(int argc, const char **argv)
     crefl_db_destroy(db);
 }
 ```
+
+---
 
 ### crefl model
 
@@ -137,6 +141,7 @@ use the link field, and type specific properties use a union to hold a quantifer
 | `attribute` | ✓    |            | custom attribute name                          |
 | `value`     |      |            | custom attribute value                         |
 
+---
 
 ### crefl implementation notes
 
@@ -169,24 +174,30 @@ The _crefl_ implementation is currently _alpha software_.
 - [ ] complex number types.
 - [ ] function addresses.
 
-### crefl dependencies
+---
 
-tested on ubuntu 20.04 LTS:
+### crefl build instructions
+
+crefl has been tested on ubuntu 20.04 LTS.
+
+#### crefl dependencies
+
+ubuntu 20.04 LTS:
 
 ```
 sudo apt-get install llvm libclang-dev
 ```
 
-### building crefl
+#### building crefl
 
-tested on ubuntu 20.04 LTS:
+ubuntu 20.04 LTS:
 
 ```
 cmake -B build -G Ninja
 cmake --build build -- --verbose
 ```
 
-### invoking crefl plugin
+#### invoking crefl plugin
 
 to run the crefl plugin and dump the reflection table to stdout:
 
