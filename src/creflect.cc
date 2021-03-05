@@ -222,6 +222,15 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         return decl_ref { db, idmap[p->getID()] };
     }
 
+    decl_set get_cvr_props(QualType q)
+    {
+        int props = 0;
+        props |= _const & -(q.getLocalFastQualifiers() & Qualifiers::Const);
+        props |= _volatile & -(q.getLocalFastQualifiers() & Qualifiers::Volatile);
+        props |= _restrict & -(q.getLocalFastQualifiers() & Qualifiers::Restrict);
+        return props;
+    }
+
     bool VisitPragmaCommentDecl(PragmaCommentDecl *d)
     {
         /* PragmaCommentDecl -> Decl */
@@ -260,6 +269,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             d->clang::NamedDecl::getNameAsString().c_str());
         idmap[d->clang::Decl::getID()] = crefl_decl_idx(r);
         crefl_decl_ptr(r)->_link = crefl_decl_idx(get_intrinsic_type(q));
+        crefl_decl_ptr(r)->_props |= get_cvr_props(q);
 
         /* create prev next link */
         if (crefl_decl_idx(last) && !crefl_decl_ptr(last)->_next) {
@@ -454,9 +464,9 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         crefl_decl_ptr(r)->_name = crefl_name_new(db,
             d->clang::NamedDecl::getNameAsString().c_str());
         idmap[d->clang::Decl::getID()] = crefl_decl_idx(r);
-        crefl_decl_ptr(r)->_props |= -d->isBitField() & _bitfield;
         crefl_decl_ptr(r)->_link = crefl_decl_idx(get_intrinsic_type(q));
         crefl_decl_ptr(r)->_width = width;
+        crefl_decl_ptr(r)->_props |= get_cvr_props(q) | (-d->isBitField() & _bitfield);
 
         /* create prev next link */
         if (crefl_decl_idx(last) && !crefl_decl_ptr(last)->_next) {
@@ -496,7 +506,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         debugf("\tname:\"%s\" has_body:%d\n",
             d->getNameInfo().getName().getAsString().c_str(), d->hasBody());
 
-        /* create constant */
+        /* create function */
         decl_ref r = crefl_decl_new(db, _decl_function);
         crefl_decl_ptr(r)->_name = crefl_name_new(db,
             d->clang::NamedDecl::getNameAsString().c_str());
@@ -526,6 +536,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         decl_ref pr = crefl_decl_new(db, _decl_param);
         crefl_decl_ptr(last)->_link = crefl_decl_idx(pr);
         crefl_decl_ptr(pr)->_link = crefl_decl_idx(get_intrinsic_type(qr));
+        crefl_decl_ptr(pr)->_props |= get_cvr_props(qr);
 
         /* create argument params */
         const ArrayRef<ParmVarDecl*> parms = d->parameters();
@@ -538,6 +549,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
                 parm->clang::NamedDecl::getNameAsString().c_str());
             crefl_decl_ptr(pr)->_next = crefl_decl_idx(ar);
             crefl_decl_ptr(ar)->_link = crefl_decl_idx(get_intrinsic_type(q));
+            crefl_decl_ptr(ar)->_props |= get_cvr_props(q);
             pr = ar;
         }
 
@@ -564,6 +576,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         idmap[d->clang::Decl::getID()] = crefl_decl_idx(r);
         const QualType q = d->getTypeSourceInfo()->getType();
         crefl_decl_ptr(r)->_link = crefl_decl_idx(get_intrinsic_type(q));
+        crefl_decl_ptr(r)->_props |= get_cvr_props(q);
 
         //Stmt **ia = d->getInitAddress();
 

@@ -168,10 +168,9 @@ The _crefl_ implementation is currently _alpha software_.
 - [x] typedef type aliases.
 - [x] enum and enum constants.
 - [x] functions and function parameters.
-- [ ] typedef links vs desugared types.
-- [ ] custom type qualifiers.
-- [ ] const, volatile and restrict.
+- [x] const, volatile and restrict.
 - [ ] attributes (`__attribute__`).
+- [ ] sugared vs desugared types.
 - [ ] pointed-to types for pointers.
 - [ ] complex number types.
 - [ ] function addresses.
