@@ -104,9 +104,15 @@ type tag, a set of properties, an interned name, and a link to the next item.
 | `decl_tag` | `tag`              | tagged union node type                         |
 | `decl_set` | `props`            | type specific properties                       |
 | `decl_id`  | `name`             | link to node name                              |
-| `decl_id`  | `next`             | link to next item                              |
-| `decl_id`  | `link`             | link to child item                             |
-| `decl_id`  | `attr`             | link to attribute list                         |
+| `decl_id`  | `next`             | link to next item (_south_)                    |
+| `decl_id`  | `link`             | link to child item (_east_)                    |
+| `decl_id`  | `attr`             | link to attribute list (_south-east_)          |
+
+The semantic topology of the graph links (_south_, _south-east_, _east_)
+are used to think about graph layout. On a board, the _next_ node would be
+_south_, or below the current node. A child or _link_ node would increment
+to the _east_ (field type, function parameters, etc). Attributes can exist
+on any node type and thus are semantically referred to as _south-east_.
 
 #### decl subtypes
 
