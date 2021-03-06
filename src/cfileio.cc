@@ -138,12 +138,30 @@ int crefl_db_read_mem(decl_db *db, const uint8_t *buf, size_t input_sz)
     db->name_offset += hdr->name_table_size;
     db->root_element = hdr->root_element;
 
-    /*
-     * - TODO add safety checks
-     *
-     *   - TODO verify all decl link are within bounds.
-     *   - TODO verify all name offsets are within bounds.
-     */
+    /* verify that node and name links are within bounds. */
+    for (decl_id i = 0; i < db->decl_offset; i++) {
+        decl_node *d = db->decl + i;
+        if (d->_link >= db->decl_offset) {
+            fprintf(stderr, "crefl: *** error: decl " fmt_ID
+                " link " fmt_ID " out of bounds\n", i, d->_link);
+            return -1;
+        }
+        if (d->_next >= db->decl_offset) {
+            fprintf(stderr, "crefl: *** error: decl " fmt_ID
+                " next " fmt_ID " out of bounds\n", i, d->_next);
+            return -1;
+        }
+        if (d->_attr >= db->decl_offset) {
+            fprintf(stderr, "crefl: *** error: decl " fmt_ID
+                " attr " fmt_ID " out of bounds\n", i, d->_attr);
+            return -1;
+        }
+        if (d->_name >= db->name_offset) {
+            fprintf(stderr, "crefl: *** error: decl " fmt_ID
+                " name " fmt_ID " out of bounds\n", i, d->_name);
+            return -1;
+        }
+    }
 
     return 0;
 }
