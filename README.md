@@ -13,7 +13,7 @@ of: intrinsic, set, enum, struct, union, field, array, constant, variable.
 
 ---
 
-### crefl example
+## crefl example
 
 This example has an outer-loop iterating through _struct types_ and an
 inner-loop iterating through _struct fields_.
@@ -70,7 +70,7 @@ int main(int argc, const char **argv)
 
 ---
 
-### crefl model
+## crefl model
 
 _crefl_ implements a data model based on the description of the C data types
 in ISO/IEC 9899:9999 with minor changes. The following sections describe:
@@ -84,7 +84,7 @@ in ISO/IEC 9899:9999 with minor changes. The following sections describe:
 One variation from the C normative terminology is the use of _field_
 instead of _member_ for structure elements.
 
-#### primary types
+### primary types
 
 The _crefl_ API uses a small number of primary data types for the reflection
 graph database, the declaration graph nodes and their properties.
@@ -100,7 +100,7 @@ graph database, the declaration graph nodes and their properties.
 | `decl_set` | type used to indicate many-of set enumerations |
 | `decl_raw` | raw value used to store constants              |
 
-#### decl node
+### decl node
 
 The _crefl_ data structure consists of an array of _decl_ nodes which have a
 type tag, a set of properties, an interned name, a link to the next item in a
@@ -121,7 +121,7 @@ _south_, or below the current node. A child or _link_ node would increment
 to the _east_ (field type, function parameters, etc). Attributes can exist
 on any node type and thus are semantically referred to as _south-east_.
 
-#### decl subtypes
+### decl subtypes
 
 The _decl_ node contains a union with type specific properties such as a
 count, a width or a size. Not all types use the link field or the quantifer.
@@ -146,7 +146,7 @@ This table table lists the properties used by each subtype:
 
 ---
 
-### crefl implementation notes
+## crefl implementation notes
 
 The _crefl_ implementation is currently _alpha software_.
 
@@ -179,11 +179,11 @@ The _crefl_ implementation is currently _alpha software_.
 
 ---
 
-### crefl build instructions
+## crefl build instructions
 
 crefl has been tested on ubuntu 20.04 LTS.
 
-#### crefl dependencies
+### install dependencies
 
 ubuntu 20.04 LTS:
 
@@ -191,7 +191,7 @@ ubuntu 20.04 LTS:
 sudo apt-get install llvm libclang-dev
 ```
 
-#### building crefl
+### building crefl
 
 ubuntu 20.04 LTS:
 
@@ -200,7 +200,7 @@ cmake -B build -G Ninja
 cmake --build build -- --verbose
 ```
 
-#### invoking crefl plugin
+### invoking plugin
 
 to run the crefl plugin and dump the reflection table to stdout:
 
