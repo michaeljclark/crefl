@@ -174,7 +174,9 @@ The _crefl_ implementation is currently _alpha software_.
 - [x] const, volatile and restrict.
 - [x] attributes (`__attribute__`).
   - currently limited to `pure, packed, used, unused, alias("X"), aligned(X)`
-- [ ] sugared vs desugared types.
+- [ ] classic integer types.
+  - _char, short, int, long,_ instead of _i8, i16, i32, i64_
+  - _uchar, ushort, uint, ulong,_ instead of _u8, u16, u32, u64_
 - [ ] complex number types.
 - [ ] function addresses.
 
