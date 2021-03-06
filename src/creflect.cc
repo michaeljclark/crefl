@@ -105,6 +105,94 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         }
     }
 
+    decl_ref create_attribute(decl_ref last, const char *name)
+    {
+        /* create attribute */
+        decl_ref r = crefl_decl_new(db, _decl_attribute);
+        crefl_decl_ptr(r)->_name = crefl_name_new(db, name);
+
+        /* create prev next link */
+        if (crefl_decl_idx(last) && !crefl_decl_ptr(last)->_next) {
+            crefl_decl_ptr(last)->_next = crefl_decl_idx(r);
+        }
+
+        return r;
+    }
+
+    decl_ref create_attribute_string(decl_ref last, const char *name, const char *val)
+    {
+        /* create attribute */
+        decl_ref r = crefl_decl_new(db, _decl_attribute);
+        crefl_decl_ptr(r)->_name = crefl_name_new(db, name);
+
+        /* create value */
+        decl_ref v = crefl_decl_new(db, _decl_value);
+        crefl_decl_ptr(v)->_name = crefl_name_new(db, val);
+        crefl_decl_ptr(r)->_link = crefl_decl_idx(v);
+
+        /* create prev next link */
+        if (crefl_decl_idx(last) && !crefl_decl_ptr(last)->_next) {
+            crefl_decl_ptr(last)->_next = crefl_decl_idx(r);
+        }
+
+        return r;
+    }
+
+    decl_ref create_attribute_value(decl_ref last, const char *name, decl_sz val)
+    {
+        /* create attribute */
+        decl_ref r = crefl_decl_new(db, _decl_attribute);
+        crefl_decl_ptr(r)->_name = crefl_name_new(db, name);
+
+        /* create value */
+        decl_ref v = crefl_decl_new(db, _decl_value);
+        crefl_decl_ptr(v)->_value = val;
+        crefl_decl_ptr(r)->_link = crefl_decl_idx(v);
+
+        /* create prev next link */
+        if (crefl_decl_idx(last) && !crefl_decl_ptr(last)->_next) {
+            crefl_decl_ptr(last)->_next = crefl_decl_idx(r);
+        }
+
+        return r;
+    }
+
+    decl_id create_attributes(Decl *d, decl_ref r)
+    {
+        decl_ref last = { 0 };
+        decl_id result = 0;
+
+        AttrVec& av = d->getAttrs();
+        for (auto &at : av) {
+            debugf("\tattribute:%s\n", at->getNormalizedFullName().c_str());
+            if (isa<PureAttr>(*at)) {
+                last = create_attribute(last, "pure");
+            }
+            else if (isa<PackedAttr>(*at)) {
+                last = create_attribute(last, "packed");
+            }
+            else if (isa<UsedAttr>(*at)) {
+                last = create_attribute(last, "used");
+            }
+            else if (isa<UnusedAttr>(*at)) {
+                last = create_attribute(last, "unused");
+            }
+            else if (isa<WarnUnusedResultAttr>(*at)) {
+                last = create_attribute(last, "warn_unused_result");
+            }
+            else if (isa<AliasAttr>(*at)) {
+                std::string aliasee = cast<AliasAttr>(*at).getAliasee().str();
+                last = create_attribute_string(last, "alias", aliasee.c_str());
+            }
+            else if (isa<AlignedAttr>(*at)) {
+                unsigned align = cast<AlignedAttr>(*at).getAlignment(context);
+                last = create_attribute_value(last, "aligned", align);
+            }
+            if (crefl_decl_idx(last)) result = crefl_decl_idx(last);
+        }
+        return result;
+    }
+
     decl_ref get_intrinsic_type(QualType q)
     {
         TypeInfo t = context.getTypeInfo(q);
@@ -271,6 +359,9 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         crefl_decl_ptr(r)->_link = crefl_decl_idx(get_intrinsic_type(q));
         crefl_decl_ptr(r)->_props |= get_cvr_props(q);
 
+        /* create attributes */
+        crefl_decl_ptr(r)->_attr = create_attributes(d, r);
+
         /* create prev next link */
         if (crefl_decl_idx(last) && !crefl_decl_ptr(last)->_next) {
             crefl_decl_ptr(last)->_next = crefl_decl_idx(r);
@@ -311,6 +402,9 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         crefl_decl_ptr(r)->_name = crefl_name_new(db,
             d->clang::NamedDecl::getNameAsString().c_str());
         idmap[d->clang::Decl::getID()] = crefl_decl_idx(r);
+
+        /* create attributes */
+        crefl_decl_ptr(r)->_attr = create_attributes(d, r);
 
         /* create prev next link */
         if (crefl_decl_idx(last) && !crefl_decl_ptr(last)->_next) {
@@ -354,6 +448,9 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         idmap[d->clang::Decl::getID()] = crefl_decl_idx(r);
         crefl_decl_ptr(r)->_link = crefl_decl_idx(get_intrinsic_type(q));
         crefl_decl_ptr(r)->_value = value;
+
+        /* create attributes */
+        crefl_decl_ptr(r)->_attr = create_attributes(d, r);
 
         /* create prev next link */
         if (crefl_decl_idx(last) && !crefl_decl_ptr(last)->_next) {
@@ -418,6 +515,9 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
                 d->clang::NamedDecl::getNameAsString().c_str());
             idmap[d->clang::Decl::getID()] = crefl_decl_idx(r);
 
+            /* create attributes */
+            crefl_decl_ptr(r)->_attr = create_attributes(d, r);
+
             /* create prev next link */
             if (crefl_decl_idx(last) && !crefl_decl_ptr(last)->_next) {
                 crefl_decl_ptr(last)->_next = crefl_decl_idx(r);
@@ -468,6 +568,9 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         crefl_decl_ptr(r)->_width = width;
         crefl_decl_ptr(r)->_props |= get_cvr_props(q) | (-d->isBitField() & _bitfield);
 
+        /* create attributes */
+        crefl_decl_ptr(r)->_attr = create_attributes(d, r);
+
         /* create prev next link */
         if (crefl_decl_idx(last) && !crefl_decl_ptr(last)->_next) {
             crefl_decl_ptr(last)->_next = crefl_decl_idx(r);
@@ -511,6 +614,9 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         crefl_decl_ptr(r)->_name = crefl_name_new(db,
             d->clang::NamedDecl::getNameAsString().c_str());
         idmap[d->clang::Decl::getID()] = crefl_decl_idx(r);
+
+        /* create attributes */
+        crefl_decl_ptr(r)->_attr = create_attributes(d, r);
 
         /* create prev next link */
         if (crefl_decl_idx(last) && !crefl_decl_ptr(last)->_next) {
@@ -577,6 +683,9 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         const QualType q = d->getTypeSourceInfo()->getType();
         crefl_decl_ptr(r)->_link = crefl_decl_idx(get_intrinsic_type(q));
         crefl_decl_ptr(r)->_props |= get_cvr_props(q);
+
+        /* create attributes */
+        crefl_decl_ptr(r)->_attr = create_attributes(d, r);
 
         //Stmt **ia = d->getInitAddress();
 

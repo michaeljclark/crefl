@@ -170,7 +170,8 @@ The _crefl_ implementation is currently _alpha software_.
 - [x] enum and enum constants.
 - [x] functions and function parameters.
 - [x] const, volatile and restrict.
-- [ ] attributes (`__attribute__`).
+- [x] attributes (`__attribute__`).
+  - currently limited to `pure, packed, used, unused, alias("X"), aligned(X)`
 - [ ] sugared vs desugared types.
 - [ ] pointed-to types for pointers.
 - [ ] complex number types.

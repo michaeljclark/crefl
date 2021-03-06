@@ -41,38 +41,30 @@ static const char * _pretty_props(decl_ref d)
 {
     static char buf[1024];
 
+    decl_ref lr = crefl_lookup(d.db, crefl_decl_ptr(d)->_link);
+
+    if (strlen(crefl_decl_name(lr)) > 0) {
+        snprintf(buf, sizeof(buf), "%s(\"%s\")",
+            crefl_tag_name(crefl_decl_tag(lr)), crefl_decl_name(lr));
+    }
+    else {
+        snprintf(buf, sizeof(buf), "%s",
+            crefl_tag_name(crefl_decl_tag(lr)));
+    }
+
+    size_t len = strlen(buf);
+
     decl_set props = crefl_decl_props(d);
-    size_t l = 0;
-    buf[0] = '\0';
 
     for (size_t i = 0; i < array_size(prop_names); i++) {
         prop_name p = prop_names[i];
         if ((props & p.prop) == p.prop) {
             props &= ~p.prop;
-            if (l > 0) {
-                strncat(buf, ",", sizeof(buf)-l);
-                l++;
-            }
-            strncat(buf, p.name, sizeof(buf)-l);
-            l += strlen(p.name);
+            strncat(buf, ",", sizeof(buf)-len);
+            len++;
+            strncat(buf, p.name, sizeof(buf)-len);
+            len += strlen(p.name);
         }
-    }
-
-    return buf;
-}
-
-static const char * _pretty_name(const char* l, decl_db *db, size_t decl_idx)
-{
-    static char buf[1024];
-
-    decl_ref d = crefl_lookup(db, decl_idx);
-
-    if (strlen(crefl_decl_name(d)) > 0) {
-        snprintf(buf, sizeof(buf), "%s=[%s:%u,(\"%s\")]",
-            l, crefl_tag_name(crefl_decl_tag(d)), crefl_decl_idx(d), crefl_decl_name(d));
-    } else {
-        snprintf(buf, sizeof(buf), "%s=[%s:%u,(anonymous)]",
-            l, crefl_tag_name(crefl_decl_tag(d)), crefl_decl_idx(d));
     }
 
     return buf;
@@ -80,14 +72,15 @@ static const char * _pretty_name(const char* l, decl_db *db, size_t decl_idx)
 
 void crefl_db_header_names()
 {
-    printf("%-5s %-5s %-10s %-14s %-14s\n",
-        "id", "next", "type", "name", "details");
+    printf("%-5s %-5s %-5s %-5s %-10s %-18s %-26s\n",
+        "id", "attr", "next", "link", "type", "name", "properties");
 }
 
 void crefl_db_header_lines()
 {
-    printf("%-5s %-5s %-10s %-14s %-14s\n",
-        "-----", "-----", "----------", "--------------", "--------------");
+    printf("%-5s %-5s %-5s %-5s %-10s %-18s %-26s\n",
+        "-----", "-----", "-----", "-----", "----------",
+        "------------------", "--------------------------");
 }
 
 void crefl_db_dump_row(decl_db *db, decl_ref r)
@@ -95,60 +88,47 @@ void crefl_db_dump_row(decl_db *db, decl_ref r)
     char buf[256];
     decl_node *d = crefl_decl_ptr(r);
     switch (crefl_decl_tag(r)) {
-    case _decl_intrinsic:
-        snprintf(buf, sizeof(buf), "(%s) width=" fmt_SZ,
-            _pretty_props(r), d->_width);
-        break;
     case _decl_typedef:
-        snprintf(buf, sizeof(buf), "%s (%s)",
-            _pretty_name("decl", db, d->_link), _pretty_props(r));
-        break;
     case _decl_set:
-        snprintf(buf, sizeof(buf), "%s (%s)",
-            _pretty_name("link", db, d->_link), _pretty_props(r));
-        break;
     case _decl_enum:
-        snprintf(buf, sizeof(buf), "%s (%s)",
-            _pretty_name("link", db, d->_link), _pretty_props(r));
-        break;
     case _decl_struct:
-        snprintf(buf, sizeof(buf), "%s (%s)",
-            _pretty_name("link", db, d->_link), _pretty_props(r));
-        break;
     case _decl_union:
-        snprintf(buf, sizeof(buf), "%s (%s)",
-            _pretty_name("link", db, d->_link), _pretty_props(r));
+    case _decl_param:
+    case _decl_attribute:
+        snprintf(buf, sizeof(buf), "%s", _pretty_props(r));
         break;
     case _decl_field:
         if ((crefl_decl_props(r) & _bitfield) > 0) {
-            snprintf(buf, sizeof(buf), "%s (%s) width=" fmt_SZ,
-                _pretty_name("decl", db, d->_link), _pretty_props(r), d->_width);
+            snprintf(buf, sizeof(buf), "%s width=" fmt_SZ,
+                _pretty_props(r), d->_width);
         } else {
-            snprintf(buf, sizeof(buf), "%s (%s)",
-                _pretty_name("decl", db, d->_link), _pretty_props(r));
+            snprintf(buf, sizeof(buf), "%s",
+                _pretty_props(r));
         }
         break;
+    case _decl_intrinsic:
+        snprintf(buf, sizeof(buf), "%s width=" fmt_SZ,
+            _pretty_props(r), d->_width);
+        break;
     case _decl_array:
-        snprintf(buf, sizeof(buf), "%s (%s) size=" fmt_SZ,
-            _pretty_name("decl", db, d->_link), _pretty_props(r), d->_count);
+        snprintf(buf, sizeof(buf), "%s size=" fmt_SZ,
+            _pretty_props(r), d->_count);
         break;
     case _decl_constant:
-        snprintf(buf, sizeof(buf), "%s (%s) value=" fmt_SZ,
-            _pretty_name("decl", db, d->_link), _pretty_props(r), d->_value);
+    case _decl_value:
+        snprintf(buf, sizeof(buf), "%s value=" fmt_SZ,
+            _pretty_props(r), d->_value);
         break;
     case _decl_function:
-        snprintf(buf, sizeof(buf), "%s (%s) addr=" fmt_AD,
-            _pretty_name("link", db, d->_link), _pretty_props(r), d->_addr);
-        break;
-    case _decl_param:
-        snprintf(buf, sizeof(buf), "%s (%s)",
-            _pretty_name("decl", db, d->_link), _pretty_props(r));
+        snprintf(buf, sizeof(buf), "%s addr=" fmt_AD,
+            _pretty_props(r), d->_addr);
         break;
     default: buf[0] = '\0'; break;
     }
-    printf("%-5u %-5d %-10s %-14s %-14s\n", crefl_decl_idx(r), d->_next,
+    printf("%-5u %-5d %-5d %-5d %-10s %-18s %-26s\n",
+        crefl_decl_idx(r), d->_attr, d->_next, d->_link,
         crefl_tag_name(crefl_decl_tag(r)),
-        strlen(crefl_decl_name(r)) > 0 ? crefl_decl_name(r) : "(anonymous)", buf);
+        strlen(crefl_decl_name(r)) ? crefl_decl_name(r) : "(anonymous)", buf);
 }
 
 void crefl_db_dump(decl_db *db)
