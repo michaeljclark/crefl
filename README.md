@@ -187,7 +187,7 @@ crefl has been tested on ubuntu 20.04 LTS.
 
 ubuntu 20.04 LTS:
 
-```
+```shell
 sudo apt-get install llvm libclang-dev
 ```
 
@@ -195,7 +195,7 @@ sudo apt-get install llvm libclang-dev
 
 ubuntu 20.04 LTS:
 
-```
+```shell
 cmake -B build -G Ninja
 cmake --build build -- --verbose
 ```
@@ -204,7 +204,7 @@ cmake --build build -- --verbose
 
 to run the crefl plugin and dump the reflection table to stdout:
 
-```
+```shell
 clang test/simple-struct-1.h \
       -Xclang -load -Xclang build/libcrefl.so \
       -Xclang -plugin -Xclang crefl \
@@ -213,7 +213,7 @@ clang test/simple-struct-1.h \
 
 to run the crefl plugin and write the reflection data to a file:
 
-```
+```shell
 clang test/simple-struct-1.h \
       -Xclang -load -Xclang build/libcrefl.so \
       -Xclang -plugin -Xclang crefl \
@@ -223,6 +223,6 @@ clang test/simple-struct-1.h \
 
 to enable crefl plugin debugging, add the following option:
 
-```
+```shell
       -Xclang -plugin-arg-crefl -Xclang -debug
 ```
