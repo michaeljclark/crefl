@@ -50,6 +50,7 @@ int crefl_is_struct(decl_ref d) { return crefl_decl_tag(d) == _decl_struct; }
 int crefl_is_union(decl_ref d) { return crefl_decl_tag(d) == _decl_union; }
 int crefl_is_field(decl_ref d) { return crefl_decl_tag(d) == _decl_field; }
 int crefl_is_array(decl_ref d) { return crefl_decl_tag(d) == _decl_array; }
+int crefl_is_pointer(decl_ref d) { return crefl_decl_tag(d) == _decl_pointer; }
 int crefl_is_constant(decl_ref d) { return crefl_decl_tag(d) == _decl_constant; }
 int crefl_is_function(decl_ref d) { return crefl_decl_tag(d) == _decl_function; }
 int crefl_is_param(decl_ref d) { return crefl_decl_tag(d) == _decl_param; }
@@ -82,6 +83,7 @@ static const char * crefl_tag_names_arr[] = {
     "union",
     "field",
     "array",
+    "pointer",
     "constant",
     "function",
     "param",
@@ -373,6 +375,14 @@ decl_ref crefl_field_type(decl_ref d)
 decl_ref crefl_array_type(decl_ref d)
 {
     if (crefl_decl_tag(d) == _decl_array) {
+        return decl_ref { d.db, crefl_decl_ptr(d)->_link};
+    }
+    return decl_ref { d.db, 0 };
+}
+
+decl_ref crefl_pointer_type(decl_ref d)
+{
+    if (crefl_decl_tag(d) == _decl_pointer) {
         return decl_ref { d.db, crefl_decl_ptr(d)->_link};
     }
     return decl_ref { d.db, 0 };

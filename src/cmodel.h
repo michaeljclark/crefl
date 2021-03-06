@@ -101,6 +101,7 @@ typedef u64 decl_sz;
  * - union          - sequence of overlapping types
  * - field          - top-level, struct and union field
  * - array          - sequence of one type
+ * - pointer        - pointer type
  * - constant       - named constant
  * - function       - function with parameter list
  * - param          - named parameter with link to next
@@ -183,6 +184,7 @@ enum decl_tags
     _decl_union,
     _decl_field,
     _decl_array,
+    _decl_pointer,
     _decl_constant,
     _decl_function,
     _decl_param,
@@ -273,6 +275,7 @@ int crefl_is_struct(decl_ref d);
 int crefl_is_union(decl_ref d);
 int crefl_is_field(decl_ref d);
 int crefl_is_array(decl_ref d);
+int crefl_is_pointer(decl_ref d);
 int crefl_is_constant(decl_ref d);
 int crefl_is_function(decl_ref d);
 int crefl_is_param(decl_ref d);
@@ -321,6 +324,7 @@ size_t crefl_array_count(decl_ref d);
 decl_ref crefl_typedef_type(decl_ref d);
 decl_ref crefl_field_type(decl_ref d);
 decl_ref crefl_array_type(decl_ref d);
+decl_ref crefl_pointer_type(decl_ref d);
 decl_ref crefl_constant_type(decl_ref d);
 decl_ref crefl_param_type(decl_ref d);
 int crefl_enum_constants(decl_ref d, decl_ref *r, size_t *s);

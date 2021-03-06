@@ -138,6 +138,7 @@ This table table lists the properties used by each subtype:
 | `union`     | ✓    |            | sequence of overlapping types                  |
 | `field`     | ✓    | `sz width` | named field within struct or union             |
 | `array`     | ✓    | `sz count` | sequence of one type                           |
+| `pointer`   | ✓    |            | pointer type                                   |
 | `constant`  | ✓    | `sz value` | named constant                                 |
 | `function`  | ✓    | `sz addr`  | function with input and output parameter list  |
 | `param`     | ✓    |            | named parameter with link to next              |
@@ -165,7 +166,8 @@ The _crefl_ implementation is currently _alpha software_.
   - _{ 32, 64 }_ bit pointer types
   - _1_ bit boolean type
 - [x] nested struct, union, field and intrinsic types.
-- [x] bitfield.
+- [x] bitfield widths.
+- [x] arrays and pointers.
 - [x] typedef type aliases.
 - [x] enum and enum constants.
 - [x] functions and function parameters.
@@ -173,7 +175,6 @@ The _crefl_ implementation is currently _alpha software_.
 - [x] attributes (`__attribute__`).
   - currently limited to `pure, packed, used, unused, alias("X"), aligned(X)`
 - [ ] sugared vs desugared types.
-- [ ] pointed-to types for pointers.
 - [ ] complex number types.
 - [ ] function addresses.
 

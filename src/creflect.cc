@@ -198,6 +198,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         TypeInfo t = context.getTypeInfo(q);
 
         bool _is_scalar = q->isScalarType();
+        bool _is_pointer = q->isPointerType();
         bool _is_complex = q->isComplexType();
         bool _is_vector = q->isVectorType();
         bool _is_array = q->isArrayType();
@@ -211,7 +212,18 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
 
         decl_ref tr = decl_ref { db, 0 };
 
-        if (_is_scalar) {
+        if (_is_pointer) {
+            const QualType pq = q->getPointeeType();
+            decl_ref ti = get_intrinsic_type(pq);
+
+            char namebuf[80];
+            snprintf(namebuf, sizeof(namebuf), "%s*", crefl_decl_name(ti));
+
+            tr = crefl_decl_new(db, _decl_pointer);
+            crefl_decl_ptr(tr)->_link = crefl_decl_idx(ti);
+            crefl_decl_ptr(tr)->_name = crefl_name_new(db, namebuf);
+        }
+        else if (_is_scalar) {
             auto stk = q->getScalarTypeKind();
             switch (stk) {
             case clang::Type::ScalarTypeKind::STK_CPointer: {

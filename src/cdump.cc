@@ -93,6 +93,7 @@ void crefl_db_dump_row(decl_db *db, decl_ref r)
     case _decl_enum:
     case _decl_struct:
     case _decl_union:
+    case _decl_pointer:
     case _decl_param:
     case _decl_attribute:
         snprintf(buf, sizeof(buf), "%s", _pretty_props(r));
