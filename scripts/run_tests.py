@@ -44,12 +44,18 @@ def crefl_debug(hdr):
     return subprocess.check_output(cmd)
 
 def crefl_dump(hdr):
-    cmd = [ './build/crefltool', crefl_file(hdr)]
+    cmd = [ './build/crefltool', "--dump", crefl_file(hdr)]
+    out = subprocess.run(cmd)
+
+def crefl_stats(hdr):
+    cmd = [ './build/crefltool', "--stats", crefl_file(hdr)]
     out = subprocess.run(cmd)
 
 parser = argparse.ArgumentParser(description='runs crefl clang plugin on test cases')
 parser.add_argument('--debug', default=False, action='store_true',
                     help='enable crefl debug output')
+parser.add_argument('--stats', default=False, action='store_true',
+                    help='enable crefl stats output')
 parser.add_argument('files', nargs='*', default=['test/*.h'],
                     help='files to be processed')
 args = parser.parse_args()
@@ -68,3 +74,6 @@ for f in args.files:
         print("===== OUTPUT test-case: %s =====" % (hdr))
         crefl_meta(hdr)
         crefl_dump(hdr)
+        if args.stats:
+            print("===== STATS test-case: %s =====" % (hdr))
+            crefl_stats(hdr)

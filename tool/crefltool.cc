@@ -18,6 +18,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 
 #include "cmodel.h"
 #include "cdump.h"
@@ -25,13 +26,21 @@
 
 int main(int argc, const char **argv)
 {
-    if (argc != 2) {
-        fprintf(stderr, "usage: %s <filename.refl>\n", argv[0]);
+    if (argc != 3) {
+        fprintf(stderr, "usage: %s [--dump|--stats] <filename.refl>\n", argv[0]);
         exit(1);
     }
 
+    enum { _dump, _stats } mode;
+
+    if (strcmp(argv[1], "--dump") == 0) mode = _dump;
+    else if (strcmp(argv[1], "--stats") == 0) mode = _stats;
+
     decl_db *db = crefl_db_new();
-    crefl_db_read_file(db, argv[1]);
-    crefl_db_dump(db);
+    crefl_db_read_file(db, argv[2]);
+    switch (mode) {
+	    case _dump: crefl_db_dump(db); break;
+	    case _stats: crefl_db_dump_stats(db); break;
+	}
     crefl_db_destroy(db);
 }

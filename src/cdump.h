@@ -27,6 +27,7 @@ void crefl_db_header_lines();
 
 void crefl_db_dump(decl_db *db);
 void crefl_db_dump_row(decl_db *db, decl_ref r);
+void crefl_db_dump_stats(decl_db *db);
 
 #ifdef __cplusplus
 }

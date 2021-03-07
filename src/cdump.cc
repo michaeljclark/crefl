@@ -25,6 +25,7 @@
 #include "cutil.h"
 #include "cmodel.h"
 #include "cdump.h"
+#include "cfileio.h"
 
 #define array_size(arr) ((sizeof(arr)/sizeof(arr[0])))
 
@@ -134,4 +135,28 @@ void crefl_db_dump(decl_db *db)
     }
 
     crefl_db_header_lines();
+}
+
+void crefl_db_dump_stats(decl_db *db)
+{
+    size_t decl_builtin = db->decl_builtin;
+    size_t decl_user = db->decl_offset - db->decl_builtin;
+    size_t decl_total = db->decl_offset;
+
+    size_t name_builtin = db->name_builtin;
+    size_t name_user = db->name_offset - db->name_builtin;
+    size_t name_total = db->name_offset;
+
+    printf(
+        "decl.builtin %zu bytes (%zu records)\n"
+        "decl.user    %zu bytes (%zu records)\n"
+        "name.builtin %zu bytes\n"
+        "name.user    %zu bytes\n"
+        "file.size    %zu bytes\n",
+        sizeof(decl_node) * decl_builtin, decl_builtin,
+        sizeof(decl_node) * decl_user,    decl_user,
+        name_builtin,
+        name_user,
+        sizeof(decl_db_hdr) + sizeof(decl_node) * decl_user + name_user
+    );
 }
