@@ -20,6 +20,7 @@
 #include <cstdarg>
 #include <cinttypes>
 
+#include <string>
 #include <vector>
 
 #include "clang/AST/AST.h"
@@ -27,6 +28,7 @@
 #include "clang/AST/ParentMapContext.h"
 #include <clang/Frontend/FrontendPluginRegistry.h>
 
+#include "cutil.h"
 #include "cmodel.h"
 #include "cdump.h"
 #include "cfileio.h"
@@ -41,10 +43,9 @@ static void log_debug(const char* fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    std::vector<char> buf(256);
-    int len = vsnprintf(buf.data(), buf.size(), fmt, args);
-    fwrite(buf.data(), 1, len, stderr);
+    std::string buf = string_vprintf(fmt, args);
     va_end(args);
+    fwrite(buf.c_str(), 1, buf.size(), stderr);
 }
 
 #define debugf(...) if(debug) log_debug(__VA_ARGS__)
@@ -216,12 +217,11 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             const QualType pq = q->getPointeeType();
             decl_ref ti = get_intrinsic_type(pq);
 
-            char namebuf[80];
-            snprintf(namebuf, sizeof(namebuf), "%s*", crefl_decl_name(ti));
+            std::string name = string_printf("%s*", crefl_decl_name(ti));
 
             tr = crefl_decl_new(db, _decl_pointer);
             crefl_decl_ptr(tr)->_link = crefl_decl_idx(ti);
-            crefl_decl_ptr(tr)->_name = crefl_name_new(db, namebuf);
+            crefl_decl_ptr(tr)->_name = crefl_name_new(db, name.c_str());
         }
         else if (_is_scalar) {
             auto stk = q->getScalarTypeKind();
@@ -275,8 +275,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             const ConstantArrayType * cat = context.getAsConstantArrayType(q);
             const ArrayType *at = context.getAsArrayType(q);
             const QualType q = at->getElementType();
-
-            char namebuf[80];
+            std::string name;
 
             decl_ref ti = get_intrinsic_type(q);
 
@@ -285,13 +284,11 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             if (cat) {
                 u64 _count = cat->getSize().getLimitedValue();
                 crefl_decl_ptr(tr)->_count = _count;
-                snprintf(namebuf, sizeof(namebuf), "%s[%llu]",
-                    crefl_decl_name(ti), _count);
+                name = string_printf("%s[%llu]", crefl_decl_name(ti), _count);
             } else {
-                snprintf(namebuf, sizeof(namebuf), "%s[]",
-                    crefl_decl_name(ti));
+                name = string_printf("%s[]", crefl_decl_name(ti));
             }
-            crefl_decl_ptr(tr)->_name = crefl_name_new(db, namebuf);
+            crefl_decl_ptr(tr)->_name = crefl_name_new(db, name.c_str());
         }
         else if (_is_complex) {
             const ComplexType *ct = q->getAs<ComplexType>();
