@@ -238,6 +238,7 @@ size_t crefl_type_width(decl_ref d)
         );
     case _decl_array: return crefl_type_width(crefl_array_type(d))
         * crefl_array_count(d);
+    case _decl_pointer: return crefl_pointer_width(d);
     }
     return 0;
 }
@@ -352,6 +353,14 @@ size_t crefl_array_count(decl_ref d)
 {
     if (crefl_decl_tag(d) == _decl_array) {
         return crefl_decl_ptr(d)->_count;
+    }
+    return 0;
+}
+
+size_t crefl_pointer_width(decl_ref d)
+{
+    if (crefl_decl_tag(d) == _decl_pointer) {
+        return crefl_decl_ptr(d)->_width;
     }
     return 0;
 }

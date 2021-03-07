@@ -321,6 +321,7 @@ size_t crefl_intrinsic_width(decl_ref d);
 size_t crefl_struct_width(decl_ref d);
 size_t crefl_union_width(decl_ref d);
 size_t crefl_array_count(decl_ref d);
+size_t crefl_pointer_width(decl_ref d);
 decl_ref crefl_typedef_type(decl_ref d);
 decl_ref crefl_field_type(decl_ref d);
 decl_ref crefl_array_type(decl_ref d);

@@ -222,6 +222,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             tr = crefl_decl_new(db, _decl_pointer);
             crefl_decl_ptr(tr)->_link = crefl_decl_idx(ti);
             crefl_decl_ptr(tr)->_name = crefl_name_new(db, name.c_str());
+            crefl_decl_ptr(tr)->_width = t.Width;
         }
         else if (_is_scalar) {
             auto stk = q->getScalarTypeKind();
