@@ -106,13 +106,13 @@ decl_db * crefl_db_new()
 
     db->name_offset = 1; /* offset 0 holds empty string */
     db->name_builtin = 1;
-    db->name_size = 128;
+    db->name_size = 32;
     db->name = (char*)malloc(db->name_size);
     memset(db->name, 0, db->name_size);
 
     db->decl_offset = 1; /* offset 0 slot is empty */
     db->decl_builtin = 1;
-    db->decl_size = 128;
+    db->decl_size = 32;
     db->decl = (decl_node*)malloc(sizeof(decl_node) * db->decl_size);
     memset(db->decl, 0, sizeof(decl_node) * db->decl_size);
 
