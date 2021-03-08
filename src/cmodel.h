@@ -204,35 +204,37 @@ enum decl_props
     _void           = 0,
     _integral       = 1 << 0,
     _real           = 1 << 1,
-    _signed         = 1 << 2,
-    _unsigned       = 1 << 3,
-    _ieee754        = 1 << 4,
+    _complex        = 1 << 2,
+    _signed         = 1 << 3,
+    _unsigned       = 1 << 4,
+    _ieee754        = 1 << 5,
 
     _sint           = _integral | _signed,
     _uint           = _integral | _unsigned,
     _float          = _real     | _ieee754,
+    _cfloat         = _complex  | _ieee754,
 
     /* padding */
-    _pad_pow2       = 1 << 5,
-    _pad_bit        = 1 << 6,
-    _pad_byte       = 1 << 7,
+    _pad_pow2       = 1 << 6,
+    _pad_bit        = 1 << 7,
+    _pad_byte       = 1 << 8,
 
     /* field */
-    _bitfield       = 1 << 8,
+    _bitfield       = 1 << 9,
 
     /* qualifiers */
-    _const          = 1 << 9,
-    _volatile       = 1 << 10,
-    _restrict       = 1 << 11,
+    _const          = 1 << 10,
+    _volatile       = 1 << 11,
+    _restrict       = 1 << 12,
 
     /* binding */
-    _local          = 1 << 12,
-    _global         = 1 << 13,
-    _weak           = 1 << 14,
+    _local          = 1 << 13,
+    _global         = 1 << 14,
+    _weak           = 1 << 15,
 
     /* visibility */
-    _default        = 1 << 15,
-    _hidden         = 1 << 16,
+    _default        = 1 << 16,
+    _hidden         = 1 << 17,
 };
 
 /*

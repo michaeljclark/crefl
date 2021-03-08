@@ -19,26 +19,28 @@
 #include "cmodel.h"
 #include "ctypes.h"
 
-const _ctype _cvoid =    { _decl_intrinsic,  0, _void  | _pad_bit,  "cvoid" };
-const _ctype _cptr32 =   { _decl_intrinsic, 32, _void  | _pad_pow2, "cptr32" };
-const _ctype _cptr64 =   { _decl_intrinsic, 64, _void  | _pad_pow2, "cptr64" };
-const _ctype _cbool =    { _decl_intrinsic,  1, _sint  | _pad_byte, "cbool" };
-const _ctype _uint1 =    { _decl_intrinsic,  1, _uint  | _pad_pow2, "u1" };
-const _ctype _sint1 =    { _decl_intrinsic,  1, _sint  | _pad_pow2, "i1" };
-const _ctype _uint8 =    { _decl_intrinsic,  8, _uint  | _pad_pow2, "u8" };
-const _ctype _sint8 =    { _decl_intrinsic,  8, _sint  | _pad_pow2, "i8" };
-const _ctype _uint16 =   { _decl_intrinsic, 16, _uint  | _pad_pow2, "u16" };
-const _ctype _sint16 =   { _decl_intrinsic, 16, _sint  | _pad_pow2, "i16" };
-const _ctype _uint32 =   { _decl_intrinsic, 32, _uint  | _pad_pow2, "u32" };
-const _ctype _sint32 =   { _decl_intrinsic, 32, _sint  | _pad_pow2, "i32" };
-const _ctype _uint64 =   { _decl_intrinsic, 64, _uint  | _pad_pow2, "u64" };
-const _ctype _sint64 =   { _decl_intrinsic, 64, _sint  | _pad_pow2, "i64" };
-const _ctype _uint128 =  { _decl_intrinsic, 128,_uint  | _pad_pow2, "u128" };
-const _ctype _sint128 =  { _decl_intrinsic, 128,_sint  | _pad_pow2, "i128" };
-const _ctype _float16 =  { _decl_intrinsic, 16, _float | _pad_pow2, "f16" };
-const _ctype _float32 =  { _decl_intrinsic, 32, _float | _pad_pow2, "f32" };
-const _ctype _float64 =  { _decl_intrinsic, 64, _float | _pad_pow2, "f64" };
-const _ctype _float128 = { _decl_intrinsic, 128,_float | _pad_pow2, "f128" };
+const _ctype _cvoid =     { _decl_intrinsic,  0, _void   | _pad_bit,  "void"    };
+const _ctype _cbool =     { _decl_intrinsic,  1, _sint   | _pad_byte, "bool"    };
+const _ctype _uint1 =     { _decl_intrinsic,  1, _uint   | _pad_pow2, "bit"     };
+const _ctype _sint1 =     { _decl_intrinsic,  1, _sint   | _pad_pow2, "sign"    };
+const _ctype _uint8 =     { _decl_intrinsic,  8, _uint   | _pad_pow2, "ubyte"   };
+const _ctype _sint8 =     { _decl_intrinsic,  8, _sint   | _pad_pow2, "byte"    };
+const _ctype _uint16 =    { _decl_intrinsic, 16, _uint   | _pad_pow2, "ushort"  };
+const _ctype _sint16 =    { _decl_intrinsic, 16, _sint   | _pad_pow2, "short"   };
+const _ctype _uint32 =    { _decl_intrinsic, 32, _uint   | _pad_pow2, "uint"    };
+const _ctype _sint32 =    { _decl_intrinsic, 32, _sint   | _pad_pow2, "int"     };
+const _ctype _uint64 =    { _decl_intrinsic, 64, _uint   | _pad_pow2, "ulong"   };
+const _ctype _sint64 =    { _decl_intrinsic, 64, _sint   | _pad_pow2, "long"    };
+const _ctype _uint128 =   { _decl_intrinsic, 128,_uint   | _pad_pow2, "ucent"   };
+const _ctype _sint128 =   { _decl_intrinsic, 128,_sint   | _pad_pow2, "cent"    };
+const _ctype _float16 =   { _decl_intrinsic, 16, _float  | _pad_pow2, "half"    };
+const _ctype _float32 =   { _decl_intrinsic, 32, _float  | _pad_pow2, "float"   };
+const _ctype _float64 =   { _decl_intrinsic, 64, _float  | _pad_pow2, "double"  };
+const _ctype _float128 =  { _decl_intrinsic, 128,_float  | _pad_pow2, "quad"    };
+const _ctype _cfloat16 =  { _decl_intrinsic, 32, _cfloat | _pad_pow2, "chalf"   };
+const _ctype _cfloat32 =  { _decl_intrinsic, 64, _cfloat | _pad_pow2, "cfloat"  };
+const _ctype _cfloat64 =  { _decl_intrinsic, 128,_cfloat | _pad_pow2, "cdouble" };
+const _ctype _cfloat128 = { _decl_intrinsic, 256,_cfloat | _pad_pow2, "cquad"   };
 
 const _ctype* _vec2h_el[] = { &_float16, &_float16, 0 };
 const _ctype* _vec2f_el[] = { &_float32, &_float32, 0 };
@@ -119,11 +121,12 @@ const _ctype _vec4ui = { _decl_struct, 128, _pad_pow2, "vec4ui", _vec4ui_el };
 const _ctype _vec4ul = { _decl_struct, 256, _pad_pow2, "vec4ul", _vec4ul_el };
 
 const _ctype *all_types[] = {
-    &_cvoid,        &_cptr32,       &_cptr64,       &_cbool,
+    &_cvoid,        &_cbool,
     &_uint1,        &_sint1,        &_uint8,        &_sint8,
     &_uint16,       &_sint16,       &_uint32,       &_sint32,
     &_uint64,       &_sint64,       &_uint128,      &_sint128,
     &_float16,      &_float32,      &_float64,      &_float128,
+    &_cfloat16,     &_cfloat32,     &_cfloat64,     &_cfloat128,
 #if 0
     &_vec2h,        &_vec2f,        &_vec2d,        &_vec2t,
     &_vec3h,        &_vec3f,        &_vec3d,        &_vec3t,

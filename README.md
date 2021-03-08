@@ -161,10 +161,14 @@ The _crefl_ implementation is currently _alpha software_.
 ### crefl features
 
 - [x] C intrinsic data types
-  - _{ 8, 16, 32, 64, 128 }_ bit signed and unsigned integral types
-  - _{ 16, 32, 64 }_ bit floating point types
-  - _{ 32, 64 }_ bit pointer types
+  - _{ 1, 8, 16, 32, 64, 128 }_ bit signed and unsigned integral types
+  - _{ 16, 32, 64 }_ bit floating point
   - _1_ bit boolean type
+- [x] modern integer type names.
+  - _bit, byte, short, int, long, cent_
+  - _sign, ubyte, ushort, uint, ulong, ucent_
+- [x] complex number types.
+  - _chalf, cfloat, cdouble, cquad_
 - [x] nested struct, union, field and intrinsic types.
 - [x] bitfield widths.
 - [x] arrays and pointers.
@@ -174,10 +178,6 @@ The _crefl_ implementation is currently _alpha software_.
 - [x] const, volatile and restrict.
 - [x] attributes (`__attribute__`).
   - currently limited to `pure, packed, used, unused, alias("X"), aligned(X)`
-- [ ] classic integer types.
-  - _char, short, int, long,_ instead of _i8, i16, i32, i64_
-  - _uchar, ushort, uint, ulong,_ instead of _u8, u16, u32, u64_
-- [ ] complex number types.
 - [ ] function addresses.
 
 ---

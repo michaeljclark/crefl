@@ -224,6 +224,9 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             crefl_decl_ptr(tr)->_name = crefl_name_new(db, name.c_str());
             crefl_decl_ptr(tr)->_width = t.Width;
         }
+        else if (_is_complex) {
+            tr = crefl_intrinsic(db, _cfloat, t.Width);
+        }
         else if (_is_scalar) {
             auto stk = q->getScalarTypeKind();
             switch (stk) {
@@ -290,10 +293,6 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
                 name = string_printf("%s[]", crefl_decl_name(ti));
             }
             crefl_decl_ptr(tr)->_name = crefl_name_new(db, name.c_str());
-        }
-        else if (_is_complex) {
-            const ComplexType *ct = q->getAs<ComplexType>();
-            // TODO
         }
         else if (_is_vector) {
             const VectorType *vt = q->getAs<VectorType>();
