@@ -78,8 +78,8 @@ in ISO/IEC 9899:9999 with minor changes. The following sections describe:
 - primary types to model the type system
 - decl node type to model the metadata graph
 - decl node subtypes to model C structures and interfaces
-  - _intrinsic, typedef, set, enum, struct, union, field, array, constant,
-    function, param, attribute, value_
+  - _intrinsic, typedef, set, enum, struct, union, field, array, pointer,
+    constant, function, param, attribute, value_
 
 One variation from the C normative terminology is the use of _field_
 instead of _member_ for structure elements.
