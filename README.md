@@ -138,7 +138,7 @@ This table table lists the properties used by each subtype:
 | `union`     | ✓    |            | sequence of overlapping types                  |
 | `field`     | ✓    | `sz width` | named field within struct or union             |
 | `array`     | ✓    | `sz count` | sequence of one type                           |
-| `pointer`   | ✓    |            | pointer type                                   |
+| `pointer`   | ✓    | `sz width` | pointer type                                   |
 | `constant`  | ✓    | `sz value` | named constant                                 |
 | `function`  | ✓    | `sz addr`  | function with input and output parameter list  |
 | `param`     | ✓    |            | named parameter with link to next              |
