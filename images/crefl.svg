@@ -93,7 +93,7 @@
          id="tspan5902">int crefl_is_any(decl_ref d);</tspan><tspan
          sodipodi:role="line"
          x="172.02567"
-         y="-16.192406"
+         y="-16.192408"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan6041">int crefl_is_top(decl_ref d);</tspan><tspan
          sodipodi:role="line"
@@ -113,7 +113,7 @@
          id="tspan6047">int crefl_is_intrinsic(decl_ref d);</tspan><tspan
          sodipodi:role="line"
          x="172.02567"
-         y="-0.31740659"
+         y="-0.31740692"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan6049">int crefl_is_set(decl_ref d);</tspan><tspan
          sodipodi:role="line"
@@ -123,7 +123,7 @@
          id="tspan6051">int crefl_is_enum(decl_ref d);</tspan><tspan
          sodipodi:role="line"
          x="172.02567"
-         y="7.6200938"
+         y="7.6200929"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan6053">int crefl_is_struct(decl_ref d);</tspan><tspan
          sodipodi:role="line"
@@ -153,7 +153,7 @@
          id="tspan6061">int crefl_is_constant(decl_ref d);</tspan><tspan
          sodipodi:role="line"
          x="172.02567"
-         y="31.432594"
+         y="31.432592"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan6063">int crefl_is_function(decl_ref d);</tspan><tspan
          sodipodi:role="line"
@@ -193,7 +193,7 @@
          id="tspan2004">void crefl_db_destroy(decl_db *db);</tspan><tspan
          sodipodi:role="line"
          x="172.02567"
-         y="63.182594"
+         y="63.18259"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan2006">decl_node * crefl_decl_ptr(decl_ref d);</tspan><tspan
          sodipodi:role="line"
@@ -406,17 +406,17 @@
          id="tspan3028">of: intrinsic, set, enum, struct, union, field, array, constant, variable.</tspan><tspan
          sodipodi:role="line"
          x="-121.51935"
-         y="-0.27167314"
+         y="-0.2716735"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan3030"></tspan><tspan
          sodipodi:role="line"
          x="-121.51935"
-         y="3.6970766"
+         y="3.6970763"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan3032">## primary types</tspan><tspan
          sodipodi:role="line"
          x="-121.51935"
-         y="7.6658273"
+         y="7.6658263"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan3034"></tspan><tspan
          sodipodi:role="line"
@@ -426,7 +426,7 @@
          id="tspan3036">- decl_node      - graph database declaration node type</tspan><tspan
          sodipodi:role="line"
          x="-121.51935"
-         y="15.603327"
+         y="15.603326"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan3038">- decl_db        - graph database containing the declarations</tspan><tspan
          sodipodi:role="line"
@@ -446,7 +446,7 @@
          id="tspan3044">- decl_id        - indice of a graph node in the graph database</tspan><tspan
          sodipodi:role="line"
          x="-121.51935"
-         y="31.478325"
+         y="31.478327"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan3046">- decl_sz        - size type used for array size and bit widths</tspan><tspan
          sodipodi:role="line"
@@ -677,22 +677,22 @@
          id="tspan7746">struct decl_db;</tspan><tspan
          sodipodi:role="line"
          x="26.269333"
-         y="-4.2551503"
+         y="-4.2551508"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan5403">struct decl_ref;</tspan><tspan
          sodipodi:role="line"
          x="26.269333"
-         y="-0.28640074"
+         y="-0.28640097"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan5405" /><tspan
          sodipodi:role="line"
          x="26.269333"
-         y="3.6823494"
+         y="3.682349"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan7740">typedef struct decl_node decl_node;</tspan><tspan
          sodipodi:role="line"
          x="26.269333"
-         y="7.6510997"
+         y="7.6510987"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan5409">typedef struct decl_db decl_db;</tspan><tspan
          sodipodi:role="line"
@@ -702,7 +702,7 @@
          id="tspan5411">typedef struct decl_ref decl_ref;</tspan><tspan
          sodipodi:role="line"
          x="26.269333"
-         y="15.588598"
+         y="15.588599"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan5413">typedef union decl_raw decl_raw;</tspan><tspan
          sodipodi:role="line"
@@ -722,7 +722,7 @@
          id="tspan5419">typedef u32 decl_set;</tspan><tspan
          sodipodi:role="line"
          x="26.269333"
-         y="31.4636"
+         y="31.463598"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan5421">typedef u32 decl_id;</tspan><tspan
          sodipodi:role="line"
@@ -762,7 +762,7 @@
          id="tspan7936">    decl_id _name;</tspan><tspan
          sodipodi:role="line"
          x="26.269333"
-         y="63.2136"
+         y="63.213596"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan7938">    decl_id _next;</tspan><tspan
          sodipodi:role="line"
@@ -807,42 +807,42 @@
          id="tspan7954">        decl_sz _value;</tspan><tspan
          sodipodi:role="line"
          x="26.269333"
-         y="98.932358"
+         y="98.93235"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan7956">        decl_sz _addr;</tspan><tspan
          sodipodi:role="line"
          x="26.269333"
-         y="102.90111"
+         y="102.9011"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan7958">    };</tspan><tspan
          sodipodi:role="line"
          x="26.269333"
-         y="106.86986"
+         y="106.86985"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan7960">};</tspan><tspan
          sodipodi:role="line"
          x="26.269333"
-         y="110.83861"
+         y="110.8386"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan7962" /><tspan
          sodipodi:role="line"
          x="26.269333"
-         y="114.80736"
+         y="114.80735"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan7964">struct decl_db</tspan><tspan
          sodipodi:role="line"
          x="26.269333"
-         y="118.77611"
+         y="118.7761"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan7696">{</tspan><tspan
          sodipodi:role="line"
          x="26.269333"
-         y="122.74486"
+         y="122.74485"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan7698">    char* name;</tspan><tspan
          sodipodi:role="line"
          x="26.269333"
-         y="126.71359"
+         y="126.7136"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan7700">    size_t name_builtin;</tspan><tspan
          sodipodi:role="line"
@@ -939,286 +939,296 @@
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:3.17499995px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
        x="94.494179"
-       y="-16.1614"
+       y="-20.13015"
        id="text1529"><tspan
          sodipodi:role="line"
          x="94.494179"
-         y="-16.1614"
+         y="-20.13015"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan1559">enum {</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
-         y="-12.192651"
+         y="-16.1614"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan7328">    _decl_void,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
-         y="-8.2239008"
+         y="-12.19265"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan7330">    _decl_intrinsic,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
-         y="-4.2551508"
+         y="-8.2238998"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan7332">    _decl_typedef,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
-         y="-0.28640074"
+         y="-4.2551498"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan7334">    _decl_set,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
-         y="3.682349"
+         y="-0.28640014"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan7336">    _decl_enum,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
-         y="7.6510997"
+         y="3.6823497"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan7338">    _decl_struct,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
-         y="11.619849"
+         y="7.6510997"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan7340">    _decl_union,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
-         y="15.588598"
+         y="11.61985"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan7342">    _decl_field,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
-         y="19.557348"
+         y="15.588599"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan7344">    _decl_array,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
-         y="23.526098"
+         y="19.55735"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan3132">    _decl_pointer,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
-         y="27.494848"
+         y="23.5261"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan7346">    _decl_constant,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
-         y="31.4636"
+         y="27.49485"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan7348">    _decl_function,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
-         y="35.43235"
+         y="31.4636"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan7350">    _decl_param,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
-         y="39.4011"
+         y="35.43235"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan7352">    _decl_attribute,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
-         y="43.36985"
+         y="39.4011"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan7354">    _decl_value</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
-         y="47.3386"
+         y="43.36985"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan7356">};</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
-         y="51.307346"
+         y="47.3386"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan7117" /><tspan
          sodipodi:role="line"
          x="94.494179"
-         y="55.276096"
+         y="51.30735"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan7119">enum decl_props</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
-         y="59.244846"
+         y="55.2761"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan7121">{</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
-         y="63.2136"
+         y="59.24485"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan7123">    /* intrinsic type */</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
+         y="63.2136"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
+         id="tspan7147">    _void     = 0,</tspan><tspan
+         sodipodi:role="line"
+         x="94.494179"
          y="67.18235"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7125">    _void     = 0,</tspan><tspan
+         id="tspan4890">    _integral = 1 &lt;&lt; 0,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
          y="71.1511"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7127">    _integral = 1 &lt;&lt; 0,</tspan><tspan
+         id="tspan4892">    _real     = 1 &lt;&lt; 1,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
          y="75.11985"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7129">    _real     = 1 &lt;&lt; 1,</tspan><tspan
+         id="tspan4894">    _complex  = 1 &lt;&lt; 2,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
          y="79.0886"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7131">    _signed   = 1 &lt;&lt; 2,</tspan><tspan
+         id="tspan4896">    _signed   = 1 &lt;&lt; 3,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
          y="83.05735"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7133">    _unsigned = 1 &lt;&lt; 3,</tspan><tspan
+         id="tspan4898">    _unsigned = 1 &lt;&lt; 4,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
          y="87.0261"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7135">    _ieee754  = 1 &lt;&lt; 4,</tspan><tspan
+         id="tspan4900">    _ieee754  = 1 &lt;&lt; 5,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
          y="90.99485"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7137" /><tspan
+         id="tspan4902"></tspan><tspan
          sodipodi:role="line"
          x="94.494179"
          y="94.9636"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7139">    _sint     = _integral | _signed,</tspan><tspan
+         id="tspan4904">    _sint     = _integral | _signed,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
-         y="98.932358"
+         y="98.93235"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7141">    _uint     = _integral | _unsigned,</tspan><tspan
+         id="tspan4906">    _uint     = _integral | _unsigned,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
-         y="102.90111"
+         y="102.9011"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7143">    _float    = _real     | _ieee754,</tspan><tspan
+         id="tspan4908">    _float    = _real     | _ieee754,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
-         y="106.86986"
+         y="106.86985"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7145" /><tspan
+         id="tspan4910">    _cfloat   = _complex  | _ieee754,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
-         y="110.83861"
+         y="110.8386"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7147">    /* padding */</tspan><tspan
+         id="tspan4912"></tspan><tspan
          sodipodi:role="line"
          x="94.494179"
-         y="114.80736"
+         y="114.80735"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7149">    _pad_pow2 = 1 &lt;&lt; 5,</tspan><tspan
+         id="tspan4914">    /* padding */</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
-         y="118.77611"
+         y="118.7761"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7151">    _pad_bit  = 1 &lt;&lt; 6,</tspan><tspan
+         id="tspan7149">    _pad_pow2 = 1 &lt;&lt; 6,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
-         y="122.74486"
+         y="122.74485"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7153">    _pad_byte = 1 &lt;&lt; 7,</tspan><tspan
+         id="tspan7151">    _pad_bit  = 1 &lt;&lt; 7,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
-         y="126.71359"
+         y="126.7136"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7155" /><tspan
+         id="tspan7153">    _pad_byte = 1 &lt;&lt; 8,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
          y="130.68234"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7157">    /* field */</tspan><tspan
+         id="tspan7155" /><tspan
          sodipodi:role="line"
          x="94.494179"
          y="134.65109"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7159">    _bitfield = 1 &lt;&lt; 8,</tspan><tspan
+         id="tspan7157">    /* field */</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
          y="138.61984"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7161" /><tspan
+         id="tspan7159">    _bitfield = 1 &lt;&lt; 9,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
          y="142.58859"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7163">    /* qualifiers */</tspan><tspan
+         id="tspan7161" /><tspan
          sodipodi:role="line"
          x="94.494179"
          y="146.55734"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7165">    _const    = 1 &lt;&lt; 9,</tspan><tspan
+         id="tspan7163">    /* qualifiers */</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
          y="150.52609"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7167">    _volatile = 1 &lt;&lt; 10,</tspan><tspan
+         id="tspan7165">    _const    = 1 &lt;&lt; 10,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
          y="154.49484"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7169">    _restrict = 1 &lt;&lt; 11,</tspan><tspan
+         id="tspan7167">    _volatile = 1 &lt;&lt; 11,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
          y="158.46359"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7171" /><tspan
+         id="tspan7169">    _restrict = 1 &lt;&lt; 12,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
          y="162.43234"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7173">    /* binding */</tspan><tspan
+         id="tspan7171" /><tspan
          sodipodi:role="line"
          x="94.494179"
          y="166.40109"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7175">    _local    = 1 &lt;&lt; 12,</tspan><tspan
+         id="tspan7173">    /* binding */</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
          y="170.36984"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7177">    _global   = 1 &lt;&lt; 13,</tspan><tspan
+         id="tspan7175">    _local    = 1 &lt;&lt; 13,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
          y="174.33859"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7179">    _weak     = 1 &lt;&lt; 14,</tspan><tspan
+         id="tspan7177">    _global   = 1 &lt;&lt; 14,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
          y="178.30734"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7181" /><tspan
+         id="tspan7179">    _weak     = 1 &lt;&lt; 15,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
          y="182.27609"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7183">    /* visibility */</tspan><tspan
+         id="tspan7181" /><tspan
          sodipodi:role="line"
          x="94.494179"
          y="186.24484"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7185">    _default  = 1 &lt;&lt; 15,</tspan><tspan
+         id="tspan7183">    /* visibility */</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
          y="190.21359"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7187">    _hidden   = 1 &lt;&lt; 16,</tspan><tspan
+         id="tspan7185">    _default  = 1 &lt;&lt; 16,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
          y="194.18234"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7189">};</tspan><tspan
+         id="tspan7187">    _hidden   = 1 &lt;&lt; 17,</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
          y="198.15109"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan7191" /><tspan
+         id="tspan7189">};</tspan><tspan
          sodipodi:role="line"
          x="94.494179"
          y="202.11984"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
+         id="tspan7191" /><tspan
+         sodipodi:role="line"
+         x="94.494179"
+         y="206.08859"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:monospace;-inkscape-font-specification:'monospace Bold';fill:#000000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan1561" /></text>
     <flowRoot
@@ -1238,7 +1248,7 @@
        xml:space="preserve"
        id="flowRoot7750"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-       transform="translate(0.52916667,-3.2986903)"><flowRegion
+       transform="translate(0.52916667,-3.29869)"><flowRegion
          id="flowRegion7752"><rect
            id="rect7754"
            width="36.42857"
