@@ -1,19 +1,19 @@
-# crefl
+# Crefl
 
-> _crefl_ is a runtime library and compiler plug-in to support reflection in C.
+> _Crefl_ - a C-type-reflection-API and clang plug-in to write reflection metadata.
 
-The _crefl_ API provides access to runtime reflection metadata for C
+The _Crefl_ API provides access to runtime reflection metadata for C
 structure declarations with support for arbitrarily nested combinations
 of: intrinsic, set, enum, struct, union, field, array, constant, variable.
 
-- The _crefl_ clang plug-in outputs C reflection meta-data used by the library.
-- The _crefl_ API provides task-oriented query access to C reflection meta-data.
+- The _Crefl_ clang plug-in outputs C reflection metadata used by the library.
+- The _Crefl_ API provides task-oriented query access to C reflection metadata.
 
 ![crefl](/images/crefl.svg)
 
 ---
 
-## crefl example
+## Crefl example
 
 This example has an outer-loop iterating through _struct types_ and an
 inner-loop iterating through _struct fields_.
@@ -70,9 +70,9 @@ int main(int argc, const char **argv)
 
 ---
 
-## crefl model
+## Crefl model
 
-_crefl_ implements a data model based on the description of the C data types
+_Crefl_ implements a data model based on the description of the C data types
 in ISO/IEC 9899:9999 with minor changes. The following sections describe:
 
 - primary types to model the type system
@@ -86,7 +86,7 @@ instead of _member_ for structure elements.
 
 ### primary types
 
-The _crefl_ API uses a small number of primary data types for the reflection
+The _Crefl_ API uses a small number of primary data types for the reflection
 graph database, the declaration graph nodes and their properties.
 
 | Type       | Description                                    |
@@ -102,7 +102,7 @@ graph database, the declaration graph nodes and their properties.
 
 ### decl node
 
-The _crefl_ data structure consists of an array of _decl_ nodes which have a
+The _Crefl_ data structure consists of an array of _decl_ nodes which have a
 type tag, a set of properties, an interned name, a link to the next item in a
 list, a link to a child item and a link to an optional attribute list.
 
@@ -147,9 +147,9 @@ This table table lists the properties used by each subtype:
 
 ---
 
-## crefl implementation notes
+## Crefl implementation notes
 
-The _crefl_ implementation is currently _alpha software_.
+The _Crefl_ implementation is currently _alpha software_.
 
 - binary format is subject to change and needs to be more compact.
   - format was reduced ~20% in size by eliding builtin types.
@@ -158,7 +158,7 @@ The _crefl_ implementation is currently _alpha software_.
   - intend to store all qualifiers and links to typedefs.
   - implement API to query typedef or the terminal desugared type.
 
-### crefl features
+### Crefl features
 
 - [x] C intrinsic data types
   - _{ 1, 8, 16, 32, 64, 128 }_ bit signed and unsigned integral types
@@ -182,7 +182,7 @@ The _crefl_ implementation is currently _alpha software_.
 
 ---
 
-## crefl build instructions
+## Crefl build instructions
 
 crefl has been tested on ubuntu 20.04 LTS.
 
