@@ -205,6 +205,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         bool _is_array = q->isArrayType();
         bool _is_union = q->isUnionType();
         bool _is_struct = q->isStructureOrClassType();
+        bool _is_enum = q->isEnumeralType();
         bool _is_const = (q.getLocalFastQualifiers() & Qualifiers::Const);
         bool _is_restrict = (q.getLocalFastQualifiers() & Qualifiers::Restrict);
         bool _is_volatile = (q.getLocalFastQualifiers() & Qualifiers::Volatile);
@@ -223,6 +224,21 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             crefl_decl_ptr(tr)->_link = crefl_decl_idx(ti);
             crefl_decl_ptr(tr)->_name = crefl_name_new(db, name.c_str());
             crefl_decl_ptr(tr)->_width = t.Width;
+        }
+        else if (_is_enum) {
+            const EnumType *et = q->getAs<EnumType>();
+            const EnumDecl *ed = et->getDecl();
+            tr = decl_ref { db, idmap[ed->getID()] };
+        }
+        else if (_is_struct) {
+            const RecordType *rt = q->getAsStructureType();
+            const RecordDecl *rd = rt->getDecl();
+            tr = decl_ref { db, idmap[rd->getID()] };
+        }
+        else if (_is_union) {
+            const RecordType *rt = q->getAsUnionType();
+            const RecordDecl *rd = rt->getDecl();
+            tr = decl_ref { db, idmap[rd->getID()] };
         }
         else if (_is_complex) {
             tr = crefl_intrinsic(db, _cfloat, t.Width);
@@ -263,16 +279,6 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             case clang::Type::ScalarTypeKind::STK_FixedPoint:
                 break;
             }
-        }
-        else if (_is_struct) {
-            const RecordType *rt = q->getAsStructureType();
-            const RecordDecl *rd = rt->getDecl();
-            tr = decl_ref { db, idmap[rd->getID()] };
-        }
-        else if (_is_union) {
-            const RecordType *rt = q->getAsUnionType();
-            const RecordDecl *rd = rt->getDecl();
-            tr = decl_ref { db, idmap[rd->getID()] };
         }
         else if (_is_array) {
             /* also {Incomplete,DependentSized,Variable}ArrayType */
