@@ -154,21 +154,21 @@ The _Crefl_ implementation is currently _alpha software_.
 - binary format is subject to change and needs to be more compact.
   - format was reduced ~20% in size by eliding builtin types.
   - format could be made even smaller using LEB128 or ASN.1.
-- fields currently link to the desugared type.
-  - intend to store all qualifiers and links to typedefs.
-  - implement API to query typedef or the terminal desugared type.
 
 ### Crefl features
 
-- [x] C intrinsic data types
-  - _{ 1, 8, 16, 32, 64, 128 }_ bit signed and unsigned integral types
-  - _{ 16, 32, 64 }_ bit floating point
-  - _1_ bit boolean type
-- [x] modern integer type names.
-  - _bit, byte, short, int, long, cent_
-  - _sign, ubyte, ushort, uint, ulong, ucent_
-- [x] complex number types.
-  - _chalf, cfloat, cdouble, cquad_
+- [x] C intrinsic data types.
+  - [x] integer types.
+    - _bit, byte, short, int, long, cent_
+    - _sign, ubyte, ushort, uint, ulong, ucent_
+  - [x] floating point types.
+    - _half, float, double, quad_
+  - [x] complex number types.
+    - _chalf, cfloat, cdouble, cquad_
+  - [x] boolean type.
+    - _bool_
+  - [ ] vector types.
+    - _vec2, vec3, vec4, ..._
 - [x] nested struct, union, field and intrinsic types.
 - [x] bitfield widths.
 - [x] arrays and pointers.
