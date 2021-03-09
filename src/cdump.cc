@@ -52,7 +52,8 @@ static std::string _props(decl_ref d, const char *fmt, ...)
             crefl_tag_name(crefl_decl_tag(lr)), crefl_decl_name(lr));
     }
     else {
-        buf = string_printf("%s", crefl_tag_name(crefl_decl_tag(lr)));
+        buf = string_printf("%s(anonymous)",
+            crefl_tag_name(crefl_decl_tag(lr)));
     }
 
     decl_set props = crefl_decl_props(d);
