@@ -97,15 +97,15 @@ void crefl_db_dump_row(decl_db *db, decl_ref r)
     decl_node *d = crefl_decl_ptr(r);
     switch (crefl_decl_tag(r)) {
     case _decl_typedef:
-    case _decl_set:
-    case _decl_enum:
     case _decl_struct:
     case _decl_union:
     case _decl_param:
     case _decl_attribute: buf = _props(r, ""); break;
+    case _decl_set:
+    case _decl_enum:
+    case _decl_pointer:
     case _decl_intrinsic: buf = _props(r, "width=" fmt_SZ, d->_width); break;
     case _decl_array:     buf = _props(r, "size=" fmt_SZ, d->_count);  break;
-    case _decl_pointer:   buf = _props(r, "width=" fmt_SZ, d->_width); break;
     case _decl_constant:
     case _decl_value:     buf = _props(r, "value=" fmt_SZ, d->_value); break;
     case _decl_function:  buf = _props(r, "addr=" fmt_AD, d->_addr);   break;

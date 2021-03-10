@@ -127,7 +127,7 @@ struct decl_node
     decl_id _link;
     decl_id _attr;
 
-    /* quantifier used by intrinsic, field, array, constant, function */
+    /* quantifier used by intrinsic, set, enum, field, array, constant, etc */
     union {
         decl_sz _quantity;
         decl_sz _width;

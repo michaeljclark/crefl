@@ -418,12 +418,16 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             d->getNumNegativeBits(),
             d->getNumPositiveBits());
 
+        const QualType q = d->getIntegerType();
+        TypeInfo t = context.getTypeInfo(q);
+
         /* create enum */
         decl_ref r = crefl_decl_new(db, _decl_enum);
         crefl_decl_ptr(r)->_name = crefl_name_new(db,
             d->clang::NamedDecl::getNameAsString().c_str());
         idmap[d->clang::Decl::getID()] = crefl_decl_idx(r);
         crefl_decl_ptr(r)->_attr = create_attributes(d, r);
+        crefl_decl_ptr(r)->_width = t.Width;
         create_last_next_link(last, r);
         create_parent_link(get_parent<RecordDecl>(d), r);
 
