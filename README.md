@@ -6,6 +6,7 @@ The _Crefl_ API provides access to runtime reflection metadata for C
 structure declarations with support for arbitrarily nested combinations
 of: intrinsic, set, enum, struct, union, field, array, constant, variable.
 
+- The _Crefl_ reflection graph database format for portable reflection metadata.
 - The _Crefl_ clang plug-in outputs C reflection metadata used by the library.
 - The _Crefl_ API provides task-oriented query access to C reflection metadata.
 
