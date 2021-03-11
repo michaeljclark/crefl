@@ -36,9 +36,11 @@ struct prop_name
 };
 
 static prop_name prop_names[] = {
-    { _const, "const" },
-    { _volatile, "volatile" },
-    { _restrict, "restrict" },
+    { _const,     "const"      },
+    { _volatile,  "volatile"   },
+    { _restrict,  "restrict"   },
+    { _in,        "in"         },
+    { _out,       "out"        }
 };
 
 static std::string _link(decl_ref d)

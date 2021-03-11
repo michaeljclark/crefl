@@ -235,6 +235,10 @@ enum decl_props
     /* visibility */
     _default        = 1 << 16,
     _hidden         = 1 << 17,
+
+    /* param */
+    _in             = 1 << 18,
+    _out            = 1 << 19,
 };
 
 /*

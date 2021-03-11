@@ -587,7 +587,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         decl_ref pr = crefl_decl_new(db, _decl_param);
         crefl_decl_ptr(last)->_link = crefl_decl_idx(pr);
         crefl_decl_ptr(pr)->_link = crefl_decl_idx(get_intrinsic_type(qr));
-        crefl_decl_ptr(pr)->_props |= get_cvr_props(qr);
+        crefl_decl_ptr(pr)->_props |= get_cvr_props(qr) | _out;
 
         /* create argument params */
         const ArrayRef<ParmVarDecl*> parms = d->parameters();
