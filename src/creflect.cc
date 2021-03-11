@@ -305,7 +305,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             // TODO
         }
         else {
-            // TODO
+            tr = crefl_intrinsic(db, _void, t.Width);
         }
 
         debugf("\tscalar:%d complex:%d vector:%d array:%d struct:%d"
