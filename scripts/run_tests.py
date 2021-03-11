@@ -66,14 +66,14 @@ if not os.path.exists('build/tmp'):
 for f in args.files:
     g = glob.glob(f)
     for hdr in g:
-        print("===== INPUT  test-case: %s =====" % (hdr))
+        print("===== INPUT  test-case: %s =====\n" % (hdr))
         crefl_cat(hdr)
         if args.debug:
-            print("===== DEBUG test-case: %s =====" % (hdr))
+            print("===== DEBUG test-case: %s =====\n" % (hdr))
             crefl_debug(hdr)
-        print("===== OUTPUT test-case: %s =====" % (hdr))
+        print("===== OUTPUT test-case: %s =====\n" % (hdr))
         crefl_meta(hdr)
         crefl_dump(hdr)
         if args.stats:
-            print("===== STATS test-case: %s =====" % (hdr))
+            print("===== STATS test-case: %s =====\n" % (hdr))
             crefl_stats(hdr)
