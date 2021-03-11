@@ -126,11 +126,15 @@ on any node type and thus are semantically referred to as _south-east_.
 
 The _decl_ node contains a union with type specific properties such as a
 count, a width or a size. Not all types use the link field or the quantifer.
+The type none is used in the link field of an empty struct or union, in the
+next field to indicate the end of lists, and in the attr field to indicate
+the absense of attributes.
+
 This table table lists the properties used by each subtype:
 
 | Type        | Link | Properties | Description                                    |
 | :---------- | :--- | :--------- | :--------------------------------------------- |
-| `void`      |      |            | empty type                                     |
+| `none`      |      |            | empty type                                     |
 | `typedef`   | ✓    |            | alias to another type definition               |
 | `intrinsic` |      | `sz width` | machine type quantified with width in bits     |
 | `set`       | ✓    | `sz width` | machine type with many-of sequence of masks    |

@@ -175,7 +175,7 @@ struct decl_ref
  */
 enum decl_tags
 {
-    _decl_void,
+    _decl_none,
     _decl_intrinsic,
     _decl_typedef,
     _decl_set,

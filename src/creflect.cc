@@ -499,7 +499,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             switch (k) {
             case TagTypeKind::TTK_Struct: tag = _decl_struct; break;
             case TagTypeKind::TTK_Union:  tag = _decl_union;  break;
-            default:                      tag = _decl_void;   break;
+            default:                      tag = _decl_none;   break;
             }
 
             /* create struct */

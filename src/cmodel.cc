@@ -74,7 +74,7 @@ decl_ref crefl_lookup(decl_db *db, size_t decl_idx) { return decl_ref { db, decl
  */
 
 static const char * crefl_tag_names_arr[] = {
-    "void",
+    "none",
     "intrinsic",
     "typedef",
     "set",
