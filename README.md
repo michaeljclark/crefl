@@ -184,10 +184,10 @@ The _Crefl_ implementation is currently _alpha software_.
 - [ ] inline, extern.
 - [ ] function addresses.
 - [x] attributes (`__attribute__`).
-  - `alias("X")`
-  - `aligned(X)`
+  - `alias(`_"symbol"_`)`
+  - `aligned(`_alignment_`)`
   - `always_inline`
-  - `annotate("X")`
+  - `annotate(`_"string"_`)`
   - `deprecated`
   - `packed`
   - `pure`
