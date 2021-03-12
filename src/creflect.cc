@@ -166,7 +166,10 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         AttrVec& av = d->getAttrs();
         for (auto &at : av) {
             debugf("\tattribute:%s\n", at->getNormalizedFullName().c_str());
-            if (isa<PureAttr>(*at)) {
+            if (isa<AlwaysInlineAttr>(*at)) {
+                last = create_attribute(last, "always_inline");
+            }
+            else if (isa<PureAttr>(*at)) {
                 last = create_attribute(last, "pure");
             }
             else if (isa<PackedAttr>(*at)) {

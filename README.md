@@ -181,10 +181,17 @@ The _Crefl_ implementation is currently _alpha software_.
 - [x] enum and enum constants.
 - [x] functions and function parameters.
 - [x] const, volatile and restrict.
-- [x] attributes (`__attribute__`).
-  - `pure, packed, used, unused, alias("X"), aligned(X), annotate("X")`
 - [ ] inline, extern.
 - [ ] function addresses.
+- [x] attributes (`__attribute__`).
+  - `alias("X")`
+  - `aligned(X)`
+  - `always_inline`
+  - `annotate("X")`
+  - `packed`
+  - `pure`
+  - `used`
+  - `unused`
 
 ---
 
