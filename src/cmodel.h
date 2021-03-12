@@ -271,6 +271,7 @@ union decl_raw
  * decl types
  */
 int crefl_is_any(decl_ref d);
+int crefl_is_none(decl_ref d);
 int crefl_is_type(decl_ref d);
 int crefl_is_intrinsic(decl_ref d);
 int crefl_is_typedef(decl_ref d);

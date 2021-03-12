@@ -42,6 +42,7 @@ int crefl_is_type(decl_ref d)
            t == _decl_array;
 }
 
+int crefl_is_none(decl_ref d) { return crefl_decl_tag(d) == _decl_none; }
 int crefl_is_typedef(decl_ref d) { return crefl_decl_tag(d) == _decl_typedef; }
 int crefl_is_intrinsic(decl_ref d) { return crefl_decl_tag(d) == _decl_intrinsic; }
 int crefl_is_set(decl_ref d) { return crefl_decl_tag(d) == _decl_set; }
