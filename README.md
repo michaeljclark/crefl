@@ -188,6 +188,7 @@ The _Crefl_ implementation is currently _alpha software_.
   - `aligned(X)`
   - `always_inline`
   - `annotate("X")`
+  - `deprecated`
   - `packed`
   - `pure`
   - `used`

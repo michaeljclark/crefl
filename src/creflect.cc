@@ -169,6 +169,9 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             if (isa<AlwaysInlineAttr>(*at)) {
                 last = create_attribute(last, "always_inline");
             }
+            else if (isa<DeprecatedAttr>(*at)) {
+                last = create_attribute(last, "deprecated");
+            }
             else if (isa<PureAttr>(*at)) {
                 last = create_attribute(last, "pure");
             }
