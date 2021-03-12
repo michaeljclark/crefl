@@ -182,7 +182,8 @@ The _Crefl_ implementation is currently _alpha software_.
 - [x] functions and function parameters.
 - [x] const, volatile and restrict.
 - [x] attributes (`__attribute__`).
-  - currently limited to `pure, packed, used, unused, alias("X"), aligned(X)`
+  - `pure, packed, used, unused, alias("X"), aligned(X), annotate("X")`
+- [ ] inline, extern.
 - [ ] function addresses.
 
 ---

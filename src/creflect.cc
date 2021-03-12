@@ -189,6 +189,10 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
                 unsigned align = cast<AlignedAttr>(*at).getAlignment(context);
                 last = create_attribute_value(last, "aligned", align);
             }
+            else if (isa<AnnotateAttr>(*at)) {
+                std::string annotation = cast<AnnotateAttr>(*at).getAnnotation().str();
+                last = create_attribute_string(last, "annotate", annotation.c_str());
+            }
             if (crefl_decl_idx(last)) result = crefl_decl_idx(last);
         }
         return result;
