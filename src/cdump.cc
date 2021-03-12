@@ -93,15 +93,15 @@ static std::string _props(decl_ref d, const char *fmt, ...)
 
 void crefl_db_header_names()
 {
-    printf("%-5s %-5s %-5s %-5s %-10s %-12s %-12s %-18s\n",
+    printf("%-5s %-5s %-5s %-5s %-10s %-18s %-18s %-24s\n",
         "id", "attr", "next", "link", "type", "name", "props", "link-detail");
 }
 
 void crefl_db_header_lines()
 {
-    printf("%-5s %-5s %-5s %-5s %-10s %-12s %-12s %-18s\n",
+    printf("%-5s %-5s %-5s %-5s %-10s %-18s %-18s %-24s\n",
         "-----", "-----", "-----", "-----", "----------",
-        "------------", "------------", "------------------");
+        "------------------", "------------------", "------------------------");
 }
 
 void crefl_db_dump_row(decl_db *db, decl_ref r)
@@ -135,7 +135,7 @@ void crefl_db_dump_row(decl_db *db, decl_ref r)
     link = _link(r);
     name = crefl_decl_ptr(r)->_name > 0 ? crefl_decl_name(r) : "(anonymous)";
 
-    printf("%-5u %-5d %-5d %-5d %-10s %-12s %-12s %-18s\n",
+    printf("%-5u %-5d %-5d %-5d %-10s %-18s %-18s %-24s\n",
         crefl_decl_idx(r), d->_attr, d->_next, d->_link,
         crefl_tag_name(crefl_decl_tag(r)),
         name.c_str(), props.c_str(), link.c_str());
