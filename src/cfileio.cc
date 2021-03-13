@@ -107,6 +107,11 @@ int crefl_db_read_mem(decl_db *db, const uint8_t *buf, size_t input_sz)
     size_t name_sz = hdr->name_table_size;
     size_t root_idx = hdr->root_element;
 
+    /* return early if header indicates db is entry */
+    if (decl_cnt == 0) {
+        return 0;
+    }
+
     /*
      * for space compactness we elide builtin types from the output.
      * initialize builtin types then check the first element is root.
