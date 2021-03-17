@@ -18,7 +18,14 @@ separate_arguments(LLVM_LIBS UNIX_COMMAND "${LLVM_LIBS}")
 
 include_directories(src)
 
-add_library(cmodel STATIC src/cmodel.cc src/ctypes.cc src/cdump.cc src/cfileio.cc)
+add_library(cmodel STATIC
+	src/casn1.cc
+	src/cbuf.cc
+	src/cdump.cc
+	src/cfileio.cc
+	src/cmodel.cc
+	src/ctypes.cc
+)
 
 add_library(crefl SHARED src/creflect.cc)
 target_compile_options(crefl PRIVATE ${LLVM_CXXFLAGS})
@@ -33,7 +40,7 @@ target_link_libraries(example1 cmodel)
 
 enable_testing()
 
-foreach(prog IN ITEMS t1 t2 t3 t4)
+foreach(prog IN ITEMS t1 t2 t3 t4 t5)
 	add_executable(${prog} test/${prog}.c)
 	target_link_libraries(${prog} cmodel)
 	add_test(test_${prog} ${prog})
