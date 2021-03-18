@@ -25,46 +25,9 @@
 
 #include <vector>
 
-#include <sys/stat.h>
-
+#include "cutil.h"
 #include "cmodel.h"
 #include "cfileio.h"
-
-/*
- * internal file io helpers
- */
-
-static size_t crefl_read_file(std::vector<uint8_t> &buf, const char* filename)
-{
-    FILE *f;
-    struct stat statbuf;
-    if ((f = fopen(filename, "rb")) == nullptr) {
-        fprintf(stderr, "fopen: %s\n", strerror(errno));
-        return -1;
-    }
-    if (fstat(fileno(f), &statbuf) < 0) {
-        fprintf(stderr, "fstat: %s\n", strerror(errno));
-        return -1;
-    }
-    buf.resize(statbuf.st_size);
-    size_t len = fread(buf.data(), 1, buf.size(), f);
-    fclose(f);
-
-    return buf.size() == len ? 0 : -1;
-}
-
-static size_t crefl_write_file(std::vector<uint8_t> &buf, const char* filename)
-{
-    FILE *f;
-    if ((f = fopen(filename, "wb")) == nullptr) {
-        fprintf(stderr, "fopen: %s\n", strerror(errno));
-        return -1;
-    }
-    size_t len = fwrite(buf.data(), 1, buf.size(), f);
-    fclose(f);
-
-    return buf.size() == len ? 0 : -1;
-}
 
 /*
  * decl db magic and size
