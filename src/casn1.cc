@@ -16,10 +16,56 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include <cstdio>
+
 #include "cmodel.h"
 #include "cbuf.h"
 #include "cbits.h"
 #include "casn1.h"
+
+/*
+ * ASN.1 tag names
+ */
+
+const char* asn1_tag_names[32] = {
+    /*  0 */ "reserved",
+    /*  1 */ "boolean",
+    /*  2 */ "integer",
+    /*  3 */ "bit_string",
+    /*  4 */ "octet_string",
+    /*  5 */ "null",
+    /*  6 */ "object_identifier",
+    /*  7 */ "object_descriptor",
+    /*  8 */ "external",
+    /*  9 */ "real",
+    /* 10 */ "enumerated",
+    /* 11 */ "embedded_pdv",
+    /* 12 */ "utf8_string",
+    /* 13 */ "relative_oid",
+    /* 14 */ "reserved_14",
+    /* 15 */ "reserved_15",
+    /* 16 */ "sequence",
+    /* 17 */ "set",
+    /* 18 */ "numeric_string",
+    /* 19 */ "printable_string",
+    /* 20 */ "t61_string",
+    /* 21 */ "reserved_21",
+    /* 22 */ "ia5_string",
+    /* 23 */ "utc_time",
+    /* 24 */ "generalized_time",
+    /* 25 */ "graphic_string",
+    /* 26 */ "iso646_string",
+    /* 27 */ "general_string",
+    /* 28 */ "utf32_string",
+    /* 29 */ "reserved_29",
+    /* 30 */ "utf16_string",
+    /* 31 */ "reserved_31",
+};
+
+const char* asn1_tag_name(u64 tag)
+{
+    return (tag < 32) ? asn1_tag_names[tag] : "<unknown>";
+}
 
 /*
  * structure of ASN.1 tagged data
@@ -42,7 +88,12 @@
  * called by ident_read | ident_write if low tag == 0b11111
  */
 
-int crefl_asn1_tagnum_read(crefl_buf *buf, u64 *len)
+size_t crefl_asn1_tagnum_length(u64 tag)
+{
+    return 8 - ((clz(tag) - 1) / 7) + 1;
+}
+
+int crefl_asn1_tagnum_read(crefl_buf *buf, u64 *tag)
 {
     int8_t b;
     size_t w = 0;
@@ -62,21 +113,21 @@ int crefl_asn1_tagnum_read(crefl_buf *buf, u64 *len)
     }
 
 out:
-    *len = l;
+    *tag = l;
     return 0;
 err:
-    *len = 0;
+    *tag = 0;
     return -1;
 }
 
-int crefl_asn1_tagnum_write(crefl_buf *buf, u64 len)
+int crefl_asn1_tagnum_write(crefl_buf *buf, u64 tag)
 {
     int8_t b;
     size_t llen;
     u64 l = 0;
 
-    llen = 8 - ((clz(len) - 1) / 7) + 1;
-    l = len << (64 - llen * 7);
+    llen = 8 - ((clz(tag) - 1) / 7) + 1;
+    l = tag << (64 - llen * 7);
     for (size_t i = 0; i < llen; i++) {
         b = ((l >> 57) & 0x7f);
         b |= (i != llen - 1) << 7;
@@ -86,6 +137,7 @@ int crefl_asn1_tagnum_write(crefl_buf *buf, u64 len)
         }
     }
 
+    return 0;
 err:
     return -1;
 }
@@ -95,6 +147,12 @@ err:
  *
  * read and write identifier
  */
+
+size_t crefl_asn1_ident_length(asn1_id _id)
+{
+    return 1 + ((_id._identifier >= 0x1f) ?
+        crefl_asn1_tagnum_length(_id._identifier) : 0);
+}
 
 int crefl_asn1_ident_read(crefl_buf *buf, asn1_id *_id)
 {
@@ -151,6 +209,11 @@ err:
  *
  * read and write 64-bit length
  */
+
+size_t crefl_asn1_length_length(u64 length)
+{
+    return 1 + ((length >= 0x80) ? 8 - (clz(length) / 8) : 0);
+}
 
 int crefl_asn1_length_read(crefl_buf *buf, u64 *length)
 {
@@ -230,7 +293,7 @@ err:
  * read and write integer
  */
 
-u64 crefl_asn1_boolean_length(bool value)
+size_t crefl_asn1_boolean_length(bool value)
 {
     return 1;
 }
@@ -270,7 +333,7 @@ err:
  * read and write integer
  */
 
-u64 crefl_asn1_integer_length(u64 value)
+size_t crefl_asn1_integer_length(u64 value)
 {
     return 8 - (clz(value) / 8);
 }
@@ -350,4 +413,97 @@ int crefl_asn1_tagged_integer_write(crefl_buf *buf, asn1_tag _tag, u64 value)
     return 0;
 err:
     return -1;
+}
+
+/*
+ * ISO/IEC 8825-1:2003 8.19 object identifier value
+ *
+ * read and write object identifier value
+ */
+
+size_t crefl_asn1_oid_length(u64 *oid, size_t count)
+{
+    size_t length = 0;
+    for (size_t i = 0; i < count; i++) {
+        /*
+         * 8.19.4 rule where first two components are combined -> (X*40) + Y
+         */
+        if (i == 0 && count > 1) {
+            length = crefl_asn1_tagnum_length(oid[0] * 40 + oid[1]);
+            i++;
+        } else {
+            length += crefl_asn1_tagnum_length(oid[i]);
+        }
+    }
+    return length;
+}
+
+int crefl_asn1_oid_read(crefl_buf *buf, asn1_hdr *_hdr, u64 *oid, size_t *count)
+{
+    size_t len = _hdr->_length;
+    size_t offset = crefl_buf_offset(buf);
+    size_t n = 0, limit = *count;
+    u64 comp;
+
+    while (offset < len) {
+        if (crefl_asn1_tagnum_read(buf, &comp) < 0) goto err;
+        /*
+         * 8.19.4 rule where first two components are combined -> (X*40) + Y
+         */
+        if (n == 0 && comp > 40) {
+            if (n < limit && oid) oid[n] = comp/40;
+            n++;
+            if (n < limit && oid) oid[n] = comp%40;
+            n++;
+        }
+        else {
+            if (n < limit && oid) oid[n] = comp;
+            n++;
+        }
+        offset = crefl_buf_offset(buf);
+    }
+
+    *count = n;
+    return 0;
+err:
+    *count = 0;
+    return -1;
+}
+
+int crefl_asn1_oid_write(crefl_buf *buf, asn1_hdr *_hdr, u64 *oid, size_t count)
+{
+    size_t len = _hdr->_length;
+
+    for (size_t i = 0; i < count; i++) {
+        /*
+         * 8.19.4 rule where first two components are combined -> (X*40) + Y
+         */
+        if (i == 0 && count > 1) {
+            if (crefl_asn1_tagnum_write(buf, oid[0] * 40 + oid[1]) < 0) goto err;
+            i++;
+        } else {
+            if (crefl_asn1_tagnum_write(buf, oid[i]) < 0) goto err;
+        }
+    }
+
+    return 0;
+err:
+    return -1;
+}
+
+size_t crefl_asn1_oid_to_string(char *buf, size_t buflen, u64 *oid, size_t count)
+{
+    if (buf && buflen) {
+        buf[0] = '\0';
+    }
+    size_t offset = 0;
+    for (size_t i = 0; i < count; i ++) {
+        offset += snprintf(
+            (buflen ? buf + offset : NULL),
+            (buflen ? buflen - offset : 0),
+            (i == 0 ? "%lld" : ".%lld"),
+            oid[i]
+        );
+    }
+    return offset;
 }

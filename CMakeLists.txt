@@ -35,6 +35,9 @@ target_link_libraries(crefl -lclang cmodel ${LLVM_LIBS})
 add_executable(crefltool tool/crefltool.cc)
 target_link_libraries(crefltool cmodel)
 
+add_executable(asn1tool tool/asn1tool.cc)
+target_link_libraries(asn1tool cmodel)
+
 add_executable(example1 samples/example1.c)
 target_link_libraries(example1 cmodel)
 

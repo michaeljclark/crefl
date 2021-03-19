@@ -116,25 +116,35 @@ struct asn1_hdr
  * ASN.1 serialisation and deserialization
  */
 
+const char* asn1_tag_name(u64 tag);
+
+size_t crefl_asn1_tagnum_length(u64 len);
 int crefl_asn1_tagnum_read(crefl_buf *buf, u64 *len);
 int crefl_asn1_tagnum_write(crefl_buf *buf, u64 len);
 
+size_t crefl_asn1_ident_length(asn1_id _id);
 int crefl_asn1_ident_read(crefl_buf *buf, asn1_id *_id);
 int crefl_asn1_ident_write(crefl_buf *buf, asn1_id _id);
 
+size_t crefl_asn1_length_length(u64 length);
 int crefl_asn1_length_read(crefl_buf *buf, u64 *length);
 int crefl_asn1_length_write(crefl_buf *buf, u64 length);
 
-u64 crefl_asn1_boolean_length(bool value);
+size_t crefl_asn1_boolean_length(bool value);
 int crefl_asn1_boolean_read(crefl_buf *buf, asn1_hdr *_hdr, bool *value);
 int crefl_asn1_boolean_write(crefl_buf *buf, asn1_hdr *_hdr, bool value);
 
-u64 crefl_asn1_integer_length(u64 value);
+size_t crefl_asn1_integer_length(u64 value);
 int crefl_asn1_integer_read(crefl_buf *buf, asn1_hdr *_hdr, u64 *value);
 int crefl_asn1_integer_write(crefl_buf *buf, asn1_hdr *_hdr, u64 value);
 
 int crefl_asn1_tagged_integer_read(crefl_buf *buf, asn1_tag _tag, u64 *value);
 int crefl_asn1_tagged_integer_write(crefl_buf *buf, asn1_tag _tag, u64 value);
+
+size_t crefl_asn1_oid_length(u64 *oid, size_t count);
+int crefl_asn1_oid_read(crefl_buf *buf, asn1_hdr *_hdr, u64 *oid, size_t *count);
+int crefl_asn1_oid_write(crefl_buf *buf, asn1_hdr *_hdr, u64 *oid, size_t count);
+size_t crefl_asn1_oid_to_string(char *buf, size_t buflen, u64 *oid, size_t count);
 
 #ifdef __cplusplus
 }

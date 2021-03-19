@@ -57,6 +57,21 @@ void crefl_buf_reset(crefl_buf* buf)
     buf->data_offset = 0;
 }
 
+void crefl_buf_seek(crefl_buf* buf, size_t offset)
+{
+    buf->data_offset = offset;
+}
+
+char* crefl_buf_data(crefl_buf *buf)
+{
+    return buf->data;
+}
+
+size_t crefl_buf_offset(crefl_buf* buf)
+{
+    return buf->data_offset;
+}
+
 static std::string _to_binary(uint64_t symbol, size_t bit_width)
 {
     static const char* arr[] = { "▄", "▟", "▙", "█" };

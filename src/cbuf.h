@@ -61,6 +61,9 @@ size_t crefl_buf_read_i64(crefl_buf* buf, int64_t *num);
 size_t crefl_buf_read_bytes(crefl_buf* buf, char *s, size_t len);
 
 void crefl_buf_reset(crefl_buf* buf);
+void crefl_buf_seek(crefl_buf* buf, size_t offset);
+char* crefl_buf_data(crefl_buf *buf);
+size_t crefl_buf_offset(crefl_buf* buf);
 
 void crefl_buf_copy_input(crefl_buf* buf, crefl_span input); /* read callback */
 crefl_span crefl_buf_copy_output(crefl_buf* buf); /* get write params */
