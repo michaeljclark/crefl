@@ -26,21 +26,26 @@
 
 int main(int argc, const char **argv)
 {
-    if (argc != 3) {
-        fprintf(stderr, "usage: %s [--dump|--stats] <filename.refl>\n", argv[0]);
-        exit(1);
-    }
+    decl_db *db;
+
+    if (argc != 3) goto help_exit;
 
     enum { _dump, _stats } mode;
 
     if (strcmp(argv[1], "--dump") == 0) mode = _dump;
     else if (strcmp(argv[1], "--stats") == 0) mode = _stats;
+    else goto help_exit;
 
-    decl_db *db = crefl_db_new();
+    db = crefl_db_new();
     crefl_db_read_file(db, argv[2]);
     switch (mode) {
 	    case _dump: crefl_db_dump(db); break;
 	    case _stats: crefl_db_dump_stats(db); break;
 	}
     crefl_db_destroy(db);
+    exit(0);
+
+help_exit:
+    fprintf(stderr, "usage: %s [--dump|--stats] <filename.refl>\n", argv[0]);
+    exit(1);
 }
