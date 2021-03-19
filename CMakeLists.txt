@@ -24,6 +24,7 @@ add_library(cmodel STATIC
 	src/cdump.cc
 	src/cfileio.cc
 	src/cmodel.cc
+	src/coid.cc
 	src/ctypes.cc
 )
 

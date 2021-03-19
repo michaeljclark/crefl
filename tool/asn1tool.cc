@@ -8,6 +8,7 @@
 
 #include "cutil.h"
 #include "casn1.h"
+#include "coid.h"
 
 std::string oid_str(const uint8_t *data, size_t sz)
 {
@@ -53,7 +54,7 @@ extern const char* asn1_tag_names[];
 static int read_asn1(crefl_buf *buf, size_t offset, size_t limit, int depth)
 {
     asn1_hdr hdr;
-    std::string indent, undent;
+    std::string indent, undent, oid;
     size_t current;
 
     crefl_buf_seek(buf, offset);
@@ -84,8 +85,8 @@ static int read_asn1(crefl_buf *buf, size_t offset, size_t limit, int depth)
         break;
     case asn1_tag_object_identifier:
         current = crefl_buf_offset(buf);
-        printf("%s%s\n", undent.c_str(),
-            oid_str((const uint8_t*)buf->data + current, hdr._length).c_str());
+        oid = oid_str((const uint8_t*)buf->data + current, hdr._length);
+        printf("%s%s (%s)\n", undent.c_str(), crefl_asn1_oid_desc(oid.c_str()), oid.c_str());
         crefl_buf_seek(buf, current + hdr._length);
         break;
     case asn1_tag_integer:
