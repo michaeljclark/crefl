@@ -288,9 +288,9 @@ err:
 }
 
 /*
- * ISO/IEC 8825-1:2003 8.3 integer
+ * ISO/IEC 8825-1:2003 8.2 boolean
  *
- * read and write integer
+ * read and write boolean
  */
 
 size_t crefl_asn1_boolean_length(bool value)
