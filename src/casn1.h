@@ -141,6 +141,14 @@ int crefl_asn1_integer_write(crefl_buf *buf, asn1_hdr *_hdr, u64 value);
 int crefl_asn1_tagged_integer_read(crefl_buf *buf, asn1_tag _tag, u64 *value);
 int crefl_asn1_tagged_integer_write(crefl_buf *buf, asn1_tag _tag, u64 value);
 
+size_t crefl_asn1_real_f32_length(float value);
+int crefl_asn1_real_f32_read(crefl_buf *buf, asn1_hdr *_hdr, float *value);
+int crefl_asn1_real_f32_write(crefl_buf *buf, asn1_hdr *_hdr, float value);
+
+size_t crefl_asn1_real_f64_length(double value);
+int crefl_asn1_real_f64_read(crefl_buf *buf, asn1_hdr *_hdr, double *value);
+int crefl_asn1_real_f64_write(crefl_buf *buf, asn1_hdr *_hdr, double value);
+
 size_t crefl_asn1_oid_length(u64 *oid, size_t count);
 int crefl_asn1_oid_read(crefl_buf *buf, asn1_hdr *_hdr, u64 *oid, size_t *count);
 int crefl_asn1_oid_write(crefl_buf *buf, asn1_hdr *_hdr, u64 *oid, size_t count);

@@ -18,6 +18,8 @@
 
 #include <cstdio>
 
+#include "stdendian.h"
+
 #include "cmodel.h"
 #include "cbuf.h"
 #include "cbits.h"
@@ -418,6 +420,225 @@ int crefl_asn1_tagged_integer_write(crefl_buf *buf, asn1_tag _tag, u64 value)
 
     return 0;
 err:
+    return -1;
+}
+
+/*
+ * IEEE 754 encoding and decoding functions
+ */
+
+union f32_bits { f32 f; u32 u; };
+union f64_bits { f64 f; u64 u; };
+
+#if _BYTE_ORDER == _LITTLE_ENDIAN
+struct f32_struct { u32 mant : 23; u32 exp : 8;  u32 sign : 1; };
+struct f64_struct { u64 mant : 52; u64 exp : 11; u64 sign : 1; };
+#else
+struct f32_struct { u32 sign : 1; u32 exp : 8;  u32 mant : 23; };
+struct f64_struct { u64 sign : 1; u64 exp : 11; u64 mant : 52;  };
+#endif
+
+enum : u32 {
+    f32_exp_size = 8,
+    f32_mant_size = 23,
+
+    f32_mant_shift = 0,
+    f32_exp_shift = f32_mant_size,
+    f32_sign_shift = f32_mant_size + f32_exp_size,
+
+    f32_mant_mask = (1 << f32_mant_size) - 1,
+    f32_exp_mask = (1 << f32_exp_size) - 1,
+    f32_sign_mask = 1,
+
+    f32_exp_bias = (1 << (f32_exp_size-1)) - 1
+};
+
+enum : u64 {
+    f64_exp_size = 11,
+    f64_mant_size = 52,
+
+    f64_mant_shift = 0,
+    f64_exp_shift = f64_mant_size,
+    f64_sign_shift = f64_mant_size + f64_exp_size,
+
+    f64_mant_mask = (1ull << f64_mant_size) - 1,
+    f64_exp_mask = (1ull << f64_exp_size) - 1,
+    f64_sign_mask = 1ull,
+
+    f64_exp_bias = (1 << (f64_exp_size-1)) - 1
+};
+
+static u32 f32_mant_dec(f32 x) { return (f32_bits{x}.u >> f32_mant_shift) & f32_mant_mask; }
+static u32 f32_exp_dec(f32 x) { return (f32_bits{x}.u >> f32_exp_shift) & f32_exp_mask; }
+static u32 f32_sign_dec(f32 x) { return (f32_bits{x}.u >> f32_sign_shift) & f32_sign_mask; }
+static u32 f32_mant_enc(u32 v) { return ((v & f32_mant_mask) << f32_mant_shift); }
+static u32 f32_exp_enc(u32 v) { return ((v & f32_exp_mask) << f32_exp_shift); }
+static u32 f32_sign_enc(u32 v) { return ((v & f32_sign_mask) << f32_sign_shift); }
+static int f32_is_inf(f32 x) { return f32_exp_dec(x) == f32_exp_mask && f32_mant_dec(x) == 0; }
+static int f32_is_nan(f32 x) { return f32_exp_dec(x) == f32_exp_mask && f32_mant_dec(x) != 0; }
+static int f32_is_denorm(f32 x) { return f32_exp_dec(x) == 0 && f32_mant_dec(x) != 0; }
+
+static f32_struct f32_unpack_float(f32 x)
+{
+    return { f32_mant_dec(x), f32_exp_dec(x), f32_sign_dec(x) };
+}
+
+static f32 f32_pack_float(f32_struct s)
+{
+    union { u32 u; f32 f; };
+    u = f32_mant_enc(s.mant) | f32_exp_enc(s.exp) | f32_sign_enc(s.sign);
+    return f;
+}
+
+static u64 f64_mant_dec(f64 x) { return (f64_bits{x}.u >> f64_mant_shift) & f64_mant_mask; }
+static u64 f64_exp_dec(f64 x) { return (f64_bits{x}.u >> f64_exp_shift) & f64_exp_mask; }
+static u64 f64_sign_dec(f64 x) { return (f64_bits{x}.u >> f64_sign_shift) & f64_sign_mask; }
+static u64 f64_mant_enc(u64 v) { return ((v & f64_mant_mask) << f64_mant_shift); }
+static u64 f64_exp_enc(u64 v) { return ((v & f64_exp_mask) << f64_exp_shift); }
+static u64 f64_sign_enc(u64 v) { return ((v & f64_sign_mask) << f64_sign_shift); }
+static int f64_is_inf(f64 x) { return f64_exp_dec(x) == f64_exp_mask && f64_mant_dec(x) == 0; }
+static int f64_is_nan(f64 x) { return f64_exp_dec(x) == f64_exp_mask && f64_mant_dec(x) != 0; }
+static int f64_is_denorm(f64 x) { return f64_exp_dec(x) == 0 && f64_mant_dec(x) != 0; }
+
+static f64_struct f64_unpack_float(f64 x)
+{
+    return { f64_mant_dec(x), f64_exp_dec(x), f64_sign_dec(x) };
+}
+
+static f64 f64_pack_float(f64_struct s)
+{
+    union { f64 f; u64 u; };
+    u = f64_mant_enc(s.mant) | f64_exp_enc(s.exp) | f64_sign_enc(s.sign);
+    return f;
+}
+
+/*
+ * ISO/IEC 8825-1:2003 8.5 real
+ *
+ * read and write real
+ *
+ * ASN.1 REAL encoding bits from first content byte
+ *
+ * - 8.5.6 encoding-format
+ *   - [8]   0b'1 = binary
+ *   - [8:7] 0b'00 = decimal
+ *   - [8:7] 0b'01 = special real value
+ * - 8.5.7.1 sign (if bit 8 = 0b1)
+ *   - [7]   sign S
+ * - 8.5.7.2 base (if bit 8 = 0b1)
+ *   - [6:5] 0b'00 = base 2
+ *   - [6:5] 0b'01 = base 8
+ *   - [6:5] 0b'10 = base 16
+ *   - [6:5] 0b'11 = reserved
+ * - 8.5.7.3 scale-factor (if bit 8 = 0b1)
+ *   - [4:3] unsigned scale factor F
+ * - 8.5.7.4 exponent-format (if bit 8 = 0b1)
+ *   - [2:1] 0b'00 = 1-byte signed exponent in 2nd octet
+ *   - [2:1] 0b'01 = 2-byte signed exponent in 2nd to 3rd octet
+ *   - [2:1] 0b'10 = 3-byte signed exponent in 2nd to 4rd octet
+ *   - [2:1] 0b'11 = 2nd octet contains number of exponent octets
+ * - 8.5.8 decimal encoding (if bit 8:7 = 0b00)
+ *   - [8:1] 0b'00000001 ISO 6093 NR1 form
+ *   - [8:1] 0b'00000010 ISO 6093 NR2 form
+ *   - [8:1] 0b'00000011 ISO 6093 NR3 form
+ * - 8.5.9 special real value (if bit 8:7 = 0b01)
+ *   - [8:1] 0b'01000000 Value is PLUS-INFINITY
+ *   - [8:1] 0b'01000001 Value is MINUS-INFINITY
+ *   - [8:1] 0b'01000010 Value is NOT-A-NUMBER
+ *   - [8:1] 0b'01000011 Value is minus zero
+ *
+ *  binary encoding: M = S × N × 2^F x (2,8,16)^E
+ *  decimal encoding: /[0-9]+\.[0-9]+([eE][+-]?[0-9]+)?/
+ */
+
+enum {
+    _real_fmt_shift         = 6,
+    _real_fmt_mask          = 0b11,
+    _real_base_shift        = 4,
+    _real_base_mask         = 0b11,
+    _real_scale_shift       = 2,
+    _real_scale_mask        = 0b11,
+    _real_exp_shift         = 0,
+    _real_exp_mask          = 0b11,
+};
+
+enum _real_fmt {
+    _real_fmt_decimal       = 0b00,
+    _real_fmt_special       = 0b01,
+    _real_fmt_binary_pos    = 0b10,
+    _real_fmt_binary_neg    = 0b11
+};
+
+enum _real_base {
+    _real_base_2            = 0b00,
+    _real_base_8            = 0b01,
+    _real_base_16           = 0b10
+};
+
+enum _real_exp {
+    _real_exp_1             = 0b00,
+    _real_exp_2             = 0b01,
+    _real_exp_3             = 0b10,
+    _real_exp_n             = 0b11
+};
+
+enum _real_decimal_nr {
+    _real_decimal_nr_1      = 0b00000001,
+    _real_decimal_nr_2      = 0b00000010,
+    _real_decimal_nr_3      = 0b00000011,
+};
+
+enum _real_special {
+    _real_special_pos_inf   = 0b01000000,
+    _real_special_neg_inf   = 0b01000001,
+    _real_special_neg_zero  = 0b01000010,
+    _real_special_nan       = 0b01000011,
+};
+
+static _real_fmt _asn1_real_format(u8 x)
+{
+    return (_real_fmt)((x >> _real_fmt_shift) & _real_fmt_mask);
+}
+
+static u8 _asn1_real_binary_full(bool sign, _real_exp exp, _real_base base, u8 scale)
+{
+    return 0x80 | ((u8)sign<<6)  | (((u8)base)<<4) | ((scale&3)<<2) | (u8)exp;
+}
+
+static u8 _asn1_real_binary(bool sign, _real_exp exponent)
+{
+    return _asn1_real_binary_full(sign, exponent, _real_base_2, 0);
+}
+
+size_t crefl_asn1_real_f32_length(float value)
+{
+    /* 1-byte header + 2-byte exponent + 3-byte integer */
+    return 6;
+}
+
+int crefl_asn1_real_f32_read(crefl_buf *buf, asn1_hdr *_hdr, float *value)
+{
+    return -1;
+}
+
+int crefl_asn1_real_f32_write(crefl_buf *buf, asn1_hdr *_hdr, float value)
+{
+    return -1;
+}
+
+size_t crefl_asn1_real_f64_length(double value)
+{
+    /* 1-byte header + 2-byte exponent + 7-byte integer */
+    return 10;
+}
+
+int crefl_asn1_real_f64_read(crefl_buf *buf, asn1_hdr *_hdr, double *value)
+{
+    return -1;
+}
+
+int crefl_asn1_real_f64_write(crefl_buf *buf, asn1_hdr *_hdr, double value)
+{
     return -1;
 }
 
