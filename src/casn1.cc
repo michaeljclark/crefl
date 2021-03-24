@@ -92,7 +92,7 @@ const char* asn1_tag_name(u64 tag)
 
 size_t crefl_asn1_tagnum_length(u64 tag)
 {
-    return 8 - ((clz(tag) - 1) / 7) + 1;
+    return tag == 0 ? 1 : 8 - ((clz(tag) - 1) / 7) + 1;
 }
 
 int crefl_asn1_tagnum_read(crefl_buf *buf, u64 *tag)
@@ -132,7 +132,7 @@ int crefl_asn1_tagnum_write(crefl_buf *buf, u64 tag)
         goto err;
     }
 
-    llen = 8 - ((clz(tag) - 1) / 7) + 1;
+    llen = crefl_asn1_tagnum_length(tag);
     l = tag << (64 - llen * 7);
     for (size_t i = 0; i < llen; i++) {
         b = ((l >> 57) & 0x7f);
@@ -369,7 +369,7 @@ err:
 
 size_t crefl_asn1_ber_integer_length(u64 value)
 {
-    return 8 - (clz(value) / 8);
+    return value == 0 ? 1 : 8 - (clz(value) / 8);
 }
 
 int crefl_asn1_ber_integer_read(crefl_buf *buf, size_t len, u64 *value)

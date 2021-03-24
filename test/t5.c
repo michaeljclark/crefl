@@ -65,7 +65,7 @@ void FN(tagnum,X)()                                                \
     crefl_buf_destroy(buf);                                        \
 }
 
-T_TAGNUM(1,1)
+T_TAGNUM(1,0)
 T_TAGNUM(2,10)
 T_TAGNUM(3,128)
 T_TAGNUM(4,170)
@@ -96,7 +96,7 @@ void FN(ber_length,X)()                                            \
     crefl_buf_destroy(buf);                                        \
 }
 
-T_BER_LENGTH(1,1)
+T_BER_LENGTH(1,0)
 T_BER_LENGTH(2,10)
 T_BER_LENGTH(3,128)
 T_BER_LENGTH(4,170)
@@ -132,7 +132,7 @@ void FN(ber_ident,X)()                                             \
     crefl_buf_destroy(buf);                                        \
 }
 
-T_BER_IDENT(1,1)
+T_BER_IDENT(1,0)
 T_BER_IDENT(2,10)
 T_BER_IDENT(3,128)
 T_BER_IDENT(4,170)
@@ -181,7 +181,7 @@ void FN(ber_int,X)()                                               \
     crefl_buf_destroy(buf);                                        \
 }
 
-T_BER_INT(1,1)
+T_BER_INT(1,0)
 T_BER_INT(2,10)
 T_BER_INT(3,128)
 T_BER_INT(4,170)
@@ -271,7 +271,7 @@ void FN(der_int,X)()                                               \
     crefl_buf_destroy(buf);                                        \
 }
 
-T_DER_INT(1,1)
+T_DER_INT(1,0)
 T_DER_INT(2,10)
 T_DER_INT(3,128)
 T_DER_INT(4,170)
