@@ -215,7 +215,7 @@ sudo apt-get install llvm libclang-dev
 ubuntu 20.04 LTS:
 
 ```shell
-cmake -B build -G Ninja
+cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo
 cmake --build build -- --verbose
 ```
 
