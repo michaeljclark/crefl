@@ -89,6 +89,7 @@ static int read_asn1(crefl_buf *buf, size_t offset, size_t limit, int depth)
         printf("%s%s (%s)\n", undent.c_str(), crefl_asn1_oid_desc(oid.c_str()), oid.c_str());
         crefl_buf_seek(buf, current + hdr._length);
         break;
+    case asn1_tag_real:
     case asn1_tag_integer:
     case asn1_tag_bit_string:
         current = crefl_buf_offset(buf);
