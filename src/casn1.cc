@@ -17,6 +17,7 @@
  */
 
 #include <cstdio>
+#include <cstdlib>
 
 #include "stdendian.h"
 
@@ -454,13 +455,8 @@ err:
 union f32_bits { f32 f; u32 u; };
 union f64_bits { f64 f; u64 u; };
 
-#if _BYTE_ORDER == _LITTLE_ENDIAN
 struct f32_struct { u32 mant : 23; u32 exp : 8;  u32 sign : 1; };
 struct f64_struct { u64 mant : 52; u64 exp : 11; u64 sign : 1; };
-#else
-struct f32_struct { u32 sign : 1; u32 exp : 8;  u32 mant : 23; };
-struct f64_struct { u64 sign : 1; u64 exp : 11; u64 mant : 52;  };
-#endif
 
 enum : u32 {
     f32_exp_size = 8,
@@ -474,6 +470,7 @@ enum : u32 {
     f32_exp_mask = (1 << f32_exp_size) - 1,
     f32_sign_mask = 1,
 
+    f32_mant_prefix = (1ull << f32_mant_size),
     f32_exp_bias = (1 << (f32_exp_size-1)) - 1
 };
 
@@ -489,6 +486,7 @@ enum : u64 {
     f64_exp_mask = (1ull << f64_exp_size) - 1,
     f64_sign_mask = 1ull,
 
+    f64_mant_prefix = (1ull << f64_mant_size),
     f64_exp_bias = (1 << (f64_exp_size-1)) - 1
 };
 
@@ -624,6 +622,11 @@ static _real_fmt _asn1_real_format(u8 x)
     return (_real_fmt)((x >> _real_fmt_shift) & _real_fmt_mask);
 }
 
+static _real_exp _asn1_real_exp(u8 x)
+{
+    return (_real_exp)((x >> _real_exp_shift) & _real_exp_mask);
+}
+
 static u8 _asn1_real_binary_full(bool sign, _real_exp exp, _real_base base, u8 scale)
 {
     return 0x80 | ((u8)sign<<6)  | (((u8)base)<<4) | ((scale&3)<<2) | (u8)exp;
@@ -636,17 +639,122 @@ static u8 _asn1_real_binary(bool sign, _real_exp exponent)
 
 size_t crefl_asn1_ber_real_f64_length(double value)
 {
-    /* 1-byte header + 2-byte exponent + 7-byte integer (56-bits) */
-    return 10;
+    f64_struct s = f64_unpack_float(value);
+    bool sign = f64_sign_dec(value);
+    bool inf = f64_is_inf(value);
+    bool nan = f64_is_nan(value);
+    u64 frac = f64_mant_dec(value) + f64_mant_prefix;
+    size_t frac_tz = ctz(frac), frac_lz = clz(frac);
+    frac >>= frac_tz;
+    int exp = (int)f64_exp_dec(value) - f64_exp_bias - (63 - frac_lz - frac_tz);
+    size_t frac_len = crefl_asn1_ber_integer_length(frac);
+    size_t exp_len = crefl_asn1_ber_integer_length(abs(exp));
+
+    if (f64_is_inf(value) || f64_is_nan(value)) {
+        return 1;
+    } else {
+        return 1 + exp_len + frac_len;
+    }
 }
 
 int crefl_asn1_ber_real_f64_read(crefl_buf *buf, size_t len, double *value)
 {
+    int8_t b;
+    double v = 0;
+    _real_fmt fmt;
+    _real_exp exp_mode;
+    size_t frac_len;
+    size_t exp_len;
+    u64 frac;
+    u64 exp;
+    int sexp, fexp;
+    bool sign;
+    size_t frac_tz;
+    size_t frac_lz;
+
+    if (crefl_buf_read_i8(buf, &b) != 1) {
+        goto err;
+    }
+    fmt = _asn1_real_format(b);
+    switch (fmt) {
+    case _real_fmt_binary_pos: sign = false; break;
+    case _real_fmt_binary_neg: sign = true; break;
+    default: return -1;
+    }
+    exp_mode = _asn1_real_exp(b);
+    switch(exp_mode) {
+    case _real_exp_1: exp_len = 1; break;
+    case _real_exp_2: exp_len = 2; break;
+    default: return -1;
+    }
+    frac_len = len - exp_len - 1;
+
+    if (crefl_asn1_ber_integer_read(buf, exp_len, &exp) < 0) {
+        goto err;
+    }
+    if (crefl_asn1_ber_integer_read(buf, frac_len, &frac) < 0) {
+        goto err;
+    }
+    frac_tz = ctz(frac);
+    frac_lz = clz(frac);
+
+    frac = (frac << (frac_lz + 1)) >> (f64_exp_size + 1);
+    sexp = ((int)(exp << (64-(exp_len << 3))) >> (64-(exp_len << 3)));
+    fexp = (int)f64_exp_bias + sexp + 1;
+    v = f64_pack_float(f64_struct{frac, fexp, sign});
+
+    *value = v;
+    return 0;
+err:
+    *value = 0;
     return -1;
 }
 
 int crefl_asn1_ber_real_f64_write(crefl_buf *buf, size_t len, double value)
 {
+    int8_t b;
+    f64_struct s = f64_unpack_float(value);
+    bool sign = f64_sign_dec(value);
+    bool inf = f64_is_inf(value);
+    bool nan = f64_is_nan(value);
+    u64 frac = f64_mant_dec(value) + f64_mant_prefix;
+    size_t frac_tz = ctz(frac), frac_lz = clz(frac);
+    frac >>= frac_tz;
+    int exp = (int)f64_exp_dec(value) - f64_exp_bias - (63 - frac_lz - frac_tz);
+    size_t frac_len = crefl_asn1_ber_integer_length(frac);
+    size_t exp_len = crefl_asn1_ber_integer_length(abs(exp));
+
+    if (inf) {
+        b = sign ? _real_special_neg_inf : _real_special_pos_inf;
+        return 0;
+    }
+    else if (nan) {
+        b = _real_special_nan;
+        return 0;
+    } else {
+        _real_exp exp_code;
+        switch(exp_len) {
+        case 1: exp_code = _real_exp_1; break;
+        case 2: exp_code = _real_exp_2; break;
+        default: return -1;
+        }
+        b = _asn1_real_binary(sign, exp_code);
+    }
+    if (crefl_buf_write_i8(buf, b) != 1) {
+        goto err;
+    }
+    if (inf || nan) {
+        return 0;
+    }
+    if (crefl_asn1_ber_integer_write(buf, exp_len, exp) < 0) {
+        goto err;
+    }
+    if (crefl_asn1_ber_integer_write(buf, frac_len, frac) < 0) {
+        goto err;
+    }
+
+    return 0;
+err:
     return -1;
 }
 

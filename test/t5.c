@@ -14,6 +14,7 @@ const char* ident_fmt   = "\nASN.1 X.690 ber_ident(%zu)[0x%zx]\n";
 const char* ber_int_fmt  = "\nASN.1 X.690 ber_int(%zu)[0x%zx]\n";
 const char* ber_bool_fmt = "\nASN.1 X.690 ber_bool(%s)[0x%zx]\n";
 const char* ber_oid_fmt  = "\nASN.1 X.690 ber_oid(%s)\n";
+const char* ber_real_fmt  = "\nASN.1 X.690 ber_real(%.16g)\n";
 const char* der_int_fmt  = "\nASN.1 X.690 der_int(%zu)[0x%zx]\n";
 const char* der_bool_fmt = "\nASN.1 X.690 der_bool(%s)[0x%zx]\n";
 const char* der_oid_fmt  = "\nASN.1 X.690 der_oid(%s)\n";
@@ -234,6 +235,27 @@ T_BER_OID(0)
 T_BER_OID(1)
 T_BER_OID(2)
 
+#define T_BER_REAL(X,num)                                          \
+void FN(ber_real,X)()                                              \
+{                                                                  \
+    double num2;                                                   \
+    crefl_buf *buf;                                                \
+    printf(ber_real_fmt, (double)num);                             \
+    assert(buf = crefl_buf_new(1024));                             \
+    size_t len = crefl_asn1_ber_real_f64_length((double)num);      \
+    assert(!crefl_asn1_ber_real_f64_write(buf, len, (double)num)); \
+    crefl_buf_dump(buf);                                           \
+    crefl_buf_reset(buf);                                          \
+    assert(!crefl_asn1_ber_real_f64_read(buf, len, &num2));        \
+    assert(num == num2);                                           \
+    crefl_buf_destroy(buf);                                        \
+}
+
+T_BER_REAL(1,2.71828182845904523536028747135266249)
+T_BER_REAL(2,3.14159265358979323846264338327950288)
+T_BER_REAL(3,0.00390625)
+T_BER_REAL(4,1.77777777777777777777)
+
 #define T_DER_BOOL(X,num)                                          \
 void FN(der_bool,X)()                                              \
 {                                                                  \
@@ -387,6 +409,11 @@ int main()
     test_ber_oid_0();
     test_ber_oid_1();
     test_ber_oid_2();
+
+    test_ber_real_1();
+    test_ber_real_2();
+    test_ber_real_3();
+    test_ber_real_4();
 
     test_der_bool_1();
     test_der_bool_2();
