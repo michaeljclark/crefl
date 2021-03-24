@@ -16,18 +16,14 @@ std::string oid_str(const uint8_t *data, size_t sz)
     std::vector<u64> oid;
     size_t count, len;
 
-    asn1_hdr hdr = {
-        { asn1_tag_object_identifier, asn1_class_universal, 0 }, sz
-    };
-
     crefl_buf *buf = crefl_buf_new(sz);
     memcpy(buf->data, data, sz);
 
     count = 32;
-    crefl_asn1_oid_read(buf, &hdr, NULL, &count);
+    crefl_asn1_ber_oid_read(buf, sz, NULL, &count);
     oid.resize(count);
     crefl_buf_reset(buf);
-    crefl_asn1_oid_read(buf, &hdr, oid.data(), &count);
+    crefl_asn1_ber_oid_read(buf, sz, oid.data(), &count);
 
     len = crefl_asn1_oid_to_string(NULL, 0, oid.data(), count);
     s.resize(len+1);
@@ -59,8 +55,8 @@ static int read_asn1(crefl_buf *buf, size_t offset, size_t limit, int depth)
 
     crefl_buf_seek(buf, offset);
 
-    if (crefl_asn1_ident_read(buf, &hdr._id) < 0) goto err;
-    if (crefl_asn1_length_read(buf, &hdr._length) < 0) goto err;
+    if (crefl_asn1_ber_ident_read(buf, &hdr._id) < 0) goto err;
+    if (crefl_asn1_ber_length_read(buf, &hdr._length) < 0) goto err;
 
     indent = std::string(depth, ' ');
     indent += indent;
