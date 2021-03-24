@@ -85,7 +85,7 @@ T_TAGNUM(13,1099511627776)
 void FN(ident,X)()                                         \
 {                                                          \
     asn1_id _id1 = {                                       \
-      asn1_class_universal, 0, U64(num)                    \
+      U64(num), 0, asn1_class_universal,                   \
     };                                                     \
     asn1_id _id2;                                          \
     crefl_buf *buf;                                        \
@@ -185,7 +185,7 @@ void FN(oid,X)()                                                  \
     u8 str2[128];                                                 \
     size_t count2;                                                \
     asn1_hdr hdr = {                                              \
-        { asn1_class_universal, 0, asn1_tag_object_identifier },  \
+        { asn1_tag_object_identifier, 0, asn1_class_universal },  \
         crefl_asn1_oid_length(oid, count)                         \
     };                                                            \
     crefl_buf *buf = crefl_buf_new(1024);                         \

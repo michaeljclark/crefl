@@ -101,9 +101,9 @@ const u8 asn1_charset_printable_str[] =
 
 struct asn1_id
 {
-    u8 _class;
-    u8 _constructed;
-    u64 _identifier;
+    u64 _identifier  : 56;
+    u64 _constructed : 1;
+    u64 _class       : 2;
 };
 
 struct asn1_hdr

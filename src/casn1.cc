@@ -126,6 +126,10 @@ int crefl_asn1_tagnum_write(crefl_buf *buf, u64 tag)
     size_t llen;
     u64 l = 0;
 
+    if (tag >= (1ull << 56)) {
+        goto err;
+    }
+
     llen = 8 - ((clz(tag) - 1) / 7) + 1;
     l = tag << (64 - llen * 7);
     for (size_t i = 0; i < llen; i++) {
@@ -168,12 +172,14 @@ int crefl_asn1_ident_read(crefl_buf *buf, asn1_id *_id)
     _id->_identifier =   b       & 0x1f;
 
     if (_id->_identifier == 0x1f) {
-        if (crefl_asn1_tagnum_read(buf, &r._identifier) < 0) {
+        u64 tagnum;
+        if (crefl_asn1_tagnum_read(buf, &tagnum) < 0) {
             goto err;
         }
-        if (_id->_identifier < 0x1f) {
+        if (tagnum < 0x1f) {
             goto err;
         }
+        _id->_identifier = tagnum;
     }
 
     return 0;
@@ -403,7 +409,7 @@ err:
 int crefl_asn1_tagged_integer_write(crefl_buf *buf, asn1_tag _tag, u64 value)
 {
     asn1_hdr hdr = {
-        { asn1_class_universal, 0, _tag }, crefl_asn1_integer_length(value)
+        { _tag, 0, asn1_class_universal }, crefl_asn1_integer_length(value)
     };
 
     if (crefl_asn1_ident_write(buf, hdr._id) < 0) goto err;

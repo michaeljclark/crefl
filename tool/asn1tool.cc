@@ -17,7 +17,7 @@ std::string oid_str(const uint8_t *data, size_t sz)
     size_t count, len;
 
     asn1_hdr hdr = {
-        { asn1_class_universal, 0, asn1_tag_object_identifier }, sz
+        { asn1_tag_object_identifier, asn1_class_universal, 0 }, sz
     };
 
     crefl_buf *buf = crefl_buf_new(sz);
