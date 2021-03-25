@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <math.h>
 
 #include "cbuf.h"
 #include "casn1.h"
@@ -247,15 +248,22 @@ void FN(ber_real,X)()                                              \
     crefl_buf_dump(buf);                                           \
     crefl_buf_reset(buf);                                          \
     assert(!crefl_asn1_ber_real_f64_read(buf, len, &num2));        \
-    assert(num == num2);                                           \
+    assert(num == num2 || (isnan(num) && isnan(num2)));            \
     crefl_buf_destroy(buf);                                        \
 }
 
-T_BER_REAL(1,2.71828182845904523536028747135266249)
-T_BER_REAL(2,3.14159265358979323846264338327950288)
-T_BER_REAL(3,0.00390625)
-T_BER_REAL(4,0.0500335693359375)
-T_BER_REAL(5,1.77777777777777777777)
+T_BER_REAL(1,0.0)
+T_BER_REAL(2,1.0)
+T_BER_REAL(3,1.0/0.0)
+T_BER_REAL(4,-1.0/0.0)
+T_BER_REAL(5,-0.0)
+T_BER_REAL(6,0.0/0.0)
+T_BER_REAL(7,2.71828182845904523536028747135266249)
+T_BER_REAL(8,3.14159265358979323846264338327950288)
+T_BER_REAL(9,0.00390625)
+T_BER_REAL(10,0.0500335693359375)
+T_BER_REAL(11,1.77777777777777777777)
+T_BER_REAL(12,1e307)
 
 #define T_DER_BOOL(X,num)                                          \
 void FN(der_bool,X)()                                              \
@@ -416,6 +424,13 @@ int main()
     test_ber_real_3();
     test_ber_real_4();
     test_ber_real_5();
+    test_ber_real_6();
+    test_ber_real_7();
+    test_ber_real_8();
+    test_ber_real_9();
+    test_ber_real_10();
+    test_ber_real_11();
+    test_ber_real_12();
 
     test_der_bool_1();
     test_der_bool_2();
