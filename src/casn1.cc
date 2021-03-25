@@ -734,6 +734,9 @@ int crefl_asn1_ber_real_f64_read(crefl_buf *buf, size_t len, double *value)
         frac = (frac << (frac_lz + 1)) >> (64 - f64_mant_size);
         fexp = f64_exp_bias + 63 + sexp - frac_lz;
     }
+    if (fexp > f64_exp_mask || frac > f64_mant_mask) {
+        return -1;
+    }
     v = f64_pack_float(f64_struct{frac, fexp, sign});
 
     *value = v;
