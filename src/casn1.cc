@@ -701,6 +701,7 @@ int crefl_asn1_ber_real_f64_read(crefl_buf *buf, size_t len, double *value)
     case _real_special_neg_inf:  *value = -1.0/0.0; return 0;
     case _real_special_neg_zero: *value = -0.0;     return 0;
     case _real_special_nan:      *value = 0.0/0.0;  return 0;
+    default: break;
     }
     switch (fmt) {
     case _real_fmt_binary_pos: sign = false; break;
