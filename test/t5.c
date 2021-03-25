@@ -254,17 +254,20 @@ void FN(ber_real,X)()                                              \
 }
 
 T_BER_REAL(1,0.0)
-T_BER_REAL(2,1.0)
-T_BER_REAL(3,1.0/0.0)
-T_BER_REAL(4,-1.0/0.0)
-T_BER_REAL(5,-0.0)
-T_BER_REAL(6,0.0/0.0)
-T_BER_REAL(7,2.71828182845904523536028747135266249)
-T_BER_REAL(8,3.14159265358979323846264338327950288)
-T_BER_REAL(9,0.00390625)
-T_BER_REAL(10,0.0500335693359375)
-T_BER_REAL(11,1.77777777777777777777)
-T_BER_REAL(12,1e307)
+T_BER_REAL(2,0.5)
+T_BER_REAL(3,1.0)
+T_BER_REAL(4,2.0)
+T_BER_REAL(5,1/256.0)
+T_BER_REAL(6,1.0/0.0)
+T_BER_REAL(7,-1.0/0.0)
+T_BER_REAL(8,-0.0)
+T_BER_REAL(9,0.0/0.0)
+T_BER_REAL(10,3279/65536.0)
+T_BER_REAL(11,0.1)
+T_BER_REAL(12,2.71828182845904523536028747135266249)
+T_BER_REAL(13,3.14159265358979323846264338327950288)
+T_BER_REAL(14,1.77777777777777777777)
+T_BER_REAL(15,1e307)
 
 #define T_DER_BOOL(X,num)                                          \
 void FN(der_bool,X)()                                              \
@@ -373,17 +376,20 @@ void FN(der_real,X)()                                              \
 }
 
 T_DER_REAL(1,0.0)
-T_DER_REAL(2,1.0)
-T_DER_REAL(3,1.0/0.0)
-T_DER_REAL(4,-1.0/0.0)
-T_DER_REAL(5,-0.0)
-T_DER_REAL(6,0.0/0.0)
-T_DER_REAL(7,2.71828182845904523536028747135266249)
-T_DER_REAL(8,3.14159265358979323846264338327950288)
-T_DER_REAL(9,0.00390625)
-T_DER_REAL(10,0.0500335693359375)
-T_DER_REAL(11,1.77777777777777777777)
-T_DER_REAL(12,1e307)
+T_DER_REAL(2,0.5)
+T_DER_REAL(3,1.0)
+T_DER_REAL(4,2.0)
+T_DER_REAL(5,1/256.0)
+T_DER_REAL(6,1.0/0.0)
+T_DER_REAL(7,-1.0/0.0)
+T_DER_REAL(8,-0.0)
+T_DER_REAL(9,0.0/0.0)
+T_DER_REAL(10,3279/65536.0)
+T_DER_REAL(11,0.1)
+T_DER_REAL(12,2.71828182845904523536028747135266249)
+T_DER_REAL(13,3.14159265358979323846264338327950288)
+T_DER_REAL(14,1.77777777777777777777)
+T_DER_REAL(15,1e307)
 
 int main()
 {
@@ -462,6 +468,9 @@ int main()
     test_ber_real_10();
     test_ber_real_11();
     test_ber_real_12();
+    test_ber_real_13();
+    test_ber_real_14();
+    test_ber_real_15();
 
     test_der_bool_1();
     test_der_bool_2();
@@ -496,6 +505,8 @@ int main()
     test_der_real_10();
     test_der_real_11();
     test_der_real_12();
-
+    test_der_real_13();
+    test_der_real_14();
+    test_der_real_15();
     printf("\n");
 }
