@@ -258,10 +258,10 @@ T_BER_REAL(2,0.5)
 T_BER_REAL(3,1.0)
 T_BER_REAL(4,2.0)
 T_BER_REAL(5,1/256.0)
-T_BER_REAL(6,1.0/0.0)
-T_BER_REAL(7,-1.0/0.0)
+T_BER_REAL(6,_f64_pos_inf())
+T_BER_REAL(7,_f64_neg_inf())
 T_BER_REAL(8,-0.0)
-T_BER_REAL(9,0.0/0.0)
+T_BER_REAL(9,_f64_nan())
 T_BER_REAL(10,3279/65536.0)
 T_BER_REAL(11,0.1)
 T_BER_REAL(12,2.71828182845904523536028747135266249)
@@ -329,7 +329,6 @@ void FN(der_oid,X)()                                               \
     u8 *der = oid_tests[X].der;                                    \
     size_t nbytes = oid_tests[X].nbytes;                           \
     u64 oid2[16];                                                  \
-    u8 str2[128];                                                  \
     size_t count2;                                                 \
     asn1_hdr hdr = {                                               \
         { asn1_tag_object_identifier, 0, asn1_class_universal },   \
@@ -380,10 +379,10 @@ T_DER_REAL(2,0.5)
 T_DER_REAL(3,1.0)
 T_DER_REAL(4,2.0)
 T_DER_REAL(5,1/256.0)
-T_DER_REAL(6,1.0/0.0)
-T_DER_REAL(7,-1.0/0.0)
+T_DER_REAL(6,_f64_pos_inf())
+T_DER_REAL(7,_f64_neg_inf())
 T_DER_REAL(8,-0.0)
-T_DER_REAL(9,0.0/0.0)
+T_DER_REAL(9,_f64_nan())
 T_DER_REAL(10,3279/65536.0)
 T_DER_REAL(11,0.1)
 T_DER_REAL(12,2.71828182845904523536028747135266249)

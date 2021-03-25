@@ -18,6 +18,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <limits>
 
 #include "stdendian.h"
 
@@ -115,7 +116,6 @@ int crefl_asn1_tagnum_read(crefl_buf *buf, u64 *tag)
         goto err;
     }
 
-out:
     *tag = l;
     return 0;
 err:
@@ -194,9 +194,9 @@ int crefl_asn1_ber_ident_write(crefl_buf *buf, asn1_id _id)
 {
     int8_t b;
 
-    b = ( (_id._class       & 0x02) << 6 ) |
-        ( (_id._constructed & 0x01) << 5 ) |
-        ( (_id._identifier < 0x1f ? _id._identifier : 0x1f) );
+    b = ( (u8)(_id._class       & 0x02) << 6 ) |
+        ( (u8)(_id._constructed & 0x01) << 5 ) |
+        ( (u8)(_id._identifier < 0x1f ? _id._identifier : 0x1f) );
 
     if (crefl_buf_write_i8(buf, b) != 1) {
         goto err;
@@ -277,7 +277,7 @@ int crefl_asn1_ber_length_write(crefl_buf *buf, u64 length)
     // indefinate form not supported
 
     llen = 8 - (clz(length) / 8);
-    b = llen | 0x80;
+    b = (u8)llen | (u8)0x80;
     if (crefl_buf_write_i8(buf, b) != 1) {
         goto err;
     }
@@ -350,7 +350,7 @@ err:
 int crefl_asn1_der_boolean_write(crefl_buf *buf, asn1_tag _tag, bool value)
 {
     asn1_hdr hdr = {
-        { _tag, 0, asn1_class_universal }, crefl_asn1_ber_boolean_length(value)
+        { (u64)_tag, 0, asn1_class_universal }, crefl_asn1_ber_boolean_length(value)
     };
 
     if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) goto err;
@@ -436,7 +436,7 @@ err:
 int crefl_asn1_der_integer_write(crefl_buf *buf, asn1_tag _tag, u64 value)
 {
     asn1_hdr hdr = {
-        { _tag, 0, asn1_class_universal }, crefl_asn1_ber_integer_length(value)
+        { (u64)_tag, 0, asn1_class_universal }, crefl_asn1_ber_integer_length(value)
     };
 
     if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) goto err;
@@ -535,6 +535,13 @@ static f64 f64_pack_float(f64_struct s)
     u = f64_mant_enc(s.mant) | f64_exp_enc(s.exp) | f64_sign_enc(s.sign);
     return f;
 }
+
+float _f32_nan() { return std::numeric_limits<float>::quiet_NaN(); }
+float _f32_pos_inf() { return std::numeric_limits<float>::infinity(); }
+float _f32_neg_inf() { return -std::numeric_limits<float>::infinity(); }
+double _f64_nan() { return std::numeric_limits<double>::quiet_NaN(); }
+double _f64_pos_inf() { return std::numeric_limits<double>::infinity(); }
+double _f64_neg_inf() { return -std::numeric_limits<double>::infinity(); }
 
 /*
  * ISO/IEC 8825-1:2003 8.5 real
@@ -697,10 +704,10 @@ int crefl_asn1_ber_real_f64_read(crefl_buf *buf, size_t len, double *value)
     }
     fmt = _asn1_real_format(b);
     switch (b) {
-    case _real_special_pos_inf:  *value = 1.0/0.0;  return 0;
-    case _real_special_neg_inf:  *value = -1.0/0.0; return 0;
+    case _real_special_pos_inf:  *value = std::numeric_limits<f64>::infinity();  return 0;
+    case _real_special_neg_inf:  *value = -std::numeric_limits<f64>::infinity(); return 0;
     case _real_special_neg_zero: *value = -0.0;     return 0;
-    case _real_special_nan:      *value = 0.0/0.0;  return 0;
+    case _real_special_nan:      *value = std::numeric_limits<f64>::quiet_NaN();  return 0;
     default: break;
     }
     switch (fmt) {
@@ -755,7 +762,7 @@ int crefl_asn1_ber_real_f64_write(crefl_buf *buf, size_t len, double value)
     bool nan = f64_is_nan(value);
     bool zero = f64_is_zero(value);
     s64 sexp = (s64)f64_exp_dec(value);
-    u64 frac = f64_mant_dec(value) + (sexp == 0 && frac == 0 ? 0 : f64_mant_prefix);
+    u64 frac = f64_mant_dec(value) + (sexp == 0 ? 0 : f64_mant_prefix);
     size_t frac_tz = ctz(frac), frac_lz = clz(frac);
     frac >>= frac_tz;
     s64 exp = sexp == 0 ? 0 : sexp - f64_exp_bias - 63 + frac_lz + frac_tz;
@@ -813,7 +820,7 @@ err:
 int crefl_asn1_der_real_f64_write(crefl_buf *buf, asn1_tag _tag, double value)
 {
     asn1_hdr hdr = {
-        { _tag, 0, asn1_class_universal }, crefl_asn1_ber_real_f64_length(value)
+        { (u64)_tag, 0, asn1_class_universal }, crefl_asn1_ber_real_f64_length(value)
     };
 
     if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) goto err;
@@ -928,7 +935,7 @@ err:
 int crefl_asn1_der_oid_write(crefl_buf *buf, asn1_tag _tag, u64 *oid, size_t count)
 {
     asn1_hdr hdr = {
-        { _tag, 0, asn1_class_universal }, crefl_asn1_ber_oid_length(oid, count)
+        { (u64)_tag, 0, asn1_class_universal }, crefl_asn1_ber_oid_length(oid, count)
     };
 
     if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) goto err;

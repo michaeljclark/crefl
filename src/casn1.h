@@ -113,6 +113,17 @@ struct asn1_hdr
 };
 
 /*
+ * floating point helpers
+ */
+
+float _f32_nan();
+float _f32_pos_inf();
+float _f32_neg_inf();
+double _f64_nan();
+double _f64_pos_inf();
+double _f64_neg_inf();
+
+/*
  * ASN.1 serialisation and deserialization
  */
 

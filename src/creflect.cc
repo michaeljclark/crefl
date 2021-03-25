@@ -251,13 +251,13 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             tr = decl_ref { db, idmap[rd->getID()] };
         }
         else if (_is_complex) {
-            tr = crefl_intrinsic(db, _cfloat, t.Width);
+            tr = crefl_intrinsic(db, _decl_cfloat, t.Width);
         }
         else if (_is_scalar) {
             auto stk = q->getScalarTypeKind();
             switch (stk) {
             case clang::Type::ScalarTypeKind::STK_CPointer: {
-                 tr = crefl_intrinsic(db, _void, t.Width);
+                 tr = crefl_intrinsic(db, _decl_void, t.Width);
                  break;
             }
             case clang::Type::ScalarTypeKind::STK_BlockPointer:
@@ -267,19 +267,19 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             case clang::Type::ScalarTypeKind::STK_MemberPointer:
                 break;
             case clang::Type::ScalarTypeKind::STK_Bool: {
-                tr = crefl_intrinsic(db, _sint, 1);
+                tr = crefl_intrinsic(db, _decl_sint, 1);
                 break;
             }
             case clang::Type::ScalarTypeKind::STK_Integral: {
                 if (q->isUnsignedIntegerType()) {
-                    tr = crefl_intrinsic(db, _uint, t.Width);
+                    tr = crefl_intrinsic(db, _decl_uint, t.Width);
                 } else {
-                    tr = crefl_intrinsic(db, _sint, t.Width);
+                    tr = crefl_intrinsic(db, _decl_sint, t.Width);
                 }
                 break;
             }
             case clang::Type::ScalarTypeKind::STK_Floating: {
-                tr = crefl_intrinsic(db, _float, t.Width);
+                tr = crefl_intrinsic(db, _decl_float, t.Width);
                 break;
             }
             case clang::Type::ScalarTypeKind::STK_IntegralComplex:
@@ -315,7 +315,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             // TODO
         }
         else {
-            tr = crefl_intrinsic(db, _void, t.Width);
+            tr = crefl_intrinsic(db, _decl_void, t.Width);
         }
 
         debugf("\tscalar:%d complex:%d vector:%d array:%d struct:%d"
@@ -360,9 +360,9 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
     decl_set get_cvr_props(QualType q)
     {
         int props = 0;
-        props |= _const & -(q.getLocalFastQualifiers() & Qualifiers::Const);
-        props |= _volatile & -(q.getLocalFastQualifiers() & Qualifiers::Volatile);
-        props |= _restrict & -(q.getLocalFastQualifiers() & Qualifiers::Restrict);
+        props |= _decl_const & -(int)(q.getLocalFastQualifiers() & Qualifiers::Const);
+        props |= _decl_volatile & -(int)(q.getLocalFastQualifiers() & Qualifiers::Volatile);
+        props |= _decl_restrict & -(int)(q.getLocalFastQualifiers() & Qualifiers::Restrict);
         return props;
     }
 
@@ -495,7 +495,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             d->clang::NamedDecl::getNameAsString().c_str(), tagKindString(k));
 
         decl_tag tag;
-        decl_ref r, p;
+        decl_ref r;
 
         switch (k) {
         case TagTypeKind::TTK_Enum:
@@ -553,7 +553,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         idmap[d->clang::Decl::getID()] = crefl_decl_idx(r);
         crefl_decl_ptr(r)->_link = crefl_decl_idx(get_intrinsic_type(q));
         crefl_decl_ptr(r)->_width = width;
-        crefl_decl_ptr(r)->_props |= get_cvr_props(q) | (-d->isBitField() & _bitfield);
+        crefl_decl_ptr(r)->_props |= get_cvr_props(q) | (-(int)d->isBitField() & _decl_bitfield);
         crefl_decl_ptr(r)->_attr = create_attributes(d, r);
         create_last_next_link(last, r);
         create_parent_link(decl_ref{ db, idmap[d->getParent()->getID()] }, r);
@@ -597,7 +597,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         decl_ref pr = crefl_decl_new(db, _decl_param);
         crefl_decl_ptr(last)->_link = crefl_decl_idx(pr);
         crefl_decl_ptr(pr)->_link = crefl_decl_idx(get_intrinsic_type(qr));
-        crefl_decl_ptr(pr)->_props |= get_cvr_props(qr) | _out;
+        crefl_decl_ptr(pr)->_props |= get_cvr_props(qr) | _decl_out;
 
         /* create argument params */
         const ArrayRef<ParmVarDecl*> parms = d->parameters();

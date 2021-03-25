@@ -278,12 +278,12 @@ static inline size_t _pad_align(intptr_t offset, intptr_t width, decl_set props)
 {
     intptr_t n = 63 - _clz(width), addend;
 
-    if ((props & _pad_byte)) {
+    if ((props & _decl_pad_byte)) {
         n = (n > 3) ? n : 3;
-        addend = 1lu << n;
+        addend = 1ll << n;
     }
-    else if ((props & _pad_pow2)) {
-        addend = 1lu << n;
+    else if ((props & _decl_pad_pow2)) {
+        addend = 1ll << n;
         offset &= ~(addend-1);
     }
     else {

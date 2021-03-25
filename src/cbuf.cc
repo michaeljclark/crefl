@@ -76,7 +76,7 @@ static std::string _to_binary(uint64_t symbol, size_t bit_width)
 {
     static const char* arr[] = { "▄", "▟", "▙", "█" };
     std::string s;
-    for (ssize_t i = bit_width-2; i >= 0; i-=2) {
+    for (intptr_t i = bit_width-2; i >= 0; i-=2) {
         s.append(arr[(symbol>>i) & 3]);
     }
     return s;
@@ -84,16 +84,16 @@ static std::string _to_binary(uint64_t symbol, size_t bit_width)
 
 void crefl_buf_dump(crefl_buf *buf)
 {
-    ssize_t stride = 16;
-    for (ssize_t i = 0; i < buf->data_offset; i += stride) {
+    intptr_t stride = 16;
+    for (intptr_t i = 0; i < buf->data_offset; i += stride) {
         printf("      ");
-        for (ssize_t j = i+stride-1; j >= i; j--) {
+        for (intptr_t j = i+stride-1; j >= i; j--) {
             if (j >= buf->data_offset) printf("     ");
             else printf(" 0x%02hhX", buf->data[j]);
         }
         printf("\n");
         printf("%04zX: ", i & 0xffff);
-        for (ssize_t j = i+stride-1; j >= i; j--) {
+        for (intptr_t j = i+stride-1; j >= i; j--) {
             if (j >= buf->data_offset) printf(" ░░░░");
             else printf(" %s", _to_binary(buf->data[j], 8).c_str());
         }

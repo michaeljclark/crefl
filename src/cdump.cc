@@ -36,11 +36,11 @@ struct prop_name
 };
 
 static prop_name prop_names[] = {
-    { _const,     "const"      },
-    { _volatile,  "volatile"   },
-    { _restrict,  "restrict"   },
-    { _in,        "in"         },
-    { _out,       "out"        }
+    { _decl_const,     "const"      },
+    { _decl_volatile,  "volatile"   },
+    { _decl_restrict,  "restrict"   },
+    { _decl_in,        "in"         },
+    { _decl_out,       "out"        }
 };
 
 static std::string _link(decl_ref d)
@@ -124,7 +124,7 @@ void crefl_db_dump_row(decl_db *db, decl_ref r)
     case _decl_value:     props = _props(r, "value=" fmt_SZ, d->_value); break;
     case _decl_function:  props = _props(r, "addr=" fmt_AD, d->_addr);   break;
     case _decl_field:
-        if ((crefl_decl_props(r) & _bitfield) > 0) {
+        if ((crefl_decl_props(r) & _decl_bitfield) > 0) {
             props = _props(r, "width=" fmt_SZ, d->_width);
         } else {
             props = _props(r, "");

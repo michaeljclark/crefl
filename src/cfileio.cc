@@ -146,8 +146,8 @@ int crefl_db_write_mem(decl_db *db, uint8_t *buf, size_t output_sz)
 
     decl_db_hdr *hdr = (decl_db_hdr*)buf;
     memcpy(hdr->magic, decl_db_magic, sizeof(decl_db_magic));
-    hdr->decl_entry_count = db->decl_offset - db->decl_builtin;
-    hdr->name_table_size = name_sz;
+    hdr->decl_entry_count = (u32)db->decl_offset - (u32)db->decl_builtin;
+    hdr->name_table_size = (u32)name_sz;
     hdr->root_element = db->root_element;
     memcpy(&buf[hdr_sz], db->decl + db->decl_builtin, decl_sz);
     memcpy(&buf[hdr_sz + decl_sz], db->name + db->name_builtin, name_sz);
@@ -162,7 +162,7 @@ int crefl_db_write_mem(decl_db *db, uint8_t *buf, size_t output_sz)
 int crefl_db_read_file(decl_db *db, const char *input_filename)
 {
     std::vector<uint8_t> buf;
-    int ret = crefl_read_file(buf, input_filename);
+    size_t ret = crefl_read_file(buf, input_filename);
     if (ret != 0) return ret;
     return crefl_db_read_mem(db, buf.data(), buf.size());
 }
@@ -170,7 +170,7 @@ int crefl_db_read_file(decl_db *db, const char *input_filename)
 int crefl_db_write_file(decl_db *db, const char *output_filename)
 {
     std::vector<uint8_t> buf(crefl_db_size(db));
-    int ret = crefl_db_write_mem(db, buf.data(), buf.size());
+    size_t ret = crefl_db_write_mem(db, buf.data(), buf.size());
     if (ret != 0) return ret;
     return crefl_write_file(buf, output_filename);
 }
