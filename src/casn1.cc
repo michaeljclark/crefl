@@ -637,6 +637,17 @@ static u8 _asn1_real_binary(bool sign, _real_exp exponent)
     return _asn1_real_binary_full(sign, exponent, _real_base_2, 0);
 }
 
+/*
+ * IEEE 754 exponent is relative to the msb of the mantissa
+ * ASN.1 exponent is relative to the lsb of the mantissa
+ *
+ * left-justify the fraction with the most significant set in bit 52
+ * shift 1-bit further to crop off the IEEE 754 implied digit 0b1.xxx
+ *
+ * right-justify the fraction with the least significant set in bit 1
+ * then add the IEEE 754 implied leading digit 0b1.xxx prefix
+ */
+
 size_t crefl_asn1_ber_real_f64_length(double value)
 {
     f64_struct s = f64_unpack_float(value);
@@ -646,7 +657,8 @@ size_t crefl_asn1_ber_real_f64_length(double value)
     u64 frac = f64_mant_dec(value) + f64_mant_prefix;
     size_t frac_tz = ctz(frac), frac_lz = clz(frac);
     frac >>= frac_tz;
-    int exp = (int)f64_exp_dec(value) - f64_exp_bias - (63 - frac_lz - frac_tz);
+    s64 sexp = (s64)f64_exp_dec(value);
+    s64 exp = sexp - f64_exp_bias - 63 + frac_lz + frac_tz;
     size_t frac_len = crefl_asn1_ber_integer_length(frac);
     size_t exp_len = crefl_asn1_ber_integer_length(abs(exp));
 
@@ -656,6 +668,8 @@ size_t crefl_asn1_ber_real_f64_length(double value)
         return 1 + exp_len + frac_len;
     }
 }
+
+static s64 _sign_extend_s64(s64 x, size_t y) { return ((s64)(x << y)) >> y; }
 
 int crefl_asn1_ber_real_f64_read(crefl_buf *buf, size_t len, double *value)
 {
@@ -667,7 +681,8 @@ int crefl_asn1_ber_real_f64_read(crefl_buf *buf, size_t len, double *value)
     size_t exp_len;
     u64 frac;
     u64 exp;
-    int sexp, fexp;
+    s64 sexp;
+    u64 fexp;
     bool sign;
     size_t frac_tz;
     size_t frac_lz;
@@ -698,9 +713,9 @@ int crefl_asn1_ber_real_f64_read(crefl_buf *buf, size_t len, double *value)
     frac_tz = ctz(frac);
     frac_lz = clz(frac);
 
-    frac = (frac << (frac_lz + 1)) >> (f64_exp_size + 1);
-    sexp = ((int)(exp << (64-(exp_len << 3))) >> (64-(exp_len << 3)));
-    fexp = (int)f64_exp_bias + sexp + 1;
+    frac = (frac << (frac_lz + 1)) >> (64 - f64_mant_size);
+    sexp = _sign_extend_s64(exp, 64-(exp_len << 3));
+    fexp = f64_exp_bias + 63 + sexp - frac_lz;
     v = f64_pack_float(f64_struct{frac, fexp, sign});
 
     *value = v;
@@ -712,7 +727,6 @@ err:
 
 int crefl_asn1_ber_real_f64_write(crefl_buf *buf, size_t len, double value)
 {
-    int8_t b;
     f64_struct s = f64_unpack_float(value);
     bool sign = f64_sign_dec(value);
     bool inf = f64_is_inf(value);
@@ -720,9 +734,12 @@ int crefl_asn1_ber_real_f64_write(crefl_buf *buf, size_t len, double value)
     u64 frac = f64_mant_dec(value) + f64_mant_prefix;
     size_t frac_tz = ctz(frac), frac_lz = clz(frac);
     frac >>= frac_tz;
-    int exp = (int)f64_exp_dec(value) - f64_exp_bias - (63 - frac_lz - frac_tz);
+    s64 sexp = (s64)f64_exp_dec(value);
+    s64 exp = sexp - f64_exp_bias - 63 + frac_lz + frac_tz;
     size_t frac_len = crefl_asn1_ber_integer_length(frac);
     size_t exp_len = crefl_asn1_ber_integer_length(abs(exp));
+
+    int8_t b;
 
     if (inf) {
         b = sign ? _real_special_neg_inf : _real_special_pos_inf;

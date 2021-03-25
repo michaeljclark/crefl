@@ -254,7 +254,8 @@ void FN(ber_real,X)()                                              \
 T_BER_REAL(1,2.71828182845904523536028747135266249)
 T_BER_REAL(2,3.14159265358979323846264338327950288)
 T_BER_REAL(3,0.00390625)
-T_BER_REAL(4,1.77777777777777777777)
+T_BER_REAL(4,0.0500335693359375)
+T_BER_REAL(5,1.77777777777777777777)
 
 #define T_DER_BOOL(X,num)                                          \
 void FN(der_bool,X)()                                              \
@@ -414,6 +415,7 @@ int main()
     test_ber_real_2();
     test_ber_real_3();
     test_ber_real_4();
+    test_ber_real_5();
 
     test_der_bool_1();
     test_der_bool_2();
