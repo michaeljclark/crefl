@@ -19,6 +19,7 @@ const char* ber_real_fmt  = "\nASN.1 X.690 ber_real(%.16g)\n";
 const char* der_int_fmt  = "\nASN.1 X.690 der_int(%zu)[0x%zx]\n";
 const char* der_bool_fmt = "\nASN.1 X.690 der_bool(%s)[0x%zx]\n";
 const char* der_oid_fmt  = "\nASN.1 X.690 der_oid(%s)\n";
+const char* der_real_fmt  = "\nASN.1 X.690 der_real(%.16g)\n";
 
 struct oid_test
 {
@@ -354,6 +355,36 @@ T_DER_OID(0)
 T_DER_OID(1)
 T_DER_OID(2)
 
+#define T_DER_REAL(X,num)                                          \
+void FN(der_real,X)()                                              \
+{                                                                  \
+    double num2;                                                   \
+    crefl_buf *buf;                                                \
+    printf(der_real_fmt, (double)num);                             \
+    assert(buf = crefl_buf_new(1024));                             \
+    assert(!crefl_asn1_der_real_f64_write(buf, asn1_tag_real,      \
+        (double)num));                                             \
+    crefl_buf_dump(buf);                                           \
+    crefl_buf_reset(buf);                                          \
+    assert(!crefl_asn1_der_real_f64_read(buf, asn1_tag_real,       \
+        &num2));                                                   \
+    assert(num == num2 || (isnan(num) && isnan(num2)));            \
+    crefl_buf_destroy(buf);                                        \
+}
+
+T_DER_REAL(1,0.0)
+T_DER_REAL(2,1.0)
+T_DER_REAL(3,1.0/0.0)
+T_DER_REAL(4,-1.0/0.0)
+T_DER_REAL(5,-0.0)
+T_DER_REAL(6,0.0/0.0)
+T_DER_REAL(7,2.71828182845904523536028747135266249)
+T_DER_REAL(8,3.14159265358979323846264338327950288)
+T_DER_REAL(9,0.00390625)
+T_DER_REAL(10,0.0500335693359375)
+T_DER_REAL(11,1.77777777777777777777)
+T_DER_REAL(12,1e307)
+
 int main()
 {
     test_tagnum_1();
@@ -452,6 +483,19 @@ int main()
     test_der_oid_0();
     test_der_oid_1();
     test_der_oid_2();
+
+    test_der_real_1();
+    test_der_real_2();
+    test_der_real_3();
+    test_der_real_4();
+    test_der_real_5();
+    test_der_real_6();
+    test_der_real_7();
+    test_der_real_8();
+    test_der_real_9();
+    test_der_real_10();
+    test_der_real_11();
+    test_der_real_12();
 
     printf("\n");
 }

@@ -666,7 +666,7 @@ size_t crefl_asn1_ber_real_f64_length(double value)
     size_t exp_len = crefl_asn1_ber_integer_length(abs(exp));
 
     if (zero) {
-        return sign ? 1 : 2;
+        return sign ? 1 : 3;
     } else if (inf || nan) {
         return 1;
     } else {
@@ -799,13 +799,29 @@ err:
     return -1;
 }
 
-int crefl_asn1_der_real_f64_read(crefl_buf *buf, asn1_tag _tag, u64 *value)
+int crefl_asn1_der_real_f64_read(crefl_buf *buf, asn1_tag _tag, double *value)
 {
+    asn1_hdr hdr;
+    if (crefl_asn1_ber_ident_read(buf, &hdr._id) < 0) goto err;
+    if (crefl_asn1_ber_length_read(buf, &hdr._length) < 0) goto err;
+    if (crefl_asn1_ber_real_f64_read(buf, hdr._length, value) < 0) goto err;
+    return 0;
+err:
     return -1;
 }
 
-int crefl_asn1_der_real_f64_write(crefl_buf *buf, asn1_tag _tag, u64 value)
+int crefl_asn1_der_real_f64_write(crefl_buf *buf, asn1_tag _tag, double value)
 {
+    asn1_hdr hdr = {
+        { _tag, 0, asn1_class_universal }, crefl_asn1_ber_real_f64_length(value)
+    };
+
+    if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) goto err;
+    if (crefl_asn1_ber_length_write(buf, hdr._length) < 0) goto err;
+    if (crefl_asn1_ber_real_f64_write(buf, hdr._length, value) < 0) goto err;
+
+    return 0;
+err:
     return -1;
 }
 
