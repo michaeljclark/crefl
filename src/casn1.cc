@@ -698,8 +698,8 @@ struct f64_asn1_data
  * IEEE 754 exponent is relative to the msb of the mantissa
  * ASN.1 exponent is relative to the lsb of the mantissa
  *
- * right-justify the fraction with the least significant set in bit 1
- * then add the IEEE 754 implied leading digit 0b1.xxx prefix
+ * right-justify the fraction with the least significant set bit in
+ * bit 0, first adding the IEEE 754 implied leading digit 0b1.xxx
  */
 static f64_asn1_data f64_asn1_data_get(double value)
 {
@@ -788,8 +788,8 @@ int crefl_asn1_ber_real_f64_read(crefl_buf *buf, size_t len, double *value)
      * IEEE 754 exponent is relative to the msb of the mantissa
      * ASN.1 exponent is relative to the lsb of the mantissa
      *
-     * left-justify the fraction with the most significant set in bit 52
-     * shift 1-bit further to crop off the IEEE 754 implied digit 0b1.xxx
+     * left-justify the fraction with the most significant set bit in bit 51
+     * (0-indexed) cropping off the IEEE 754 implied leading digit 0b1.xxx
      */
     if (frac == 1 && sexp == 0) {
         frac = 0;
