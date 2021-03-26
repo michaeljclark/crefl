@@ -707,7 +707,7 @@ static f64_asn1_data f64_asn1_data_get(double value)
     size_t frac_tz, frac_lz;
 
     sexp = (s64)f64_exp_dec(value);
-    frac = (s64)f64_mant_dec(value) + (-(s64)sexp & f64_mant_prefix);
+    frac = (s64)f64_mant_dec(value) | (-(s64)sexp & f64_mant_prefix);
     frac_tz = ctz(frac);
     frac_lz = clz(frac);
     frac >>= frac_tz;
