@@ -178,6 +178,12 @@ int crefl_asn1_ber_octets_write(crefl_buf *buf, size_t len, u8 *str, size_t coun
 int crefl_asn1_der_octets_read(crefl_buf *buf, asn1_tag _tag, u8 *str, size_t *count);
 int crefl_asn1_der_octets_write(crefl_buf *buf, asn1_tag _tag, u8 *str, size_t count);
 
+size_t crefl_asn1_ber_null_length();
+int crefl_asn1_ber_null_read(crefl_buf *buf, size_t len);
+int crefl_asn1_ber_null_write(crefl_buf *buf, size_t len);
+int crefl_asn1_der_null_read(crefl_buf *buf, asn1_tag _tag);
+int crefl_asn1_der_null_write(crefl_buf *buf, asn1_tag _tag);
+
 #ifdef __cplusplus
 }
 #endif

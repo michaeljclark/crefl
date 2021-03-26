@@ -1093,3 +1093,44 @@ int crefl_asn1_der_octets_write(crefl_buf *buf, asn1_tag _tag, u8 *str, size_t c
 err:
     return -1;
 }
+
+/*
+ * ISO/IEC 8825-1:2003 8.8 null
+ *
+ * read and write null
+ *
+ */
+
+size_t crefl_asn1_ber_null_length()
+{
+    return 0;
+}
+
+int crefl_asn1_ber_null_read(crefl_buf *buf, size_t len)
+{
+    return len == 0 ? 0 : -1;
+}
+
+int crefl_asn1_ber_null_write(crefl_buf *buf, size_t len)
+{
+    return len == 0 ? 0 : -1;
+}
+
+int crefl_asn1_der_null_read(crefl_buf *buf, asn1_tag _tag)
+{
+    asn1_hdr hdr;
+    if (crefl_asn1_ber_ident_read(buf, &hdr._id) < 0) return -1;
+    if (crefl_asn1_ber_length_read(buf, &hdr._length) < 0) return -1;
+    return crefl_asn1_ber_null_read(buf, hdr._length);
+}
+
+int crefl_asn1_der_null_write(crefl_buf *buf, asn1_tag _tag)
+{
+    asn1_hdr hdr = {
+        { (u64)_tag, 0, asn1_class_universal }, crefl_asn1_ber_null_length()
+    };
+
+    if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) return -1;
+    if (crefl_asn1_ber_length_write(buf, hdr._length) < 0) return -1;
+    return crefl_asn1_ber_null_write(buf, hdr._length);
+}
