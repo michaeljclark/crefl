@@ -147,11 +147,17 @@ int crefl_asn1_ber_boolean_write(crefl_buf *buf, size_t len, bool value);
 int crefl_asn1_der_boolean_read(crefl_buf *buf, asn1_tag _tag, bool *value);
 int crefl_asn1_der_boolean_write(crefl_buf *buf, asn1_tag _tag, bool value);
 
-size_t crefl_asn1_ber_integer_length(u64 value);
-int crefl_asn1_ber_integer_read(crefl_buf *buf, size_t len, u64 *value);
-int crefl_asn1_ber_integer_write(crefl_buf *buf, size_t len, u64 value);
-int crefl_asn1_der_integer_read(crefl_buf *buf, asn1_tag _tag, u64 *value);
-int crefl_asn1_der_integer_write(crefl_buf *buf, asn1_tag _tag, u64 value);
+size_t crefl_asn1_ber_integer_u64_length(u64 value);
+int crefl_asn1_ber_integer_u64_read(crefl_buf *buf, size_t len, u64 *value);
+int crefl_asn1_ber_integer_u64_write(crefl_buf *buf, size_t len, u64 value);
+int crefl_asn1_der_integer_u64_read(crefl_buf *buf, asn1_tag _tag, u64 *value);
+int crefl_asn1_der_integer_u64_write(crefl_buf *buf, asn1_tag _tag, u64 value);
+
+size_t crefl_asn1_ber_integer_s64_length(s64 value);
+int crefl_asn1_ber_integer_s64_read(crefl_buf *buf, size_t len, s64 *value);
+int crefl_asn1_ber_integer_s64_write(crefl_buf *buf, size_t len, s64 value);
+int crefl_asn1_der_integer_s64_read(crefl_buf *buf, asn1_tag _tag, s64 *value);
+int crefl_asn1_der_integer_s64_write(crefl_buf *buf, asn1_tag _tag, s64 value);
 
 size_t crefl_asn1_ber_real_f64_length(double value);
 int crefl_asn1_ber_real_f64_read(crefl_buf *buf, size_t len, double *value);

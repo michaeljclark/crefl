@@ -12,11 +12,13 @@
 const char* tagnum_fmt  = "\nASN.1 X.690 tagnum(%zu)[0x%zx]\n";
 const char* length_fmt  = "\nASN.1 X.690 ber_length(%zu)[0x%zx]\n";
 const char* ident_fmt   = "\nASN.1 X.690 ber_ident(%zu)[0x%zx]\n";
-const char* ber_int_fmt  = "\nASN.1 X.690 ber_int(%zu)[0x%zx]\n";
+const char* ber_uint_fmt  = "\nASN.1 X.690 ber_uint(%zu)[0x%zx]\n";
+const char* ber_sint_fmt  = "\nASN.1 X.690 ber_sint(%zd)[0x%zx]\n";
 const char* ber_bool_fmt = "\nASN.1 X.690 ber_bool(%s)[0x%zx]\n";
 const char* ber_oid_fmt  = "\nASN.1 X.690 ber_oid(%s)\n";
 const char* ber_real_fmt  = "\nASN.1 X.690 ber_real(%.16g)\n";
-const char* der_int_fmt  = "\nASN.1 X.690 der_int(%zu)[0x%zx]\n";
+const char* der_uint_fmt  = "\nASN.1 X.690 der_uint(%zu)[0x%zx]\n";
+const char* der_sint_fmt  = "\nASN.1 X.690 der_sint(%zd)[0x%zx]\n";
 const char* der_bool_fmt = "\nASN.1 X.690 der_bool(%s)[0x%zx]\n";
 const char* der_oid_fmt  = "\nASN.1 X.690 der_oid(%s)\n";
 const char* der_real_fmt  = "\nASN.1 X.690 der_real(%.16g)\n";
@@ -49,7 +51,8 @@ struct oid_test oid_tests[] = {
 #define array_size(arr) ((sizeof(arr)/sizeof(arr[0])))
 
 #define FN(Y,X) test ## _ ## Y ## _ ## X
-#define U64(X) X ## ll
+#define U64(X) X ## llu
+#define S64(X) X ## ll
 
 #define T_TAGNUM(X,num)                                            \
 void FN(tagnum,X)()                                                \
@@ -168,35 +171,65 @@ void FN(ber_bool,X)()                                              \
 T_BER_BOOL(1,false)
 T_BER_BOOL(2,true)
 
-#define T_BER_INT(X,num)                                           \
-void FN(ber_int,X)()                                               \
+#define T_BER_UINT(X,num)                                          \
+void FN(ber_uint,X)()                                              \
 {                                                                  \
     u64 num2;                                                      \
     crefl_buf *buf;                                                \
-    printf(ber_int_fmt, (size_t)num, (size_t)num);                 \
+    printf(ber_uint_fmt, (u64)num, (u64)num);                      \
     assert(buf = crefl_buf_new(1024));                             \
-    size_t len = crefl_asn1_ber_integer_length(U64(num));          \
-    assert(!crefl_asn1_ber_integer_write(buf, len, U64(num)));     \
+    size_t len = crefl_asn1_ber_integer_u64_length(U64(num));      \
+    assert(!crefl_asn1_ber_integer_u64_write(buf, len, U64(num))); \
     crefl_buf_dump(buf);                                           \
     crefl_buf_reset(buf);                                          \
-    assert(!crefl_asn1_ber_integer_read(buf, len, &num2));         \
+    assert(!crefl_asn1_ber_integer_u64_read(buf, len, &num2));     \
     assert(num == num2);                                           \
     crefl_buf_destroy(buf);                                        \
 }
 
-T_BER_INT(1,0)
-T_BER_INT(2,10)
-T_BER_INT(3,128)
-T_BER_INT(4,170)
-T_BER_INT(5,256)
-T_BER_INT(6,43690)
-T_BER_INT(7,65536)
-T_BER_INT(8,11184810)
-T_BER_INT(9,16777216)
-T_BER_INT(10,2863311530)
-T_BER_INT(11,4294967296)
-T_BER_INT(12,733007751850)
-T_BER_INT(13,1099511627776)
+T_BER_UINT(1,0)
+T_BER_UINT(2,10)
+T_BER_UINT(3,128)
+T_BER_UINT(4,170)
+T_BER_UINT(5,256)
+T_BER_UINT(6,43690)
+T_BER_UINT(7,65536)
+T_BER_UINT(8,11184810)
+T_BER_UINT(9,16777216)
+T_BER_UINT(10,2863311530)
+T_BER_UINT(11,4294967296)
+T_BER_UINT(12,733007751850)
+T_BER_UINT(13,1099511627776)
+
+#define T_BER_SINT(X,num)                                          \
+void FN(ber_sint,X)()                                              \
+{                                                                  \
+    s64 num2;                                                      \
+    crefl_buf *buf;                                                \
+    printf(ber_sint_fmt, (s64)num, (s64)num);                      \
+    assert(buf = crefl_buf_new(1024));                             \
+    size_t len = crefl_asn1_ber_integer_s64_length(S64(num));      \
+    assert(!crefl_asn1_ber_integer_s64_write(buf, len, S64(num))); \
+    crefl_buf_dump(buf);                                           \
+    crefl_buf_reset(buf);                                          \
+    assert(!crefl_asn1_ber_integer_s64_read(buf, len, &num2));     \
+    assert(num == num2);                                           \
+    crefl_buf_destroy(buf);                                        \
+}
+
+T_BER_SINT(1,0)
+T_BER_SINT(2,-10)
+T_BER_SINT(3,128)
+T_BER_SINT(4,-170)
+T_BER_SINT(5,256)
+T_BER_SINT(6,-43690)
+T_BER_SINT(7,65536)
+T_BER_SINT(8,-11184810)
+T_BER_SINT(9,16777216)
+T_BER_SINT(10,-2863311530)
+T_BER_SINT(11,4294967296)
+T_BER_SINT(12,-733007751850)
+T_BER_SINT(13,1099511627776)
 
 #define T_BER_OID(X)                                               \
 void FN(ber_oid,X)()                                               \
@@ -289,36 +322,67 @@ void FN(der_bool,X)()                                              \
 T_DER_BOOL(1,false)
 T_DER_BOOL(2,true)
 
-#define T_DER_INT(X,num)                                           \
-void FN(der_int,X)()                                               \
+#define T_DER_UINT(X,num)                                          \
+void FN(der_uint,X)()                                              \
 {                                                                  \
     u64 num2;                                                      \
     crefl_buf *buf;                                                \
-    printf(der_int_fmt, (size_t)num, (size_t)num);                 \
+    printf(der_uint_fmt, (u64)num, (u64)num);                      \
     assert(buf = crefl_buf_new(1024));                             \
-    assert(!crefl_asn1_der_integer_write(buf,                      \
+    assert(!crefl_asn1_der_integer_u64_write(buf,                  \
         asn1_tag_integer, U64(num)));                              \
     crefl_buf_dump(buf);                                           \
     crefl_buf_reset(buf);                                          \
-    assert(!crefl_asn1_der_integer_read(buf,                       \
+    assert(!crefl_asn1_der_integer_u64_read(buf,                   \
         asn1_tag_integer, &num2));                                 \
     assert(num == num2);                                           \
     crefl_buf_destroy(buf);                                        \
 }
 
-T_DER_INT(1,0)
-T_DER_INT(2,10)
-T_DER_INT(3,128)
-T_DER_INT(4,170)
-T_DER_INT(5,256)
-T_DER_INT(6,43690)
-T_DER_INT(7,65536)
-T_DER_INT(8,11184810)
-T_DER_INT(9,16777216)
-T_DER_INT(10,2863311530)
-T_DER_INT(11,4294967296)
-T_DER_INT(12,733007751850)
-T_DER_INT(13,1099511627776)
+T_DER_UINT(1,0)
+T_DER_UINT(2,10)
+T_DER_UINT(3,128)
+T_DER_UINT(4,170)
+T_DER_UINT(5,256)
+T_DER_UINT(6,43690)
+T_DER_UINT(7,65536)
+T_DER_UINT(8,11184810)
+T_DER_UINT(9,16777216)
+T_DER_UINT(10,2863311530)
+T_DER_UINT(11,4294967296)
+T_DER_UINT(12,733007751850)
+T_DER_UINT(13,1099511627776)
+
+#define T_DER_SINT(X,num)                                          \
+void FN(der_sint,X)()                                              \
+{                                                                  \
+    s64 num2;                                                      \
+    crefl_buf *buf;                                                \
+    printf(der_uint_fmt, (s64)num, (s64)num);                      \
+    assert(buf = crefl_buf_new(1024));                             \
+    assert(!crefl_asn1_der_integer_s64_write(buf,                  \
+        asn1_tag_integer, S64(num)));                              \
+    crefl_buf_dump(buf);                                           \
+    crefl_buf_reset(buf);                                          \
+    assert(!crefl_asn1_der_integer_s64_read(buf,                   \
+        asn1_tag_integer, &num2));                                 \
+    assert(num == num2);                                           \
+    crefl_buf_destroy(buf);                                        \
+}
+
+T_DER_SINT(1,0)
+T_DER_SINT(2,10)
+T_DER_SINT(3,128)
+T_DER_SINT(4,170)
+T_DER_SINT(5,256)
+T_DER_SINT(6,43690)
+T_DER_SINT(7,65536)
+T_DER_SINT(8,11184810)
+T_DER_SINT(9,16777216)
+T_DER_SINT(10,2863311530)
+T_DER_SINT(11,4294967296)
+T_DER_SINT(12,733007751850)
+T_DER_SINT(13,1099511627776)
 
 #define T_DER_OID(X)                                               \
 void FN(der_oid,X)()                                               \
@@ -437,19 +501,33 @@ int main()
     test_ber_bool_1();
     test_ber_bool_2();
 
-    test_ber_int_1();
-    test_ber_int_2();
-    test_ber_int_3();
-    test_ber_int_4();
-    test_ber_int_5();
-    test_ber_int_6();
-    test_ber_int_7();
-    test_ber_int_8();
-    test_ber_int_9();
-    test_ber_int_10();
-    test_ber_int_11();
-    test_ber_int_12();
-    test_ber_int_13();
+    test_ber_uint_1();
+    test_ber_uint_2();
+    test_ber_uint_3();
+    test_ber_uint_4();
+    test_ber_uint_5();
+    test_ber_uint_6();
+    test_ber_uint_7();
+    test_ber_uint_8();
+    test_ber_uint_9();
+    test_ber_uint_10();
+    test_ber_uint_11();
+    test_ber_uint_12();
+    test_ber_uint_13();
+
+    test_ber_sint_1();
+    test_ber_sint_2();
+    test_ber_sint_3();
+    test_ber_sint_4();
+    test_ber_sint_5();
+    test_ber_sint_6();
+    test_ber_sint_7();
+    test_ber_sint_8();
+    test_ber_sint_9();
+    test_ber_sint_10();
+    test_ber_sint_11();
+    test_ber_sint_12();
+    test_ber_sint_13();
 
     test_ber_oid_0();
     test_ber_oid_1();
@@ -474,19 +552,33 @@ int main()
     test_der_bool_1();
     test_der_bool_2();
 
-    test_der_int_1();
-    test_der_int_2();
-    test_der_int_3();
-    test_der_int_4();
-    test_der_int_5();
-    test_der_int_6();
-    test_der_int_7();
-    test_der_int_8();
-    test_der_int_9();
-    test_der_int_10();
-    test_der_int_11();
-    test_der_int_12();
-    test_der_int_13();
+    test_der_uint_1();
+    test_der_uint_2();
+    test_der_uint_3();
+    test_der_uint_4();
+    test_der_uint_5();
+    test_der_uint_6();
+    test_der_uint_7();
+    test_der_uint_8();
+    test_der_uint_9();
+    test_der_uint_10();
+    test_der_uint_11();
+    test_der_uint_12();
+    test_der_uint_13();
+
+    test_der_sint_1();
+    test_der_sint_2();
+    test_der_sint_3();
+    test_der_sint_4();
+    test_der_sint_5();
+    test_der_sint_6();
+    test_der_sint_7();
+    test_der_sint_8();
+    test_der_sint_9();
+    test_der_sint_10();
+    test_der_sint_11();
+    test_der_sint_12();
+    test_der_sint_13();
 
     test_der_oid_0();
     test_der_oid_1();

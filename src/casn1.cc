@@ -368,12 +368,12 @@ err:
  * read and write integer
  */
 
-size_t crefl_asn1_ber_integer_length(u64 value)
+size_t crefl_asn1_ber_integer_u64_length(u64 value)
 {
     return value == 0 ? 1 : 8 - (clz(value) / 8);
 }
 
-int crefl_asn1_ber_integer_read(crefl_buf *buf, size_t len, u64 *value)
+int crefl_asn1_ber_integer_u64_read(crefl_buf *buf, size_t len, u64 *value)
 {
     int8_t b;
     u64 v = 0;
@@ -396,7 +396,7 @@ err:
     return -1;
 }
 
-int crefl_asn1_ber_integer_write(crefl_buf *buf, size_t len, u64 value)
+int crefl_asn1_ber_integer_u64_write(crefl_buf *buf, size_t len, u64 value)
 {
     int8_t b;
     u64 v = 0;
@@ -419,29 +419,86 @@ err:
 }
 
 /*
+ * ASN.1 does not distinguish between signed and unsigned integers.
+ * signed number deserialization requires that values are sign-extended.
+ * negative values are complemented and 1-bit is reserved for the sign.
+ *
+ * - 0x000000000000007f -> 0x7f
+ * - 0x0000000000000080 -> 0x0080
+ * - 0xffffffffffffff80 -> 0x80
+ * - 0xffffffffffffff7f -> 0xff7f
+ */
+size_t crefl_asn1_ber_integer_s64_length(s64 value)
+{
+    return value == 0 ? 1 : 8 - ((clz(value < 0 ? ~value : value)-1) / 8);
+}
+
+static s64 _sign_extend_s64(s64 x, size_t y) { return ((s64)(x << y)) >> y; }
+
+int crefl_asn1_ber_integer_s64_read(crefl_buf *buf, size_t len, s64 *value)
+{
+    int ret = crefl_asn1_ber_integer_u64_read(buf, len, (u64*)value);
+    if (ret == 0) {
+        *value = _sign_extend_s64(*value, 64-(len << 3));
+    }
+    return ret;
+}
+
+int crefl_asn1_ber_integer_s64_write(crefl_buf *buf, size_t len, s64 value)
+{
+    return crefl_asn1_ber_integer_u64_write(buf, len, (u64)value);
+}
+
+/*
  * read and write tagged integer
  */
 
-int crefl_asn1_der_integer_read(crefl_buf *buf, asn1_tag _tag, u64 *value)
+int crefl_asn1_der_integer_u64_read(crefl_buf *buf, asn1_tag _tag, u64 *value)
 {
     asn1_hdr hdr;
     if (crefl_asn1_ber_ident_read(buf, &hdr._id) < 0) goto err;
     if (crefl_asn1_ber_length_read(buf, &hdr._length) < 0) goto err;
-    if (crefl_asn1_ber_integer_read(buf, hdr._length, value) < 0) goto err;
+    if (crefl_asn1_ber_integer_u64_read(buf, hdr._length, value) < 0) goto err;
     return 0;
 err:
     return -1;
 }
 
-int crefl_asn1_der_integer_write(crefl_buf *buf, asn1_tag _tag, u64 value)
+int crefl_asn1_der_integer_u64_write(crefl_buf *buf, asn1_tag _tag, u64 value)
 {
     asn1_hdr hdr = {
-        { (u64)_tag, 0, asn1_class_universal }, crefl_asn1_ber_integer_length(value)
+        { (u64)_tag, 0, asn1_class_universal }, crefl_asn1_ber_integer_u64_length(value)
     };
 
     if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) goto err;
     if (crefl_asn1_ber_length_write(buf, hdr._length) < 0) goto err;
-    if (crefl_asn1_ber_integer_write(buf, hdr._length, value) < 0) goto err;
+    if (crefl_asn1_ber_integer_u64_write(buf, hdr._length, value) < 0) goto err;
+
+    return 0;
+err:
+    return -1;
+}
+
+int crefl_asn1_der_integer_s64_read(crefl_buf *buf, asn1_tag _tag, s64 *value)
+{
+    asn1_hdr hdr;
+    if (crefl_asn1_ber_ident_read(buf, &hdr._id) < 0) goto err;
+    if (crefl_asn1_ber_length_read(buf, &hdr._length) < 0) goto err;
+    if (crefl_asn1_ber_integer_s64_read(buf, hdr._length, value) < 0) goto err;
+    return 0;
+err:
+    return -1;
+}
+
+int crefl_asn1_der_integer_s64_write(crefl_buf *buf, asn1_tag _tag, s64 value)
+{
+    asn1_hdr hdr = {
+        { (u64)_tag, 0, asn1_class_universal }, crefl_asn1_ber_integer_s64_length(value)
+    };
+
+    if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) goto err;
+    if (crefl_asn1_ber_length_write(buf, hdr._length) < 0) goto err;
+    if (crefl_asn1_ber_integer_s64_write(buf, hdr._length, value) < 0) goto err;
 
     return 0;
 err:
@@ -664,13 +721,13 @@ size_t crefl_asn1_ber_real_f64_length(double value)
     bool inf = f64_is_inf(value);
     bool nan = f64_is_nan(value);
     bool zero = f64_is_zero(value);
-    s64 sexp = (s64)f64_exp_dec(value);
-    u64 frac = f64_mant_dec(value) + (sexp == 0 ? 0 : f64_mant_prefix);
+    s64 exp = (s64)f64_exp_dec(value);
+    u64 frac = f64_mant_dec(value) + (exp == 0 ? 0 : f64_mant_prefix);
     size_t frac_tz = ctz(frac), frac_lz = clz(frac);
     frac >>= frac_tz;
-    s64 exp = sexp == 0 ? 0 : sexp - f64_exp_bias - 63 + frac_lz + frac_tz;
-    size_t frac_len = crefl_asn1_ber_integer_length(frac);
-    size_t exp_len = crefl_asn1_ber_integer_length(abs(exp));
+    s64 sexp = exp == 0 ? 0 : exp - f64_exp_bias - 63 + frac_lz + frac_tz;
+    size_t frac_len = crefl_asn1_ber_integer_u64_length(frac);
+    size_t exp_len = crefl_asn1_ber_integer_s64_length(sexp);
 
     if (zero) {
         return sign ? 1 : 3;
@@ -681,8 +738,6 @@ size_t crefl_asn1_ber_real_f64_length(double value)
     }
 }
 
-static s64 _sign_extend_s64(s64 x, size_t y) { return ((s64)(x << y)) >> y; }
-
 int crefl_asn1_ber_real_f64_read(crefl_buf *buf, size_t len, double *value)
 {
     int8_t b;
@@ -692,7 +747,6 @@ int crefl_asn1_ber_real_f64_read(crefl_buf *buf, size_t len, double *value)
     size_t frac_len;
     size_t exp_len;
     u64 frac;
-    u64 exp;
     s64 sexp;
     u64 fexp;
     bool sign;
@@ -723,16 +777,15 @@ int crefl_asn1_ber_real_f64_read(crefl_buf *buf, size_t len, double *value)
     }
     frac_len = len - exp_len - 1;
 
-    if (crefl_asn1_ber_integer_read(buf, exp_len, &exp) < 0) {
+    if (crefl_asn1_ber_integer_s64_read(buf, exp_len, &sexp) < 0) {
         goto err;
     }
-    if (crefl_asn1_ber_integer_read(buf, frac_len, &frac) < 0) {
+    if (crefl_asn1_ber_integer_u64_read(buf, frac_len, &frac) < 0) {
         goto err;
     }
     frac_tz = ctz(frac);
     frac_lz = clz(frac);
 
-    sexp = _sign_extend_s64(exp, 64-(exp_len << 3));
     if (frac == 1 && sexp == 0) {
         frac = 0;
         fexp = f64_exp_bias;
@@ -761,13 +814,13 @@ int crefl_asn1_ber_real_f64_write(crefl_buf *buf, size_t len, double value)
     bool inf = f64_is_inf(value);
     bool nan = f64_is_nan(value);
     bool zero = f64_is_zero(value);
-    s64 sexp = (s64)f64_exp_dec(value);
-    u64 frac = f64_mant_dec(value) + (sexp == 0 ? 0 : f64_mant_prefix);
+    s64 exp = (s64)f64_exp_dec(value);
+    u64 frac = f64_mant_dec(value) + (exp == 0 ? 0 : f64_mant_prefix);
     size_t frac_tz = ctz(frac), frac_lz = clz(frac);
     frac >>= frac_tz;
-    s64 exp = sexp == 0 ? 0 : sexp - f64_exp_bias - 63 + frac_lz + frac_tz;
-    size_t frac_len = crefl_asn1_ber_integer_length(frac);
-    size_t exp_len = crefl_asn1_ber_integer_length(abs(exp));
+    s64 sexp = exp == 0 ? 0 : exp - f64_exp_bias - 63 + frac_lz + frac_tz;
+    size_t frac_len = crefl_asn1_ber_integer_u64_length(frac);
+    size_t exp_len = crefl_asn1_ber_integer_s64_length(sexp);
 
     int8_t b;
 
@@ -794,10 +847,10 @@ int crefl_asn1_ber_real_f64_write(crefl_buf *buf, size_t len, double value)
     if ((zero && sign) || inf || nan) {
         return 0;
     }
-    if (crefl_asn1_ber_integer_write(buf, exp_len, exp) < 0) {
+    if (crefl_asn1_ber_integer_s64_write(buf, exp_len, sexp) < 0) {
         goto err;
     }
-    if (crefl_asn1_ber_integer_write(buf, frac_len, frac) < 0) {
+    if (crefl_asn1_ber_integer_u64_write(buf, frac_len, frac) < 0) {
         goto err;
     }
 
