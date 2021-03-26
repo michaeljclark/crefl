@@ -17,11 +17,13 @@ const char* ber_sint_fmt  = "\nASN.1 X.690 ber_sint(%zd)[0x%zx]\n";
 const char* ber_bool_fmt = "\nASN.1 X.690 ber_bool(%s)[0x%zx]\n";
 const char* ber_oid_fmt  = "\nASN.1 X.690 ber_oid(%s)\n";
 const char* ber_real_fmt  = "\nASN.1 X.690 ber_real(%.16g)\n";
+const char* ber_octets_fmt  = "\nASN.1 X.690 ber_octets(\"%s\")\n";
 const char* der_uint_fmt  = "\nASN.1 X.690 der_uint(%zu)[0x%zx]\n";
 const char* der_sint_fmt  = "\nASN.1 X.690 der_sint(%zd)[0x%zx]\n";
 const char* der_bool_fmt = "\nASN.1 X.690 der_bool(%s)[0x%zx]\n";
 const char* der_oid_fmt  = "\nASN.1 X.690 der_oid(%s)\n";
 const char* der_real_fmt  = "\nASN.1 X.690 der_real(%.16g)\n";
+const char* der_octets_fmt  = "\nASN.1 X.690 der_octets(\"%s\")\n";
 
 struct oid_test
 {
@@ -302,6 +304,35 @@ T_BER_REAL(13,3.14159265358979323846264338327950288)
 T_BER_REAL(14,1.77777777777777777777)
 T_BER_REAL(15,1e307)
 
+#define T_BER_OCTETS(X,str)                                        \
+void FN(ber_octets,X)()                                            \
+{                                                                  \
+    char str2[256];                                                \
+    size_t count;                                                  \
+    crefl_buf *buf;                                                \
+    printf(ber_octets_fmt, str);                                   \
+    assert(buf = crefl_buf_new(1024));                             \
+    size_t len = crefl_asn1_ber_octets_length(str, strlen(str));   \
+    assert(!crefl_asn1_ber_octets_write(buf, len,                  \
+        str, strlen(str)));                                        \
+    crefl_buf_dump(buf);                                           \
+    crefl_buf_reset(buf);                                          \
+    count = 0;                                                     \
+    assert(!crefl_asn1_ber_octets_read(buf, len,                   \
+        NULL, &count));                                            \
+    assert(count == strlen(str));                                  \
+    count = sizeof(str2);                                          \
+    crefl_buf_reset(buf);                                          \
+    assert(!crefl_asn1_ber_octets_read(buf, len,                   \
+        str2, &count));                                            \
+    assert(count == strlen(str));                                  \
+    assert(memcmp(str, str2, strlen(str)) == 0);                   \
+    crefl_buf_destroy(buf);                                        \
+}
+
+T_BER_OCTETS(1,"")
+T_BER_OCTETS(2,"hello")
+
 #define T_DER_BOOL(X,num)                                          \
 void FN(der_bool,X)()                                              \
 {                                                                  \
@@ -454,6 +485,34 @@ T_DER_REAL(13,3.14159265358979323846264338327950288)
 T_DER_REAL(14,1.77777777777777777777)
 T_DER_REAL(15,1e307)
 
+#define T_DER_OCTETS(X,str)                                        \
+void FN(der_octets,X)()                                            \
+{                                                                  \
+    char str2[256];                                                \
+    size_t count;                                                  \
+    crefl_buf *buf;                                                \
+    printf(der_octets_fmt, str);                                   \
+    assert(buf = crefl_buf_new(1024));                             \
+    assert(!crefl_asn1_der_octets_write(buf, asn1_tag_octet_string,\
+        str, strlen(str)));                                        \
+    crefl_buf_dump(buf);                                           \
+    crefl_buf_reset(buf);                                          \
+    count = 0;                                                     \
+    assert(!crefl_asn1_der_octets_read(buf, asn1_tag_octet_string, \
+        NULL, &count));                                            \
+    assert(count == strlen(str));                                  \
+    crefl_buf_reset(buf);                                          \
+    count = sizeof(str2);                                          \
+    assert(!crefl_asn1_der_octets_read(buf, asn1_tag_octet_string, \
+        str2, &count));                                            \
+    assert(count == strlen(str));                                  \
+    assert(memcmp(str, str2, strlen(str)) == 0);                   \
+    crefl_buf_destroy(buf);                                        \
+}
+
+T_DER_OCTETS(1,"")
+T_DER_OCTETS(2,"hello")
+
 int main()
 {
     test_tagnum_1();
@@ -533,6 +592,9 @@ int main()
     test_ber_oid_1();
     test_ber_oid_2();
 
+    test_ber_octets_1();
+    test_ber_octets_2();
+
     test_ber_real_1();
     test_ber_real_2();
     test_ber_real_3();
@@ -599,5 +661,9 @@ int main()
     test_der_real_13();
     test_der_real_14();
     test_der_real_15();
+
+    test_der_octets_1();
+    test_der_octets_2();
+
     printf("\n");
 }

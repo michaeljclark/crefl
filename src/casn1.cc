@@ -18,6 +18,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <limits>
 
 #include "stdendian.h"
@@ -1010,6 +1011,85 @@ int crefl_asn1_der_oid_write(crefl_buf *buf, asn1_tag _tag, u64 *oid, size_t cou
     if (crefl_asn1_ber_oid_write(buf, hdr._length, oid, count) < 0) goto err;
 
     return 0;
+err:
+    return -1;
+}
+
+/*
+ * ISO/IEC 8825-1:2003 8.7 octet string
+ *
+ * read and write octet string
+ *
+ * the two lengths arrangement is due to the pattern that BER functions
+ * take the length of the object from the header and the *count parameter
+ * is the user buffer size. the read and write routines will seek length
+ * bytes in the buffer so we are aligned to the next object but will copy
+ * min(length, *count), and for read, place that value in *count.
+ *
+ * count is not redundant, because this mechanism allows the user to read
+ * a truncated value, while advancing the buffer based on the object length.
+ * if the string buffer passed to the read function is NULL, then the length
+ * will be returned with no copy taking place. the is relevant for the DER
+ * interface where the user does not know the length in advance.
+ */
+
+size_t crefl_asn1_ber_octets_length(u8 *str, size_t count)
+{
+    return count;
+}
+
+int crefl_asn1_ber_octets_read(crefl_buf *buf, size_t len, u8 *str, size_t *count)
+{
+    size_t copy_count = len > *count ? *count : len;
+
+    crefl_span span = crefl_buf_remaining(buf);
+    if (span.length < copy_count) {
+        return -1;
+    }
+
+    if (str) {
+        memcpy(str, span.data, copy_count);
+    }
+    crefl_buf_seek(buf, crefl_buf_offset(buf) + len);
+    *count = len;
+
+    return 0;
+}
+
+int crefl_asn1_ber_octets_write(crefl_buf *buf, size_t len, u8 *str, size_t count)
+{
+    size_t copy_count = len > count ? count : len;
+
+    crefl_span span = crefl_buf_remaining(buf);
+    if (span.length < copy_count) {
+        return -1;
+    }
+
+    memcpy(span.data, str, copy_count);
+    crefl_buf_seek(buf, crefl_buf_offset(buf) + len);
+
+    return 0;
+}
+
+int crefl_asn1_der_octets_read(crefl_buf *buf, asn1_tag _tag, u8 *str, size_t *count)
+{
+    asn1_hdr hdr;
+    if (crefl_asn1_ber_ident_read(buf, &hdr._id) < 0) goto err;
+    if (crefl_asn1_ber_length_read(buf, &hdr._length) < 0) goto err;
+    return crefl_asn1_ber_octets_read(buf, hdr._length, str, count);
+err:
+    return -1;
+}
+
+int crefl_asn1_der_octets_write(crefl_buf *buf, asn1_tag _tag, u8 *str, size_t count)
+{
+    asn1_hdr hdr = {
+        { (u64)_tag, 0, asn1_class_universal }, crefl_asn1_ber_octets_length(str, count)
+    };
+
+    if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) goto err;
+    if (crefl_asn1_ber_length_write(buf, hdr._length) < 0) goto err;
+    return crefl_asn1_ber_octets_write(buf, hdr._length, str, count);
 err:
     return -1;
 }
