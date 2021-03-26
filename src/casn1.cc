@@ -704,37 +704,57 @@ static u8 _asn1_real_binary(bool sign, _real_exp exponent)
 }
 
 /*
+ * f64_asn1_data contains fraction, signed exponent, their
+ * encoded lengths and flags for sign, infinity, nan and zero.
+ */
+struct f64_asn1_data
+{
+    s64 frac, sexp;
+    size_t frac_len, exp_len;
+    bool sign : 1, inf : 1, nan : 1, zero : 1;
+};
+
+/*
  * IEEE 754 exponent is relative to the msb of the mantissa
  * ASN.1 exponent is relative to the lsb of the mantissa
- *
- * left-justify the fraction with the most significant set in bit 52
- * shift 1-bit further to crop off the IEEE 754 implied digit 0b1.xxx
  *
  * right-justify the fraction with the least significant set in bit 1
  * then add the IEEE 754 implied leading digit 0b1.xxx prefix
  */
+static f64_asn1_data f64_asn1_data_get(double value)
+{
+    s64 frac, sexp;
+    size_t frac_tz, frac_lz;
+
+    sexp = (s64)f64_exp_dec(value);
+    frac = (s64)f64_mant_dec(value) + (-(s64)sexp & f64_mant_prefix);
+    frac_tz = ctz(frac);
+    frac_lz = clz(frac);
+    frac >>= frac_tz;
+
+    if (sexp > 0) {
+        sexp += frac_lz + frac_tz - 63 - f64_exp_bias;
+    }
+
+    return f64_asn1_data {
+        frac, sexp,
+        crefl_asn1_ber_integer_u64_length(frac),
+        crefl_asn1_ber_integer_s64_length(sexp),
+        !!f64_sign_dec(value), !!f64_is_inf(value),
+        !!f64_is_nan(value), !!f64_is_zero(value)
+    };
+}
 
 size_t crefl_asn1_ber_real_f64_length(double value)
 {
-    f64_struct s = f64_unpack_float(value);
-    bool sign = f64_sign_dec(value);
-    bool inf = f64_is_inf(value);
-    bool nan = f64_is_nan(value);
-    bool zero = f64_is_zero(value);
-    s64 exp = (s64)f64_exp_dec(value);
-    u64 frac = f64_mant_dec(value) + (exp == 0 ? 0 : f64_mant_prefix);
-    size_t frac_tz = ctz(frac), frac_lz = clz(frac);
-    frac >>= frac_tz;
-    s64 sexp = exp == 0 ? 0 : exp - f64_exp_bias - 63 + frac_lz + frac_tz;
-    size_t frac_len = crefl_asn1_ber_integer_u64_length(frac);
-    size_t exp_len = crefl_asn1_ber_integer_s64_length(sexp);
+    f64_asn1_data d = f64_asn1_data_get(value);
 
-    if (zero) {
-        return sign ? 1 : 3;
-    } else if (inf || nan) {
+    if (d.zero) {
+        return d.sign ? 1 : 3;
+    } else if (d.inf || d.nan) {
         return 1;
     } else {
-        return 1 + exp_len + frac_len;
+        return 1 + d.exp_len + d.frac_len;
     }
 }
 
@@ -750,7 +770,6 @@ int crefl_asn1_ber_real_f64_read(crefl_buf *buf, size_t len, double *value)
     s64 sexp;
     u64 fexp;
     bool sign;
-    size_t frac_tz;
     size_t frac_lz;
 
     if (crefl_buf_read_i8(buf, &b) != 1) {
@@ -783,9 +802,15 @@ int crefl_asn1_ber_real_f64_read(crefl_buf *buf, size_t len, double *value)
     if (crefl_asn1_ber_integer_u64_read(buf, frac_len, &frac) < 0) {
         goto err;
     }
-    frac_tz = ctz(frac);
     frac_lz = clz(frac);
 
+    /*
+     * IEEE 754 exponent is relative to the msb of the mantissa
+     * ASN.1 exponent is relative to the lsb of the mantissa
+     *
+     * left-justify the fraction with the most significant set in bit 52
+     * shift 1-bit further to crop off the IEEE 754 implied digit 0b1.xxx
+     */
     if (frac == 1 && sexp == 0) {
         frac = 0;
         fexp = f64_exp_bias;
@@ -809,48 +834,37 @@ err:
 
 int crefl_asn1_ber_real_f64_write(crefl_buf *buf, size_t len, double value)
 {
-    f64_struct s = f64_unpack_float(value);
-    bool sign = f64_sign_dec(value);
-    bool inf = f64_is_inf(value);
-    bool nan = f64_is_nan(value);
-    bool zero = f64_is_zero(value);
-    s64 exp = (s64)f64_exp_dec(value);
-    u64 frac = f64_mant_dec(value) + (exp == 0 ? 0 : f64_mant_prefix);
-    size_t frac_tz = ctz(frac), frac_lz = clz(frac);
-    frac >>= frac_tz;
-    s64 sexp = exp == 0 ? 0 : exp - f64_exp_bias - 63 + frac_lz + frac_tz;
-    size_t frac_len = crefl_asn1_ber_integer_u64_length(frac);
-    size_t exp_len = crefl_asn1_ber_integer_s64_length(sexp);
+    f64_asn1_data d = f64_asn1_data_get(value);
 
     int8_t b;
 
-    if (zero && sign) {
+    if (d.zero && d.sign) {
         b = _real_special_neg_zero;
     }
-    else if (inf) {
-        b = sign ? _real_special_neg_inf : _real_special_pos_inf;
+    else if (d.inf) {
+        b = d.sign ? _real_special_neg_inf : _real_special_pos_inf;
     }
-    else if (nan) {
+    else if (d.nan) {
         b = _real_special_nan;
     } else {
         _real_exp exp_code;
-        switch(exp_len) {
+        switch(d.exp_len) {
         case 1: exp_code = _real_exp_1; break;
         case 2: exp_code = _real_exp_2; break;
         default: return -1;
         }
-        b = _asn1_real_binary(sign, exp_code);
+        b = _asn1_real_binary(d.sign, exp_code);
     }
     if (crefl_buf_write_i8(buf, b) != 1) {
         goto err;
     }
-    if ((zero && sign) || inf || nan) {
+    if ((d.zero && d.sign) || d.inf || d.nan) {
         return 0;
     }
-    if (crefl_asn1_ber_integer_s64_write(buf, exp_len, sexp) < 0) {
+    if (crefl_asn1_ber_integer_s64_write(buf, d.exp_len, d.sexp) < 0) {
         goto err;
     }
-    if (crefl_asn1_ber_integer_u64_write(buf, frac_len, frac) < 0) {
+    if (crefl_asn1_ber_integer_u64_write(buf, d.frac_len, d.frac) < 0) {
         goto err;
     }
 
