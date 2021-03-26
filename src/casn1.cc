@@ -340,12 +340,9 @@ err:
 int crefl_asn1_der_boolean_read(crefl_buf *buf, asn1_tag _tag, bool *value)
 {
     asn1_hdr hdr;
-    if (crefl_asn1_ber_ident_read(buf, &hdr._id) < 0) goto err;
-    if (crefl_asn1_ber_length_read(buf, &hdr._length) < 0) goto err;
-    if (crefl_asn1_ber_boolean_read(buf, hdr._length, value) < 0) goto err;
-    return 0;
-err:
-    return -1;
+    if (crefl_asn1_ber_ident_read(buf, &hdr._id) < 0) return -1;
+    if (crefl_asn1_ber_length_read(buf, &hdr._length) < 0) return -1;
+    return crefl_asn1_ber_boolean_read(buf, hdr._length, value);
 }
 
 int crefl_asn1_der_boolean_write(crefl_buf *buf, asn1_tag _tag, bool value)
@@ -354,13 +351,9 @@ int crefl_asn1_der_boolean_write(crefl_buf *buf, asn1_tag _tag, bool value)
         { (u64)_tag, 0, asn1_class_universal }, crefl_asn1_ber_boolean_length(value)
     };
 
-    if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) goto err;
-    if (crefl_asn1_ber_length_write(buf, hdr._length) < 0) goto err;
-    if (crefl_asn1_ber_boolean_write(buf, hdr._length, value) < 0) goto err;
-
-    return 0;
-err:
-    return -1;
+    if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) return -1;
+    if (crefl_asn1_ber_length_write(buf, hdr._length) < 0) return -1;
+    return crefl_asn1_ber_boolean_write(buf, hdr._length, value);
 }
 
 /*
@@ -457,12 +450,9 @@ int crefl_asn1_ber_integer_s64_write(crefl_buf *buf, size_t len, s64 value)
 int crefl_asn1_der_integer_u64_read(crefl_buf *buf, asn1_tag _tag, u64 *value)
 {
     asn1_hdr hdr;
-    if (crefl_asn1_ber_ident_read(buf, &hdr._id) < 0) goto err;
-    if (crefl_asn1_ber_length_read(buf, &hdr._length) < 0) goto err;
-    if (crefl_asn1_ber_integer_u64_read(buf, hdr._length, value) < 0) goto err;
-    return 0;
-err:
-    return -1;
+    if (crefl_asn1_ber_ident_read(buf, &hdr._id) < 0) return -1;
+    if (crefl_asn1_ber_length_read(buf, &hdr._length) < 0) return -1;
+    return crefl_asn1_ber_integer_u64_read(buf, hdr._length, value);
 }
 
 int crefl_asn1_der_integer_u64_write(crefl_buf *buf, asn1_tag _tag, u64 value)
@@ -471,24 +461,17 @@ int crefl_asn1_der_integer_u64_write(crefl_buf *buf, asn1_tag _tag, u64 value)
         { (u64)_tag, 0, asn1_class_universal }, crefl_asn1_ber_integer_u64_length(value)
     };
 
-    if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) goto err;
-    if (crefl_asn1_ber_length_write(buf, hdr._length) < 0) goto err;
-    if (crefl_asn1_ber_integer_u64_write(buf, hdr._length, value) < 0) goto err;
-
-    return 0;
-err:
-    return -1;
+    if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) return -1;
+    if (crefl_asn1_ber_length_write(buf, hdr._length) < 0) return -1;
+    return crefl_asn1_ber_integer_u64_write(buf, hdr._length, value);
 }
 
 int crefl_asn1_der_integer_s64_read(crefl_buf *buf, asn1_tag _tag, s64 *value)
 {
     asn1_hdr hdr;
-    if (crefl_asn1_ber_ident_read(buf, &hdr._id) < 0) goto err;
-    if (crefl_asn1_ber_length_read(buf, &hdr._length) < 0) goto err;
-    if (crefl_asn1_ber_integer_s64_read(buf, hdr._length, value) < 0) goto err;
-    return 0;
-err:
-    return -1;
+    if (crefl_asn1_ber_ident_read(buf, &hdr._id) < 0) return -1;
+    if (crefl_asn1_ber_length_read(buf, &hdr._length) < 0) return -1;
+    return crefl_asn1_ber_integer_s64_read(buf, hdr._length, value);
 }
 
 int crefl_asn1_der_integer_s64_write(crefl_buf *buf, asn1_tag _tag, s64 value)
@@ -497,13 +480,9 @@ int crefl_asn1_der_integer_s64_write(crefl_buf *buf, asn1_tag _tag, s64 value)
         { (u64)_tag, 0, asn1_class_universal }, crefl_asn1_ber_integer_s64_length(value)
     };
 
-    if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) goto err;
-    if (crefl_asn1_ber_length_write(buf, hdr._length) < 0) goto err;
-    if (crefl_asn1_ber_integer_s64_write(buf, hdr._length, value) < 0) goto err;
-
-    return 0;
-err:
-    return -1;
+    if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) return -1;
+    if (crefl_asn1_ber_length_write(buf, hdr._length) < 0) return -1;
+    return crefl_asn1_ber_integer_s64_write(buf, hdr._length, value);
 }
 
 /*
@@ -877,12 +856,9 @@ err:
 int crefl_asn1_der_real_f64_read(crefl_buf *buf, asn1_tag _tag, double *value)
 {
     asn1_hdr hdr;
-    if (crefl_asn1_ber_ident_read(buf, &hdr._id) < 0) goto err;
-    if (crefl_asn1_ber_length_read(buf, &hdr._length) < 0) goto err;
-    if (crefl_asn1_ber_real_f64_read(buf, hdr._length, value) < 0) goto err;
-    return 0;
-err:
-    return -1;
+    if (crefl_asn1_ber_ident_read(buf, &hdr._id) < 0) return -1;
+    if (crefl_asn1_ber_length_read(buf, &hdr._length) < 0) return -1;
+    return crefl_asn1_ber_real_f64_read(buf, hdr._length, value);
 }
 
 int crefl_asn1_der_real_f64_write(crefl_buf *buf, asn1_tag _tag, double value)
@@ -891,13 +867,9 @@ int crefl_asn1_der_real_f64_write(crefl_buf *buf, asn1_tag _tag, double value)
         { (u64)_tag, 0, asn1_class_universal }, crefl_asn1_ber_real_f64_length(value)
     };
 
-    if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) goto err;
-    if (crefl_asn1_ber_length_write(buf, hdr._length) < 0) goto err;
-    if (crefl_asn1_ber_real_f64_write(buf, hdr._length, value) < 0) goto err;
-
-    return 0;
-err:
-    return -1;
+    if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) return -1;
+    if (crefl_asn1_ber_length_write(buf, hdr._length) < 0) return -1;
+    return crefl_asn1_ber_real_f64_write(buf, hdr._length, value);
 }
 
 /*
@@ -992,12 +964,9 @@ size_t crefl_asn1_oid_to_string(char *buf, size_t buflen, u64 *oid, size_t count
 int crefl_asn1_der_oid_read(crefl_buf *buf, asn1_tag _tag, u64 *oid, size_t *count)
 {
     asn1_hdr hdr;
-    if (crefl_asn1_ber_ident_read(buf, &hdr._id) < 0) goto err;
-    if (crefl_asn1_ber_length_read(buf, &hdr._length) < 0) goto err;
-    if (crefl_asn1_ber_oid_read(buf, hdr._length, oid, count) < 0) goto err;
-    return 0;
-err:
-    return -1;
+    if (crefl_asn1_ber_ident_read(buf, &hdr._id) < 0) return -1;
+    if (crefl_asn1_ber_length_read(buf, &hdr._length) < 0) return -1;
+    return crefl_asn1_ber_oid_read(buf, hdr._length, oid, count);
 }
 
 int crefl_asn1_der_oid_write(crefl_buf *buf, asn1_tag _tag, u64 *oid, size_t count)
@@ -1006,13 +975,9 @@ int crefl_asn1_der_oid_write(crefl_buf *buf, asn1_tag _tag, u64 *oid, size_t cou
         { (u64)_tag, 0, asn1_class_universal }, crefl_asn1_ber_oid_length(oid, count)
     };
 
-    if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) goto err;
-    if (crefl_asn1_ber_length_write(buf, hdr._length) < 0) goto err;
-    if (crefl_asn1_ber_oid_write(buf, hdr._length, oid, count) < 0) goto err;
-
-    return 0;
-err:
-    return -1;
+    if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) return -1;
+    if (crefl_asn1_ber_length_write(buf, hdr._length) < 0) return -1;
+    return crefl_asn1_ber_oid_write(buf, hdr._length, oid, count);
 }
 
 /*
@@ -1074,11 +1039,9 @@ int crefl_asn1_ber_octets_write(crefl_buf *buf, size_t len, u8 *str, size_t coun
 int crefl_asn1_der_octets_read(crefl_buf *buf, asn1_tag _tag, u8 *str, size_t *count)
 {
     asn1_hdr hdr;
-    if (crefl_asn1_ber_ident_read(buf, &hdr._id) < 0) goto err;
-    if (crefl_asn1_ber_length_read(buf, &hdr._length) < 0) goto err;
+    if (crefl_asn1_ber_ident_read(buf, &hdr._id) < 0) return -1;
+    if (crefl_asn1_ber_length_read(buf, &hdr._length) < 0) return -1;
     return crefl_asn1_ber_octets_read(buf, hdr._length, str, count);
-err:
-    return -1;
 }
 
 int crefl_asn1_der_octets_write(crefl_buf *buf, asn1_tag _tag, u8 *str, size_t count)
@@ -1087,11 +1050,9 @@ int crefl_asn1_der_octets_write(crefl_buf *buf, asn1_tag _tag, u8 *str, size_t c
         { (u64)_tag, 0, asn1_class_universal }, crefl_asn1_ber_octets_length(str, count)
     };
 
-    if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) goto err;
-    if (crefl_asn1_ber_length_write(buf, hdr._length) < 0) goto err;
+    if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) return -1;
+    if (crefl_asn1_ber_length_write(buf, hdr._length) < 0) return -1;
     return crefl_asn1_ber_octets_write(buf, hdr._length, str, count);
-err:
-    return -1;
 }
 
 /*
