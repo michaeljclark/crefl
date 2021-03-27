@@ -9,9 +9,9 @@
 #include "cbuf.h"
 #include "casn1.h"
 
-const char* tagnum_fmt  = "\nASN.1 X.690 tagnum(%zu)[0x%zx]\n";
-const char* length_fmt  = "\nASN.1 X.690 ber_length(%zu)[0x%zx]\n";
-const char* ident_fmt   = "\nASN.1 X.690 ber_ident(%zu)[0x%zx]\n";
+const char* ber_tag_fmt  = "\nASN.1 X.690 ber_tag(%zu)[0x%zx]\n";
+const char* ber_length_fmt  = "\nASN.1 X.690 ber_length(%zu)[0x%zx]\n";
+const char* ber_ident_fmt   = "\nASN.1 X.690 ber_ident(%zu)[0x%zx]\n";
 const char* ber_uint_fmt  = "\nASN.1 X.690 ber_uint(%zu)[0x%zx]\n";
 const char* ber_sint_fmt  = "\nASN.1 X.690 ber_sint(%zd)[0x%zx]\n";
 const char* ber_bool_fmt = "\nASN.1 X.690 ber_bool(%s)[0x%zx]\n";
@@ -57,19 +57,19 @@ struct oid_test oid_tests[] = {
 #define S64(X) X ## ll
 
 #define T_TAGNUM(X,num)                                            \
-void FN(tagnum,X)()                                                \
+void FN(ber_tag,X)()                                                \
 {                                                                  \
     u64 num2;                                                      \
     crefl_buf *buf;                                                \
-    printf(tagnum_fmt, (size_t)num, (size_t)num);                  \
+    printf(ber_tag_fmt, (size_t)num, (size_t)num);                  \
     assert(buf = crefl_buf_new(1024));                             \
-    assert(!crefl_asn1_tagnum_write(buf, U64(num)));               \
+    assert(!crefl_asn1_ber_tag_write(buf, U64(num)));               \
     crefl_buf_dump(buf);                                           \
     crefl_buf_reset(buf);                                          \
-    assert(!crefl_asn1_tagnum_read(buf, &num2));                   \
+    assert(!crefl_asn1_ber_tag_read(buf, &num2));                   \
     assert(num == num2);                                           \
     assert(crefl_buf_offset(buf) ==                                \
-           crefl_asn1_tagnum_length(num));                         \
+           crefl_asn1_ber_tag_length(num));                         \
     crefl_buf_destroy(buf);                                        \
 }
 
@@ -92,7 +92,7 @@ void FN(ber_length,X)()                                            \
 {                                                                  \
     u64 num2;                                                      \
     crefl_buf *buf;                                                \
-    printf(length_fmt, (size_t)num, (size_t)num);                  \
+    printf(ber_length_fmt, (size_t)num, (size_t)num);              \
     assert(buf = crefl_buf_new(1024));                             \
     assert(!crefl_asn1_ber_length_write(buf, U64(num)));           \
     crefl_buf_dump(buf);                                           \
@@ -126,7 +126,7 @@ void FN(ber_ident,X)()                                             \
     };                                                             \
     asn1_id _id2;                                                  \
     crefl_buf *buf;                                                \
-    printf(ident_fmt, (size_t)num, (size_t)num);                   \
+    printf(ber_ident_fmt, (size_t)num, (size_t)num);               \
     assert(buf = crefl_buf_new(1024));                             \
     assert(!crefl_asn1_ber_ident_write(buf, _id1));                \
     crefl_buf_dump(buf);                                           \
@@ -516,19 +516,19 @@ T_DER_OCTETS(2,"hello")
 
 int main()
 {
-    test_tagnum_1();
-    test_tagnum_2();
-    test_tagnum_3();
-    test_tagnum_4();
-    test_tagnum_5();
-    test_tagnum_6();
-    test_tagnum_7();
-    test_tagnum_8();
-    test_tagnum_9();
-    test_tagnum_10();
-    test_tagnum_11();
-    test_tagnum_12();
-    test_tagnum_13();
+    test_ber_tag_1();
+    test_ber_tag_2();
+    test_ber_tag_3();
+    test_ber_tag_4();
+    test_ber_tag_5();
+    test_ber_tag_6();
+    test_ber_tag_7();
+    test_ber_tag_8();
+    test_ber_tag_9();
+    test_ber_tag_10();
+    test_ber_tag_11();
+    test_ber_tag_12();
+    test_ber_tag_13();
 
     test_ber_length_1();
     test_ber_length_2();

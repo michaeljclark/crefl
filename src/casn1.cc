@@ -94,12 +94,12 @@ const char* asn1_tag_name(u64 tag)
  * called by ident_read | ident_write if low tag == 0b11111
  */
 
-size_t crefl_asn1_tagnum_length(u64 tag)
+size_t crefl_asn1_ber_tag_length(u64 tag)
 {
     return tag == 0 ? 1 : 8 - ((clz(tag) - 1) / 7) + 1;
 }
 
-int crefl_asn1_tagnum_read(crefl_buf *buf, u64 *tag)
+int crefl_asn1_ber_tag_read(crefl_buf *buf, u64 *tag)
 {
     int8_t b;
     size_t w = 0;
@@ -125,7 +125,7 @@ err:
     return -1;
 }
 
-int crefl_asn1_tagnum_write(crefl_buf *buf, u64 tag)
+int crefl_asn1_ber_tag_write(crefl_buf *buf, u64 tag)
 {
     int8_t b;
     size_t llen;
@@ -135,7 +135,7 @@ int crefl_asn1_tagnum_write(crefl_buf *buf, u64 tag)
         goto err;
     }
 
-    llen = crefl_asn1_tagnum_length(tag);
+    llen = crefl_asn1_ber_tag_length(tag);
     l = tag << (64 - llen * 7);
     for (size_t i = 0; i < llen; i++) {
         b = ((l >> 57) & 0x7f);
@@ -160,7 +160,7 @@ err:
 size_t crefl_asn1_ber_ident_length(asn1_id _id)
 {
     return 1 + ((_id._identifier >= 0x1f) ?
-        crefl_asn1_tagnum_length(_id._identifier) : 0);
+        crefl_asn1_ber_tag_length(_id._identifier) : 0);
 }
 
 int crefl_asn1_ber_ident_read(crefl_buf *buf, asn1_id *_id)
@@ -177,14 +177,14 @@ int crefl_asn1_ber_ident_read(crefl_buf *buf, asn1_id *_id)
     _id->_identifier =   b       & 0x1f;
 
     if (_id->_identifier == 0x1f) {
-        u64 tagnum;
-        if (crefl_asn1_tagnum_read(buf, &tagnum) < 0) {
+        u64 ber_tag;
+        if (crefl_asn1_ber_tag_read(buf, &ber_tag) < 0) {
             goto err;
         }
-        if (tagnum < 0x1f) {
+        if (ber_tag < 0x1f) {
             goto err;
         }
-        _id->_identifier = tagnum;
+        _id->_identifier = ber_tag;
     }
 
     return 0;
@@ -205,7 +205,7 @@ int crefl_asn1_ber_ident_write(crefl_buf *buf, asn1_id _id)
     }
 
     if (_id._identifier >= 0x1f) {
-        if (crefl_asn1_tagnum_write(buf, _id._identifier) < 0) {
+        if (crefl_asn1_ber_tag_write(buf, _id._identifier) < 0) {
             goto err;
         }
     }
@@ -887,10 +887,10 @@ size_t crefl_asn1_ber_oid_length(u64 *oid, size_t count)
          * 8.19.4 rule where first two components are combined -> (X*40) + Y
          */
         if (i == 0 && count > 1) {
-            length = crefl_asn1_tagnum_length(oid[0] * 40 + oid[1]);
+            length = crefl_asn1_ber_tag_length(oid[0] * 40 + oid[1]);
             i++;
         } else {
-            length += crefl_asn1_tagnum_length(oid[i]);
+            length += crefl_asn1_ber_tag_length(oid[i]);
         }
     }
     return length;
@@ -903,7 +903,7 @@ int crefl_asn1_ber_oid_read(crefl_buf *buf, size_t len, u64 *oid, size_t *count)
     u64 comp;
 
     while ((offset - start) < len) {
-        if (crefl_asn1_tagnum_read(buf, &comp) < 0) goto err;
+        if (crefl_asn1_ber_tag_read(buf, &comp) < 0) goto err;
         /*
          * 8.19.4 rule where first two components are combined -> (X*40) + Y
          */
@@ -933,10 +933,10 @@ int crefl_asn1_ber_oid_write(crefl_buf *buf, size_t len, u64 *oid, size_t count)
          * 8.19.4 rule where first two components are combined -> (X*40) + Y
          */
         if (i == 0 && count > 1) {
-            if (crefl_asn1_tagnum_write(buf, oid[0] * 40 + oid[1]) < 0) goto err;
+            if (crefl_asn1_ber_tag_write(buf, oid[0] * 40 + oid[1]) < 0) goto err;
             i++;
         } else {
-            if (crefl_asn1_tagnum_write(buf, oid[i]) < 0) goto err;
+            if (crefl_asn1_ber_tag_write(buf, oid[i]) < 0) goto err;
         }
     }
 

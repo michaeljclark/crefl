@@ -129,9 +129,9 @@ double _f64_neg_inf();
 
 const char* asn1_tag_name(u64 tag);
 
-size_t crefl_asn1_tagnum_length(u64 len);
-int crefl_asn1_tagnum_read(crefl_buf *buf, u64 *len);
-int crefl_asn1_tagnum_write(crefl_buf *buf, u64 len);
+size_t crefl_asn1_ber_tag_length(u64 len);
+int crefl_asn1_ber_tag_read(crefl_buf *buf, u64 *len);
+int crefl_asn1_ber_tag_write(crefl_buf *buf, u64 len);
 
 size_t crefl_asn1_ber_ident_length(asn1_id _id);
 int crefl_asn1_ber_ident_read(crefl_buf *buf, asn1_id *_id);
