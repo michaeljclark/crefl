@@ -18,5 +18,5 @@
 
 #pragma once
 
-const char* crefl_asn1_oid_desc(const char *oid);
+const char* crefl_asn1_oid_desc(const char *oid, size_t len);
 
