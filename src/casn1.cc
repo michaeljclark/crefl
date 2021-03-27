@@ -19,6 +19,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <cctype>
 #include <limits>
 
 #include "stdendian.h"
@@ -944,23 +945,6 @@ err:
     return -1;
 }
 
-size_t crefl_asn1_oid_to_string(char *buf, size_t buflen, u64 *oid, size_t count)
-{
-    if (buf && buflen) {
-        buf[0] = '\0';
-    }
-    size_t offset = 0;
-    for (size_t i = 0; i < count; i ++) {
-        offset += snprintf(
-            (buflen ? buf + offset : NULL),
-            (buflen ? buflen - offset : 0),
-            (i == 0 ? "%lld" : ".%lld"),
-            oid[i]
-        );
-    }
-    return offset;
-}
-
 int crefl_asn1_der_oid_read(crefl_buf *buf, asn1_tag _tag, u64 *oid, size_t *count)
 {
     asn1_hdr hdr;
@@ -978,6 +962,60 @@ int crefl_asn1_der_oid_write(crefl_buf *buf, asn1_tag _tag, u64 *oid, size_t cou
     if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) return -1;
     if (crefl_asn1_ber_length_write(buf, hdr._length) < 0) return -1;
     return crefl_asn1_ber_oid_write(buf, hdr._length, oid, count);
+}
+
+int crefl_asn1_oid_to_string(char *str, size_t *buflen, const u64 *oid, size_t count)
+{
+    size_t limit = *buflen;
+    if (str && limit) {
+        str[0] = '\0';
+    }
+    size_t offset = 0;
+    for (size_t i = 0; i < count; i ++) {
+        offset += snprintf(
+            (limit ? str + offset : NULL),
+            (limit ? limit - offset : 0),
+            (i == 0 ? "%lld" : ".%lld"),
+            oid[i]
+        );
+    }
+    *buflen = offset;
+    return 0;
+}
+
+int crefl_asn1_oid_from_string(u64 *oid, size_t *count, const char *str, size_t buflen)
+{
+    u64 comp_num = 0;
+    size_t limit = *count;
+    size_t last = 0, comp = 0;
+    for (size_t i = 0; i <= buflen; i++) {
+        if (i != last && ((i < buflen && str[i] == '.') || i == buflen)) {
+            size_t comp_len = i - last + 1;
+            if (oid && comp < limit) {
+                oid[comp] = comp_num;
+            }
+            comp++;
+            comp_num = 0;
+            last = i + 1;
+        } else if (isdigit(str[i])) {
+            u64 num = comp_num * 10 + (int)str[i] - '0';
+            if (num > comp_num && num < (1ull << 56)) {
+                comp_num = num;
+            } else {
+                goto err;
+            }
+        } else if (i == buflen) {
+            //
+        } else {
+            goto err;
+        }
+    }
+out:
+    *count = comp;
+    return 0;
+err:
+    *count = comp;
+    return -1;
 }
 
 /*

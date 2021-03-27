@@ -243,7 +243,7 @@ void FN(ber_oid,X)()                                               \
     size_t nbytes = oid_tests[X].nbytes;                           \
     u64 oid2[16];                                                  \
     u8 str2[128];                                                  \
-    size_t count2;                                                 \
+    size_t count2, ncomp;                                          \
     size_t len = crefl_asn1_ber_oid_length(oid, count);            \
     crefl_buf *buf = crefl_buf_new(1024);                          \
     assert(buf);                                                   \
@@ -260,10 +260,11 @@ void FN(ber_oid,X)()                                               \
     count2 = array_size(oid2);                                     \
     assert(!crefl_asn1_ber_oid_read(buf, len, oid2, &count2));     \
     assert(memcmp(oid, oid2, sizeof(u64) * count2) == 0);          \
-    assert(crefl_asn1_oid_to_string(NULL, 0, oid, count)           \
-           == strlen(str));                                        \
-    assert(crefl_asn1_oid_to_string(str2, 128, oid, count)         \
-           == strlen(str));                                        \
+    ncomp = 0;                                                     \
+    assert(!crefl_asn1_oid_to_string(NULL, &ncomp, oid, count));   \
+    assert(ncomp > 0);                                             \
+    ncomp = sizeof(str2);                                          \
+    assert(!crefl_asn1_oid_to_string(str2, &ncomp, oid, count));   \
     assert(memcmp(str, str2, strlen(str)) == 0);                   \
     crefl_buf_destroy(buf);                                        \
 }
