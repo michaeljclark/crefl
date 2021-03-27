@@ -9,21 +9,21 @@
 #include "cbuf.h"
 #include "casn1.h"
 
-const char* ber_tag_fmt  = "\nASN.1 X.690 ber_tag(%zu)[0x%zx]\n";
-const char* ber_length_fmt  = "\nASN.1 X.690 ber_length(%zu)[0x%zx]\n";
-const char* ber_ident_fmt   = "\nASN.1 X.690 ber_ident(%zu)[0x%zx]\n";
-const char* ber_uint_fmt  = "\nASN.1 X.690 ber_uint(%zu)[0x%zx]\n";
-const char* ber_sint_fmt  = "\nASN.1 X.690 ber_sint(%zd)[0x%zx]\n";
+const char* ber_tag_fmt = "\nASN.1 X.690 ber_tag(%zu)[0x%zx]\n";
+const char* ber_length_fmt = "\nASN.1 X.690 ber_length(%zu)[0x%zx]\n";
+const char* ber_ident_fmt = "\nASN.1 X.690 ber_ident(%zu)[0x%zx]\n";
+const char* ber_uint_fmt = "\nASN.1 X.690 ber_uint(%zu)[0x%zx]\n";
+const char* ber_sint_fmt = "\nASN.1 X.690 ber_sint(%zd)[0x%zx]\n";
 const char* ber_bool_fmt = "\nASN.1 X.690 ber_bool(%s)[0x%zx]\n";
-const char* ber_oid_fmt  = "\nASN.1 X.690 ber_oid(%s)\n";
-const char* ber_real_fmt  = "\nASN.1 X.690 ber_real(%.16g)\n";
-const char* ber_octets_fmt  = "\nASN.1 X.690 ber_octets(\"%s\")\n";
-const char* der_uint_fmt  = "\nASN.1 X.690 der_uint(%zu)[0x%zx]\n";
-const char* der_sint_fmt  = "\nASN.1 X.690 der_sint(%zd)[0x%zx]\n";
+const char* ber_oid_fmt = "\nASN.1 X.690 ber_oid(%s)\n";
+const char* ber_real_fmt = "\nASN.1 X.690 ber_real(%.16g)\n";
+const char* ber_octets_fmt = "\nASN.1 X.690 ber_octets(\"%s\")\n";
+const char* der_uint_fmt = "\nASN.1 X.690 der_uint(%zu)[0x%zx]\n";
+const char* der_sint_fmt = "\nASN.1 X.690 der_sint(%zd)[0x%zx]\n";
 const char* der_bool_fmt = "\nASN.1 X.690 der_bool(%s)[0x%zx]\n";
-const char* der_oid_fmt  = "\nASN.1 X.690 der_oid(%s)\n";
-const char* der_real_fmt  = "\nASN.1 X.690 der_real(%.16g)\n";
-const char* der_octets_fmt  = "\nASN.1 X.690 der_octets(\"%s\")\n";
+const char* der_oid_fmt = "\nASN.1 X.690 der_oid(%s)\n";
+const char* der_real_fmt = "\nASN.1 X.690 der_real(%.16g)\n";
+const char* der_octets_fmt = "\nASN.1 X.690 der_octets(\"%s\")\n";
 
 struct oid_test
 {
