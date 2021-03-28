@@ -204,7 +204,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         return result;
     }
 
-    decl_ref get_intrinsic_type(QualType q)
+    decl_ref get_intrinsic_type(const QualType q)
     {
         TypeInfo t = context.getTypeInfo(q);
 
@@ -454,7 +454,9 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         if (d->isInvalidDecl()) return true;
         if (debug) print_decl(d);
 
-        const QualType q = d->getType();
+        const EnumDecl *ed = context.getParents(*d)[0].get<EnumDecl>();
+        const QualType q = const_cast<EnumDecl*>(ed)->getIntegerType();
+
         uint64_t value = d->getInitVal().getExtValue();
         debugf("\tname:\"%s\" type:%s value:%" PRIu64 "\n",
             d->clang::NamedDecl::getNameAsString().c_str(),
