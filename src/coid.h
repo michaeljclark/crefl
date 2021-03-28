@@ -18,5 +18,12 @@
 
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 const char* crefl_asn1_oid_desc(const char *oid, size_t len);
 
+#ifdef __cplusplus
+}
+#endif
