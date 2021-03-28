@@ -13,23 +13,21 @@
 std::string oid_str(const char *data, size_t sz)
 {
     std::string s;
-    std::vector<u64> oid;
     size_t count, len;
+    asn1_oid obj = { 0 };
 
     crefl_buf *buf = crefl_buf_new(sz);
     memcpy(buf->data, data, sz);
 
-    count = 32;
-    crefl_asn1_ber_oid_read(buf, sz, NULL, &count);
-    oid.resize(count);
-    crefl_buf_reset(buf);
-    crefl_asn1_ber_oid_read(buf, sz, oid.data(), &count);
+    crefl_asn1_ber_oid_read(buf, sz, &obj);
 
     len = 0;
-    crefl_asn1_oid_to_string(NULL, &len, oid.data(), count);
+    crefl_asn1_oid_to_string(NULL, &len, &obj);
     s.resize(len+1);
-    crefl_asn1_oid_to_string(s.data(), &len,  oid.data(), count);
+    crefl_asn1_oid_to_string(s.data(), &len,  &obj);
     s.resize(len);
+
+    crefl_buf_destroy(buf);
 
     return s;
 }

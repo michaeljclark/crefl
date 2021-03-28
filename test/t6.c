@@ -5,61 +5,56 @@
 
 #include "casn1.h"
 
-#define array_size(arr) ((sizeof(arr)/sizeof(arr[0])))
-
-void test_oid(const char *s, const char *exp, u64 *arr, size_t count, int result)
+void test_oid(const char *s, const char *exp, const asn1_oid *oid, int result)
 {
     u8 buf[128];
-    u64 c[16];
     size_t len, slen;
+    asn1_oid oid1;
 
-    len = 0;
-    assert(crefl_asn1_oid_from_string(NULL, &len, s, strlen(s)) == result);
-    len = array_size(c);
-    assert(crefl_asn1_oid_from_string(c, &len, s, strlen(s)) == result);
-    assert(len == count);
-    assert(memcmp(arr, c, sizeof(u64) * len) == 0);
+    assert(crefl_asn1_oid_from_string(&oid1, s, strlen(s)) == result);
+    assert(oid->count == oid1.count);
+    assert(memcmp(oid->oid, oid1.oid, sizeof(u64) * oid->count) == 0);
 
     slen = 0;
-    assert(!crefl_asn1_oid_to_string(NULL, &slen, c, len));
+    assert(!crefl_asn1_oid_to_string(NULL, &slen, oid));
     slen = sizeof(buf);
-    assert(!crefl_asn1_oid_to_string(buf, &slen, c, len));
+    assert(!crefl_asn1_oid_to_string(buf, &slen, oid));
     assert(slen == strlen(exp));
     assert(memcmp(buf, exp, strlen(exp)) == 0);
 }
 
 static const char *test_1_str = "";
-static u64 test_1_arr[] = { };
+static const asn1_oid test_1_oid = { 0, { } };
 
 static const char *test_2_str = "1";
-static u64 test_2_arr[] = { 1 };
+static const asn1_oid test_2_oid = { 1, { 1 } };
 
 static const char *test_3_str = "1.2.3";
-static u64 test_3_arr[] = { 1, 2, 3 };
+static const asn1_oid test_3_oid = { 3, { 1, 2, 3 } };
 
 static const char *test_4_str = "2.99.1x";
 static const char *test_4_exp = "2.99";
-static u64 test_4_arr[] = { 2, 99 };
+static const asn1_oid test_4_oid = { 2, { 2, 99 } };
 
 static const char *test_5_str = "2.99..100000";
 static const char *test_5_exp = "2.99";
-static u64 test_5_arr[] = { 2, 99 };
+static const asn1_oid test_5_oid = { 2, { 2, 99 } };
 
 static const char *test_6_str = "2.99.100000..";
 static const char *test_6_exp = "2.99.100000";
-static u64 test_6_arr[] = { 2, 99, 100000 };
+static const asn1_oid test_6_oid = { 3, { 2, 99, 100000 } };
 
 static const char *test_7_str = "2.99.72057594037927935";
-static u64 test_7_arr[] = { 2, 99, 72057594037927935ull };
+static const asn1_oid test_7_oid = { 3, { 2, 99, 72057594037927935ull } };
 
 static const char *test_8_str = "2.99.72057594037927936";
 static const char *test_8_exp = "2.99";
-static u64 test_8_arr[] = { 2, 99 };
+static const asn1_oid test_8_oid = { 2, { 2, 99 } };
 
 #define FN(Y,X) test_ ## Y ## _ ## X
 #define T_OID(X,Y,Z)                                                    \
 void FN(oid,X)() {                                                      \
-    test_oid(FN(X,str), FN(X,Y), FN(X,arr), array_size(FN(X,arr)), Z);  \
+    test_oid(FN(X,str), FN(X,Y), &FN(X,oid), Z);                        \
 }
 
 T_OID(1,str,0)
