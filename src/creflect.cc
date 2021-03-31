@@ -326,8 +326,13 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         return tr;
     }
 
-    void create_links(Decl *d, decl_ref r)
+    decl_ref create_named_node(NamedDecl *d, decl_tag tag)
     {
+        /* create node */
+        decl_ref r = crefl_decl_new(db, tag);
+        crefl_decl_ptr(r)->_name = crefl_name_new(db,
+            d->clang::NamedDecl::getNameAsString().c_str());
+
         /* record clang -> crefl id */
         idmap[d->clang::Decl::getID()] = crefl_decl_idx(r);
 
@@ -357,6 +362,8 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         if (db->root_element == 0) {
             db->root_element = crefl_decl_idx(r);
         }
+
+        return r;
     }
 
     decl_set get_cvr_props(QualType q)
@@ -401,10 +408,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             q.getAsString().c_str());
 
         /* create typedef */
-        decl_ref r = crefl_decl_new(db, _decl_typedef);
-        crefl_decl_ptr(r)->_name = crefl_name_new(db,
-            d->clang::NamedDecl::getNameAsString().c_str());
-        create_links(d, r);
+        decl_ref r = create_named_node(d, _decl_typedef);
         crefl_decl_ptr(r)->_link = crefl_decl_idx(get_intrinsic_type(q));
         crefl_decl_ptr(r)->_props |= get_cvr_props(q);
         crefl_decl_ptr(r)->_attr = create_attributes(d, r);
@@ -432,10 +436,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         TypeInfo t = context.getTypeInfo(q);
 
         /* create enum */
-        decl_ref r = crefl_decl_new(db, _decl_enum);
-        crefl_decl_ptr(r)->_name = crefl_name_new(db,
-            d->clang::NamedDecl::getNameAsString().c_str());
-        create_links(d, r);
+        decl_ref r = create_named_node(d, _decl_enum);
         crefl_decl_ptr(r)->_attr = create_attributes(d, r);
         crefl_decl_ptr(r)->_width = t.Width;
 
@@ -461,10 +462,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             q.getAsString().c_str(), value);
 
         /* create constant */
-        decl_ref r = crefl_decl_new(db, _decl_constant);
-        crefl_decl_ptr(r)->_name = crefl_name_new(db,
-            d->clang::NamedDecl::getNameAsString().c_str());
-        create_links(d, r);
+        decl_ref r = create_named_node(d, _decl_constant);
         crefl_decl_ptr(r)->_link = crefl_decl_idx(get_intrinsic_type(q));
         crefl_decl_ptr(r)->_value = value;
         crefl_decl_ptr(r)->_attr = create_attributes(d, r);
@@ -504,10 +502,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             }
 
             /* create struct */
-            r = crefl_decl_new(db, tag);
-            crefl_decl_ptr(r)->_name = crefl_name_new(db,
-                d->clang::NamedDecl::getNameAsString().c_str());
-            create_links(d, r);
+            decl_ref r = create_named_node(d, tag);
             crefl_decl_ptr(r)->_attr = create_attributes(d, r);
 
             stack.push_back(r);
@@ -536,10 +531,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         decl_sz width = d->isBitField() ? d->getBitWidthValue(context) : 0;
 
         /* create field */
-        decl_ref r = crefl_decl_new(db, _decl_field);
-        crefl_decl_ptr(r)->_name = crefl_name_new(db,
-            d->clang::NamedDecl::getNameAsString().c_str());
-        create_links(d, r);
+        decl_ref r = create_named_node(d, _decl_field);
         crefl_decl_ptr(r)->_link = crefl_decl_idx(get_intrinsic_type(q));
         crefl_decl_ptr(r)->_width = width;
         crefl_decl_ptr(r)->_props |= get_cvr_props(q) | (-(int)d->isBitField() & _decl_bitfield);
@@ -561,10 +553,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             d->getNameInfo().getName().getAsString().c_str(), d->hasBody());
 
         /* create function */
-        decl_ref r = crefl_decl_new(db, _decl_function);
-        crefl_decl_ptr(r)->_name = crefl_name_new(db,
-            d->clang::NamedDecl::getNameAsString().c_str());
-        create_links(d, r);
+        decl_ref r = create_named_node(d, _decl_function);
         crefl_decl_ptr(r)->_attr = create_attributes(d, r);
 
         last = r;
@@ -611,10 +600,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         //Stmt **ia = d->getInitAddress();
 
         /* create field */
-        decl_ref r = crefl_decl_new(db, _decl_field);
-        crefl_decl_ptr(r)->_name = crefl_name_new(db,
-            d->clang::NamedDecl::getNameAsString().c_str());
-        create_links(d, r);
+        decl_ref r = create_named_node(d, _decl_field);
         const QualType q = d->getTypeSourceInfo()->getType();
         crefl_decl_ptr(r)->_link = crefl_decl_idx(get_intrinsic_type(q));
         crefl_decl_ptr(r)->_props |= get_cvr_props(q);
