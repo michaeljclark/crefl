@@ -220,8 +220,6 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         bool _is_restrict = (q.getLocalFastQualifiers() & Qualifiers::Restrict);
         bool _is_volatile = (q.getLocalFastQualifiers() & Qualifiers::Volatile);
 
-        // TODO - arrays, attributes, const, volatile, restrict, unaligned
-
         decl_ref tr = decl_ref { db, 0 };
 
         if (_is_pointer) {
@@ -596,8 +594,6 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
 
         /* FunctionDecl handles params */
         if (d->isLocalVarDeclOrParm()) return true;
-
-        //Stmt **ia = d->getInitAddress();
 
         /* create field */
         decl_ref r = create_named_node(d, _decl_field);
