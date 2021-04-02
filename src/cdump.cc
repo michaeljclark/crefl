@@ -23,7 +23,6 @@
 #include <string>
 #include <sstream>
 #include <functional>
-#include <array>
 
 #include "cutil.h"
 #include "cmodel.h"
@@ -42,8 +41,7 @@ static std::string _field_str(const struct crefl_field *f, void *obj);
 struct crefl_field
 {
     const char *name;
-    size_t width;
-    size_t offset;
+    size_t width, offset;
     format_fn format;
 };
 
@@ -94,20 +92,10 @@ static const crefl_field ** fields = fields_std;
 
 static std::string _link(decl_ref d)
 {
-    std::string buf;
-
     decl_ref lr = crefl_lookup(d.db, crefl_decl_ptr(d)->_link);
-
-    if (strlen(crefl_decl_name(lr)) > 0) {
-        buf = string_printf("%s(\"%s\")",
-            crefl_tag_name(crefl_decl_tag(lr)), crefl_decl_name(lr));
-    }
-    else {
-        buf = string_printf("%s(anonymous)",
-            crefl_tag_name(crefl_decl_tag(lr)));
-    }
-
-    return buf;
+    const char *name = crefl_decl_name(lr);
+    return string_printf("%s(\"%s\")", crefl_tag_name(crefl_decl_tag(lr)),
+        strlen(name) ? name : "anonymous");
 }
 
 static std::string _props(decl_ref d, const char *fmt, ...)
@@ -161,13 +149,9 @@ static std::string _hex_str(const uint8_t *data, size_t sz)
     return s;
 }
 
-static std::string _pad_str(std::string str, const size_t width,
-    const char pad_char = ' ')
+static std::string _pad_str(std::string s, const size_t w, char pad = ' ')
 {
-    if (str.size() < width) {
-        str.append(width - str.size(), pad_char);
-    }
-    return str;
+    return s.append(s.size() < w ? w - s.size() : 0, pad);
 }
 
 static std::string _fqn(decl_ref r, decl_entry_ref er)
@@ -179,6 +163,7 @@ static std::string _fqn(decl_ref r, decl_entry_ref er)
 
 crefl_db_row crefl_db_get_row(decl_db *db, decl_ref r)
 {
+    decl_id tag = crefl_decl_tag(r);
     decl_entry_ref er = crefl_entry_ref(ld, r);
     decl_entry *ent = crefl_entry_ptr(er);
     decl_node *d = crefl_decl_ptr(r);
@@ -198,19 +183,13 @@ crefl_db_row crefl_db_get_row(decl_db *db, decl_ref r)
     case _decl_constant:
     case _decl_value:     props = _props(r, "value=" fmt_SZ, d->_value); break;
     case _decl_function:  props = _props(r, "addr=" fmt_AD, d->_addr);   break;
-    case _decl_field:
-        if ((crefl_decl_props(r) & _decl_bitfield) > 0) {
-            props = _props(r, "width=" fmt_SZ, d->_width);
-        } else {
-            props = _props(r, "");
-        }
-        break;
+    case _decl_field:     props = (crefl_decl_props(r) & _decl_bitfield) ?
+                         _props(r, "width=" fmt_SZ, d->_width) : _props(r, "");
     default: break;
     }
 
     return crefl_db_row {
-        crefl_decl_idx(r), d->_attr, d->_next, d->_link,
-        crefl_tag_name(crefl_decl_tag(r)),
+        crefl_decl_idx(r), d->_attr, d->_next, d->_link, crefl_tag_name(tag),
         crefl_decl_ptr(r)->_name ? crefl_decl_name(r) : "(anonymous)", props,
         _link(r), _hex_str(ent->hash.sum, sizeof(ent->hash.sum)), _fqn(r, er)
     };
@@ -250,18 +229,15 @@ void crefl_db_dump_row(decl_db *db, decl_ref r) { _row(fields, db, r); }
 void crefl_db_dump(decl_db *db)
 {
     ld = crefl_index_new();
-
     crefl_index_scan(ld, db);
 
     crefl_db_header_names();
     crefl_db_header_lines();
-
     for (size_t i = db->root_element; i < db->decl_offset; i++) {
-        decl_ref r = crefl_lookup(db, i);
-        crefl_db_dump_row(db, r);
+        crefl_db_dump_row(db, crefl_lookup(db, i));
     }
-
     crefl_db_header_lines();
+
     crefl_index_destroy(ld);
 }
 
