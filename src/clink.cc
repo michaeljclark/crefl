@@ -27,13 +27,29 @@
 #include "cmodel.h"
 #include "clink.h"
 
-static const char *tag_delimeter = "+T=";
-static const char *name_delimeter = "+N=";
-static const char *props_delimeter = "+P=";
-static const char *quantity_delimeter = "+Q=";
-static const char *attr_delimeter = "+A=";
-static const char *link_delimeter = "+L=";
-static const char *next_delimeter = "+X=";
+/*
+ * node hash algorithm
+ *
+ * all node identity properties excluding their internally assigned ids
+ * and top-level next links are hashed so that hashes are position invariant.
+ * identical declarations in different modules will have identical hashes.
+ * properties are delimited to prevent embeddings. the format is as follows:
+ *
+ * - (T=$(tag);N=$(name);P=$(props);Q=$(qty)[;A=<H($(attr))>][;L=H($(link))...])
+ *
+ * e.g. the integral signed intrinsic 'i64'
+ *
+ * - (T=intrinsic;N=ulong;P=5;Q=64)
+ */
+static const char *tag_delimeter      = "(T=";
+static const char *name_delimeter     = ";N=";
+static const char *props_delimeter    = ";P=";
+static const char *quantity_delimeter = ";Q=";
+static const char *attr_delimeter     = ";A=";
+static const char *link_delimeter     = ";L=";
+static const char *next_delimeter     = ";X=";
+static const char *hash_delimeter     = ";H=";
+static const char *end_delimeter      = ")";
 
 struct decl_sum
 {
@@ -80,6 +96,7 @@ static void crefl_hash_node_impl(decl_ref d, decl_sum *sum,
         next = crefl_lookup(d.db, node->_attr);
         crefl_hash_absorb(sum, attr_delimeter);
         hash = crefl_node_hash(next, index, prefix);
+        crefl_hash_absorb(sum, hash_delimeter);
         crefl_hash_update(sum, (const char*)hash->sum, sizeof(decl_hash));
     }
     if (node->_link) {
@@ -99,6 +116,7 @@ static void crefl_hash_node_impl(decl_ref d, decl_sum *sum,
             while (crefl_decl_idx(next))  {
                 crefl_hash_absorb(sum, next_delimeter);
                 decl_hash *hash = crefl_node_hash(next, index, prefix);
+                crefl_hash_absorb(sum, hash_delimeter);
                 crefl_hash_update(sum, (const char*)hash->sum, sizeof(decl_hash));
                 next = crefl_decl_next(next);
             }
@@ -118,11 +136,13 @@ static void crefl_hash_node_impl(decl_ref d, decl_sum *sum,
                 crefl_hash_absorb(sum, crefl_decl_name(next));
             } else {
                 hash = crefl_node_hash(next, index, prefix);
+                crefl_hash_absorb(sum, hash_delimeter);
                 crefl_hash_update(sum, (const char*)hash->sum, sizeof(decl_hash));
             }
             break;
         }
     }
+    crefl_hash_absorb(sum, end_delimeter);
 }
 
 int crefl_entry_is_marked(decl_entry_ref er)
