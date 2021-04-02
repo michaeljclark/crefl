@@ -23,9 +23,11 @@ add_library(cmodel STATIC
 	src/cbuf.cc
 	src/cdump.cc
 	src/cfileio.cc
+	src/clink.cc
 	src/cmodel.cc
 	src/coid.cc
 	src/ctypes.cc
+	src/sha256.c
 )
 
 add_library(crefl SHARED src/creflect.cc)
