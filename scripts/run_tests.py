@@ -52,6 +52,10 @@ def crefl_dump(hdr):
     cmd = [ './build/crefltool', "--dump", crefl_file(hdr)]
     out = subprocess.run(cmd)
 
+def crefl_dump_all(hdr):
+    cmd = [ './build/crefltool', "--dump-all", crefl_file(hdr)]
+    out = subprocess.run(cmd)
+
 def crefl_stats(hdr):
     cmd = [ './build/crefltool', "--stats", crefl_file(hdr)]
     out = subprocess.run(cmd)
@@ -62,6 +66,10 @@ def crefl_header(lab, hdr):
 parser = argparse.ArgumentParser(description='runs crefl clang plugin on test cases')
 parser.add_argument('--cpp', default=False, action='store_true',
                     help='enable c++ mode')
+parser.add_argument('--dump', default=True, action='store_true',
+                    help='include standard fields in dump')
+parser.add_argument('--dump-all', default=False, action='store_true',
+                    help='include all fields in dump')
 parser.add_argument('--debug', default=False, action='store_true',
                     help='enable crefl debug output')
 parser.add_argument('--stats', default=False, action='store_true',
@@ -84,7 +92,10 @@ for f in args.files:
             crefl_debug(hdr, args.cpp)
         crefl_header('OUTPUT', hdr)
         crefl_meta(hdr, args.cpp)
-        crefl_dump(hdr)
+        if args.dump_all:
+            crefl_dump_all(hdr)
+        elif args.dump:
+            crefl_dump(hdr)
         if args.stats:
             crefl_header('STATS', hdr)
             crefl_stats(hdr)
