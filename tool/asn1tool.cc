@@ -10,7 +10,7 @@
 #include "casn1.h"
 #include "coid.h"
 
-std::string oid_str(const char *data, size_t sz)
+static std::string oid_str(const char *data, size_t sz)
 {
     std::string s;
     size_t count, len;
@@ -32,7 +32,7 @@ std::string oid_str(const char *data, size_t sz)
     return s;
 }
 
-std::string hex_str(const uint8_t *data, size_t sz)
+static std::string hex_str(const uint8_t *data, size_t sz)
 {
     std::string s;
     char hex[3];
