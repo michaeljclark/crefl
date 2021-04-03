@@ -9,6 +9,11 @@
 #include "stdendian.h"
 #include "sha256.h"
 
+static const uint32_t sha224_init_state[8] = {
+	0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939,
+	0xffc00b31, 0x68581511, 0x64f98fa7, 0xbefa4fa4
+};
+
 static const uint32_t sha256_init_state[8] = {
 	0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
 	0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
@@ -101,6 +106,14 @@ static void sha256_transform(sha256_ctx *ctx, const unsigned char *buf)
     for (i = 0; i < 8; i++) {
         ctx->chain[i] += H[i];
     }
+}
+
+void sha224_init(sha256_ctx *ctx)
+{
+    ctx->nbytes = 0;
+    ctx->digestlen = sha224_hash_size;
+    memcpy(ctx->chain, sha224_init_state, sizeof(sha224_init_state));
+    memset(ctx->block, 0, sizeof(ctx->block));
 }
 
 void sha256_init(sha256_ctx *ctx)
