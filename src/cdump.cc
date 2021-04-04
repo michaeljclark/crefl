@@ -72,11 +72,11 @@ static const crefl_field f_attr =   { "attr",   5,  _FIELD(attr),   _field_id  }
 static const crefl_field f_next =   { "next",   5,  _FIELD(next),   _field_id  };
 static const crefl_field f_link =   { "link",   5,  _FIELD(link),   _field_id  };
 static const crefl_field f_type =   { "type",   10, _FIELD(type),   _field_str };
-static const crefl_field f_name =   { "name",   18, _FIELD(name),   _field_str };
-static const crefl_field f_props =  { "props",  18, _FIELD(props),  _field_str };
-static const crefl_field f_detail = { "detail", 24, _FIELD(detail), _field_str };
-static const crefl_field f_hash =   { "hash",   56, _FIELD(hash),   _field_str };
-static const crefl_field f_fqn =    { "fqn",    20, _FIELD(fqn),    _field_str };
+static const crefl_field f_name =   { "name",   15, _FIELD(name),   _field_str };
+static const crefl_field f_props =  { "props",  15, _FIELD(props),  _field_str };
+static const crefl_field f_detail = { "detail", 20, _FIELD(detail), _field_str };
+static const crefl_field f_hash =   { "hash",   57, _FIELD(hash),   _field_str };
+static const crefl_field f_fqn =    { "fqn",    22, _FIELD(fqn),    _field_str };
 
 static const crefl_field * fields_std[] = {
     &f_id, &f_attr, &f_next, &f_link, &f_type, &f_name, &f_props, &f_detail,
@@ -86,6 +86,16 @@ static const crefl_field * fields_std[] = {
 static const crefl_field * fields_all[] = {
     &f_id, &f_attr, &f_next, &f_link, &f_type, &f_name, &f_props, &f_detail,
     &f_hash, &f_fqn, 0
+};
+
+static const crefl_field fx_name =   { "name",   20, _FIELD(name),   _field_str };
+static const crefl_field fx_props =  { "props",  20, _FIELD(props),  _field_str };
+static const crefl_field fx_detail = { "detail", 32, _FIELD(detail), _field_str };
+static const crefl_field fx_fqn =    { "fqn",    32, _FIELD(fqn),    _field_str };
+
+static const crefl_field * fields_ext[] = {
+    &f_id, &f_attr, &f_next, &f_link, &f_type, &fx_name, &fx_props, &fx_detail,
+    &f_hash, &fx_fqn, 0
 };
 
 static const crefl_field ** fields = fields_std;
@@ -151,7 +161,7 @@ static std::string _hex_str(const uint8_t *data, size_t sz)
 
 static std::string _pad_str(std::string s, const size_t w, char pad = ' ')
 {
-    return s.append(s.size() < w ? w - s.size() : 0, pad);
+    return s.size() < w ? s.append(w - s.size(), pad) : s.substr(0, w - 1) + "…";
 }
 
 static std::string _fqn(decl_ref r, decl_entry_ref er)
@@ -199,7 +209,7 @@ static std::string crefl_field_iter(const crefl_field ** i,
     std::function<std::string(const crefl_field*)> f)
 {
     std::string s;
-    while (*i) s.append(std::string(s.size() > 0 ? " " : "") + f(*i++));
+    while (*i) s.append(f(*i++));
     return s;
 }
 
@@ -244,8 +254,9 @@ void crefl_db_dump(decl_db *db)
 void crefl_db_set_dump_fmt(enum crefl_db_dump_fmt fmt)
 {
     switch (fmt) {
-    case crefl_db_dump_std: fields = fields_std;
-    case crefl_db_dump_all: fields = fields_all;
+    case crefl_db_dump_std: fields = fields_std; break;
+    case crefl_db_dump_all: fields = fields_all; break;
+    case crefl_db_dump_ext: fields = fields_ext; break;
     }
 }
 

@@ -29,7 +29,7 @@ void crefl_db_dump(decl_db *db);
 void crefl_db_dump_row(decl_db *db, decl_ref r);
 void crefl_db_dump_stats(decl_db *db);
 
-enum crefl_db_dump_fmt { crefl_db_dump_std, crefl_db_dump_all };
+enum crefl_db_dump_fmt { crefl_db_dump_std, crefl_db_dump_all, crefl_db_dump_ext };
 void crefl_db_set_dump_fmt(enum crefl_db_dump_fmt fmt);
 
 #ifdef __cplusplus
