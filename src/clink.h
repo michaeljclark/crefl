@@ -38,7 +38,7 @@ typedef struct decl_index decl_index;
 
 struct decl_hash
 {
-    uint8_t sum[sha256_hash_size];
+    uint8_t sum[sha224_hash_size];
 };
 
 enum decl_entry_props

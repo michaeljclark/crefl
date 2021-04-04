@@ -30,16 +30,27 @@
 /*
  * node hash algorithm
  *
- * all node identity properties excluding their internally assigned ids
- * and top-level next links are hashed so that hashes are position invariant.
- * identical declarations in different modules will have identical hashes.
- * properties are delimited to prevent embeddings. the format is as follows:
+ * nodes are hashed with the following template where $(var-name) has been
+ * substituted with the node property of the same name and H(id) refers to
+ * the bytes of the hash of the node with that id:
  *
- * - (T=$(tag);N=$(name);P=$(props);Q=$(qty)[;A=<H($(attr))>][;L=H($(link))...])
+ * - (T=$(tag);N=$(name);P=$(props);Q=$(quantity)[;A=<H($(attr))>][;L=H($(link))...])
  *
  * e.g. the integral signed intrinsic 'i64'
  *
  * - (T=intrinsic;N=ulong;P=5;Q=64)
+ *
+ * nodes have a unique SHA-224 hash with the following constraints:
+ *
+ * - hashes include all identity information excluding internally assigned
+ *   ids and next links. this is so that node hashes are position invariant.
+ * - identical declarations in different modules will have identical hashes.
+ * - adjacency information is included based on the order nodes are absorbed.
+ * - while a node's hash sum includes its own name directly, links to
+ *   dependent nodes absorb the hash sum of the dependent not its name.
+ * - nodes can thus link to dependencies without knowing their names.
+ * - semicolon is used as a delimeter as it does not occur in type names.
+ * - SHA-224 is used because it is not subject to length extension attacks.
  */
 static const char *tag_delimeter      = "(T=";
 static const char *name_delimeter     = ";N=";
@@ -53,27 +64,27 @@ static const char *end_delimeter      = ")";
 
 struct decl_sum
 {
-    sha256_ctx ctx;
+    sha224_ctx ctx;
 };
 
 static void crefl_hash_init(decl_sum *sum)
 {
-    sha256_init(&sum->ctx);
+    sha224_init(&sum->ctx);
 }
 
 static void crefl_hash_absorb(decl_sum *sum, const char *str)
 {
-    sha256_update(&sum->ctx, str, strlen(str));
+    sha224_update(&sum->ctx, str, strlen(str));
 }
 
 static void crefl_hash_final(decl_sum *sum, decl_hash *hash)
 {
-    sha256_final(&sum->ctx, (unsigned char*)hash->sum);
+    sha224_final(&sum->ctx, (unsigned char*)hash->sum);
 }
 
 static void crefl_hash_update(decl_sum *sum, const void *data, size_t len)
 {
-    sha256_update(&sum->ctx, data, len);
+    sha224_update(&sum->ctx, data, len);
 }
 
 static void crefl_hash_node_impl(decl_ref d, decl_sum *sum,
@@ -155,7 +166,7 @@ int crefl_entry_is_valid(decl_entry_ref er)
     return (crefl_entry_ptr(er)->props & decl_entry_valid) == decl_entry_valid;
 }
 
-static const std::string sep = ".";
+static const std::string sep = "::";
 
 decl_hash * crefl_node_hash(decl_ref d, decl_index *index, std::string prefix)
 {

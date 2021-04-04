@@ -75,7 +75,7 @@ static const crefl_field f_type =   { "type",   10, _FIELD(type),   _field_str }
 static const crefl_field f_name =   { "name",   18, _FIELD(name),   _field_str };
 static const crefl_field f_props =  { "props",  18, _FIELD(props),  _field_str };
 static const crefl_field f_detail = { "detail", 24, _FIELD(detail), _field_str };
-static const crefl_field f_hash =   { "hash",   64, _FIELD(hash),   _field_str };
+static const crefl_field f_hash =   { "hash",   56, _FIELD(hash),   _field_str };
 static const crefl_field f_fqn =    { "fqn",    20, _FIELD(fqn),    _field_str };
 
 static const crefl_field * fields_std[] = {
