@@ -201,44 +201,44 @@ enum decl_tags
 enum decl_props
 {
     /* intrinsic type */
-    _decl_void           = 0,
-    _decl_integral       = 1 << 0,
-    _decl_real           = 1 << 1,
-    _decl_complex        = 1 << 2,
-    _decl_signed         = 1 << 3,
-    _decl_unsigned       = 1 << 4,
-    _decl_ieee754        = 1 << 5,
+    _decl_void     = 0,
+    _decl_integral = 1 << 0,
+    _decl_real     = 1 << 1,
+    _decl_complex  = 1 << 2,
+    _decl_signed   = 1 << 3,
+    _decl_unsigned = 1 << 4,
+    _decl_ieee754  = 1 << 5,
 
-    _decl_sint           = _decl_integral | _decl_signed,
-    _decl_uint           = _decl_integral | _decl_unsigned,
-    _decl_float          = _decl_real     | _decl_ieee754,
-    _decl_cfloat         = _decl_complex  | _decl_ieee754,
+    _decl_sint     = _decl_integral | _decl_signed,
+    _decl_uint     = _decl_integral | _decl_unsigned,
+    _decl_float    = _decl_real     | _decl_ieee754,
+    _decl_cfloat   = _decl_complex  | _decl_ieee754,
 
     /* padding */
-    _decl_pad_pow2       = 1 << 6,
-    _decl_pad_bit        = 1 << 7,
-    _decl_pad_byte       = 1 << 8,
+    _decl_pad_pow2 = 1 << 6,
+    _decl_pad_bit  = 1 << 7,
+    _decl_pad_byte = 1 << 8,
 
     /* field */
-    _decl_bitfield       = 1 << 9,
+    _decl_bitfield = 1 << 9,
 
     /* qualifiers */
-    _decl_const          = 1 << 10,
-    _decl_volatile       = 1 << 11,
-    _decl_restrict       = 1 << 12,
+    _decl_const    = 1 << 10,
+    _decl_volatile = 1 << 11,
+    _decl_restrict = 1 << 12,
 
     /* binding */
-    _decl_local          = 1 << 13,
-    _decl_global         = 1 << 14,
-    _decl_weak           = 1 << 15,
+    _decl_local    = 1 << 13,
+    _decl_global   = 1 << 14,
+    _decl_weak     = 1 << 15,
 
     /* visibility */
-    _decl_default        = 1 << 16,
-    _decl_hidden         = 1 << 17,
+    _decl_default  = 1 << 16,
+    _decl_hidden   = 1 << 17,
 
     /* param */
-    _decl_in             = 1 << 18,
-    _decl_out            = 1 << 19,
+    _decl_in       = 1 << 18,
+    _decl_out      = 1 << 19,
 };
 
 /*
