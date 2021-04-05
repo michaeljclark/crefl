@@ -9,14 +9,24 @@ of: intrinsic, set, enum, struct, union, field, array, constant, variable.
 _Crefl_ addresses the following three areas:
 
 - The _Crefl_ reflection graph database format for portable reflection metadata.
-- The _Crefl_ clang plug-in outputs C reflection metadata used by the library.
+- The _Crefl_ clang plug-in outpust C reflection metadata used by the library.
 - The _Crefl_ API provides task-oriented query access to C reflection metadata.
 
 ![crefl](/images/crefl.svg)
 
 ---
 
-## Crefl example
+## crefltool output
+
+This example invocation of `crefltool` shows the extended reflection
+meta-data with matching hash sums in yellow. Linking, merging
+and deduplication of reflection meta-data is a work-in-progress.
+
+![crefltool](/images/crefltool.png)
+
+---
+
+## Crefl C example
 
 This example has an outer-loop iterating through _struct types_ and an
 inner-loop iterating through _struct fields_.
