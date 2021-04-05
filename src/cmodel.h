@@ -287,6 +287,7 @@ int crefl_is_function(decl_ref d);
 int crefl_is_param(decl_ref d);
 int crefl_is_attribute(decl_ref d);
 int crefl_is_value(decl_ref d);
+int crefl_is_link(decl_ref d);
 
 /*
  * decl database
@@ -298,12 +299,15 @@ void crefl_db_destroy(decl_db *db);
 /*
  * decl properties
  */
+decl_ref crefl_decl_void(decl_ref d);
 decl_node * crefl_decl_ptr(decl_ref d);
 decl_tag crefl_decl_tag(decl_ref d);
 decl_set crefl_decl_props(decl_ref d);
 decl_id crefl_decl_idx(decl_ref d);
 decl_ref crefl_decl_next(decl_ref d);
+decl_ref crefl_decl_link(decl_ref d);
 decl_ref crefl_decl_attr(decl_ref d);
+decl_sz crefl_decl_qty(decl_ref d);
 
 /*
  * decl allocation
@@ -314,10 +318,12 @@ decl_ref crefl_decl_new(decl_db *db, decl_tag tag);
 /*
  * decl queries
  */
+decl_ref crefl_root(decl_db *db);
 decl_ref crefl_intrinsic(decl_db *db, decl_set props, size_t width);
 decl_ref crefl_lookup(decl_db *db, size_t decl_idx);
 const char* crefl_tag_name(decl_tag tag);
 const char* crefl_decl_name(decl_ref d);
+int crefl_decl_has_name(decl_ref d);
 int crefl_list_decls(decl_db *db, decl_ref *r, size_t *s);
 int crefl_list_types(decl_db *db, decl_ref *r, size_t *s);
 int crefl_list_fields(decl_db *db, decl_ref *r, size_t *s);
