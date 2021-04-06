@@ -19,6 +19,12 @@ static const uint32_t sha256_init_state[8] = {
 	0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
 };
 
+/*
+ * SHA-256 round constants K are the first 32 bits of the fractional
+ * parts of the cube roots of the first sixty-four prime numbers.
+ *
+ * for n = 0..63 sha256_k[n] = modf(primes[n] ** (1/3), 1.0)
+ */
 static const uint32_t sha256_k[64] = {
 	0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
 	0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
