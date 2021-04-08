@@ -52,6 +52,10 @@ def crefl_dump(hdr):
     cmd = [ './build/crefltool', "--dump", crefl_file(hdr)]
     out = subprocess.run(cmd)
 
+def crefl_dump_fqn(hdr):
+    cmd = [ './build/crefltool', "--dump-fqn", crefl_file(hdr)]
+    out = subprocess.run(cmd)
+
 def crefl_dump_all(hdr):
     cmd = [ './build/crefltool', "--dump-all", crefl_file(hdr)]
     out = subprocess.run(cmd)
@@ -72,6 +76,8 @@ parser.add_argument('--cpp', default=False, action='store_true',
                     help='enable c++ mode')
 parser.add_argument('--dump', default=True, action='store_true',
                     help='include standard fields in dump')
+parser.add_argument('--dump-fqn', default=False, action='store_true',
+                    help='include fqn field in dump')
 parser.add_argument('--dump-all', default=False, action='store_true',
                     help='include all fields in dump')
 parser.add_argument('--dump-ext', default=False, action='store_true',
@@ -100,6 +106,8 @@ for f in args.files:
         crefl_meta(hdr, args.cpp)
         if args.dump_ext:
             crefl_dump_ext(hdr)
+        elif args.dump_fqn:
+            crefl_dump_fqn(hdr)
         elif args.dump_all:
             crefl_dump_all(hdr)
         elif args.dump:

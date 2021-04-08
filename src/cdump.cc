@@ -76,7 +76,7 @@ static const crefl_field f_name =   { "name",   15, _FIELD(name),   _field_str }
 static const crefl_field f_props =  { "props",  15, _FIELD(props),  _field_str };
 static const crefl_field f_detail = { "detail", 20, _FIELD(detail), _field_str };
 static const crefl_field f_hash =   { "hash",   57, _FIELD(hash),   _field_str };
-static const crefl_field f_fqn =    { "fqn",    22, _FIELD(fqn),    _field_str };
+static const crefl_field f_fqn =    { "fqn",    23, _FIELD(fqn),    _field_str };
 
 static const crefl_field * fields_std[] = {
     &f_id, &f_attr, &f_next, &f_link, &f_type, &f_name, &f_props, &f_detail,
@@ -88,10 +88,15 @@ static const crefl_field * fields_all[] = {
     &f_hash, &f_fqn, 0
 };
 
-static const crefl_field fx_name =   { "name",   20, _FIELD(name),   _field_str };
-static const crefl_field fx_props =  { "props",  20, _FIELD(props),  _field_str };
-static const crefl_field fx_detail = { "detail", 32, _FIELD(detail), _field_str };
-static const crefl_field fx_fqn =    { "fqn",    32, _FIELD(fqn),    _field_str };
+static const crefl_field fx_name =   { "name",   28, _FIELD(name),   _field_str };
+static const crefl_field fx_props =  { "props",  15, _FIELD(props),  _field_str };
+static const crefl_field fx_detail = { "detail", 35, _FIELD(detail), _field_str };
+static const crefl_field fx_fqn =    { "fqn",    35, _FIELD(fqn),    _field_str };
+
+static const crefl_field * fields_fqn[] = {
+    &f_id, &f_attr, &f_next, &f_link, &f_type, &fx_name, &fx_props, &fx_detail,
+    &fx_fqn, 0
+};
 
 static const crefl_field * fields_ext[] = {
     &f_id, &f_attr, &f_next, &f_link, &f_type, &fx_name, &fx_props, &fx_detail,
@@ -258,6 +263,7 @@ void crefl_db_set_dump_fmt(enum crefl_db_dump_fmt fmt)
 {
     switch (fmt) {
     case crefl_db_dump_std: fields = fields_std; break;
+    case crefl_db_dump_fqn: fields = fields_fqn; break;
     case crefl_db_dump_all: fields = fields_all; break;
     case crefl_db_dump_ext: fields = fields_ext; break;
     }

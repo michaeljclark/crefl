@@ -65,9 +65,10 @@ int main(int argc, const char **argv)
 {
     if (argc < 3) goto help_exit;
 
-    enum { _dump_std, _dump_all, _dump_ext, _link, _stats } mode;
+    enum { _dump_std, _dump_fqn, _dump_all, _dump_ext, _link, _stats } mode;
 
     if (strcmp(argv[1], "--dump") == 0) mode = _dump_std;
+    else if (strcmp(argv[1], "--dump-fqn") == 0) mode = _dump_fqn;
     else if (strcmp(argv[1], "--dump-all") == 0) mode = _dump_all;
     else if (strcmp(argv[1], "--dump-ext") == 0) mode = _dump_ext;
     else if (strcmp(argv[1], "--link") == 0) mode = _link;
@@ -82,6 +83,7 @@ int main(int argc, const char **argv)
 
     switch (mode) {
         case _dump_std: do_dump(crefl_db_dump_std, argv[2]); break;
+        case _dump_fqn: do_dump(crefl_db_dump_fqn, argv[2]); break;
         case _dump_ext: do_dump(crefl_db_dump_ext, argv[2]); break;
         case _dump_all: do_dump(crefl_db_dump_all, argv[2]); break;
         case _stats: do_stats(argv[2]); break;
@@ -94,6 +96,7 @@ help_exit:
     "Commands:\n\n"
     "--link <output> [<input>]+   link reflection metadata\n"
     "--dump <input>               dump main fields in 80-col format\n"
+    "--dump-fqn <input>           dump main fields plus fqn in 143-col format\n"
     "--dump-all <input>           dump all fields in 160-col format\n"
     "--dump-ext <input>           dump all fields in 200-col format\n"
     "--stats                      print reflection db statistics\n\n", argv[0]);
