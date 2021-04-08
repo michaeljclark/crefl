@@ -107,6 +107,9 @@ typedef u64 decl_sz;
  * - param          - named parameter with link to next
  * - attribute      - custom attribute name
  * - value          - custom attribute value
+ * - archive        - collection of source objects
+ * - source         - maps to translation unit
+ * - alias          - aliases node overriding its next link
  *
  * ## properties
  *
@@ -189,7 +192,10 @@ enum decl_tags
     _decl_function,
     _decl_param,
     _decl_attribute,
-    _decl_value
+    _decl_value,
+    _decl_archive,
+    _decl_source,
+    _decl_alias,
 };
 
 /*
@@ -287,7 +293,9 @@ int crefl_is_function(decl_ref d);
 int crefl_is_param(decl_ref d);
 int crefl_is_attribute(decl_ref d);
 int crefl_is_value(decl_ref d);
-int crefl_is_link(decl_ref d);
+int crefl_is_archive(decl_ref d);
+int crefl_is_source(decl_ref d);
+int crefl_is_alias(decl_ref d);
 
 /*
  * decl database

@@ -71,8 +71,6 @@ struct decl_index
     size_t entry_size;
 };
 
-decl_hash * crefl_node_hash(decl_ref d, decl_index *index, std::string prefix);
-
 decl_index* crefl_index_new();
 void crefl_index_destroy(decl_index *index);
 
@@ -86,6 +84,7 @@ int crefl_entry_is_marked(decl_entry_ref d);
 int crefl_entry_is_valid(decl_entry_ref d);
 
 void crefl_index_scan(decl_index *index, decl_db *db);
+int crefl_link_merge(decl_db *dst, const char *name, decl_db **srcn, size_t n);
 
 #ifdef __cplusplus
 }

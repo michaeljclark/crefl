@@ -72,6 +72,16 @@ static std::string string_printf(const char* fmt, ...)
 }
 
 /*
+ * internal filename helpers
+ */
+
+static std::string crefl_basename(std::string s)
+{
+    size_t o = s.find_last_of("\\/");
+    return (o != std::string::npos) ? s.substr(o+1) : s;
+}
+
+/*
  * internal file io helpers
  */
 

@@ -180,6 +180,9 @@ crefl_db_row crefl_db_get_row(decl_db *db, decl_ref r)
 
     std::string props;
     switch (tag) {
+    case _decl_archive:
+    case _decl_source:
+    case _decl_alias:
     case _decl_typedef:
     case _decl_struct:
     case _decl_union:

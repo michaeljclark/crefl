@@ -68,10 +68,11 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
     decl_ref last;
     llvm::SmallVector<decl_ref,16> stack;
     llvm::SmallMapVector<int64_t,decl_id, 16> idmap;
+    std::string inputFile;
     bool debug;
 
-    CReflectVisitor(ASTContext &context, decl_db *db, bool debug = false)
-        : context(context), db(db), last(), debug(debug) {}
+    CReflectVisitor(ASTContext &context, decl_db *db, std::string inputFile, bool debug = false)
+        : context(context), db(db), last(), inputFile(inputFile), debug(debug) {}
 
     std::string crefl_path(const Decl *d)
     {
@@ -390,6 +391,19 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         if (d->isInvalidDecl()) return true;
         if (debug) print_decl(d);
 
+        /* create node */
+        decl_ref r = crefl_decl_new(db, _decl_source);
+        crefl_decl_ptr(r)->_name = crefl_name_new(db,
+            crefl_basename(inputFile).c_str());
+
+        /* record clang -> crefl id */
+        idmap[d->clang::Decl::getID()] = crefl_decl_idx(r);
+
+        /* set root element */
+        if (db->root_element == 0) {
+            db->root_element = crefl_decl_idx(r);
+        }
+
         return true;
     }
 
@@ -653,11 +667,9 @@ void crefl::CReflectAction::EndSourceFileAction()
 
     decl_db *db = crefl_db_new();
     crefl_db_defaults(db);
-    CReflectVisitor v(context, db, debug);
-
-    llvm::StringRef fileName = input.getFile();
+    CReflectVisitor v(context, db, input.getFile().str(), debug);
     if (debug) {
-        log_debug("Input file  : %s\n", fileName.str().c_str());
+        log_debug("Input file  : %s\n", v.inputFile.c_str());
         if (outputFile.size() != 0) {
             log_debug("Output file : %s\n", outputFile.c_str());
         }

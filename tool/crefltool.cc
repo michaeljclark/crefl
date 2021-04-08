@@ -22,39 +22,80 @@
 
 #include "cmodel.h"
 #include "cdump.h"
+#include "clink.h"
 #include "cfileio.h"
+
+void do_link(const char *output, const char **input, size_t n)
+{
+    decl_db *db_out = crefl_db_new();
+    decl_db **db_in = (decl_db**)malloc(sizeof(decl_db*) * n);
+    for (size_t i = 0; i < n; i++) {
+        db_in[i] = crefl_db_new();
+        crefl_db_read_file(db_in[i], input[i]);
+    }
+    if (crefl_link_merge(db_out, output, db_in, n) < 0) {
+        fprintf(stderr, "error: linking input files\n");
+        exit(1);
+    }
+    crefl_db_write_file(db_out, output);
+    for (size_t i = 0; i < n; i++) {
+        crefl_db_destroy(db_in[i]);
+    }
+    crefl_db_destroy(db_out);
+}
+
+void do_dump(crefl_db_dump_fmt fmt, const char *input)
+{
+    decl_db *db = crefl_db_new();
+    crefl_db_read_file(db, input);
+    crefl_db_set_dump_fmt(fmt);
+    crefl_db_dump(db);
+    crefl_db_destroy(db);
+}
+
+void do_stats(const char *input)
+{
+    decl_db *db = crefl_db_new();
+    crefl_db_read_file(db, input);
+    crefl_db_dump_stats(db);
+    crefl_db_destroy(db);
+}
 
 int main(int argc, const char **argv)
 {
-    decl_db *db;
+    if (argc < 3) goto help_exit;
 
-    if (argc != 3) goto help_exit;
+    enum { _dump_std, _dump_all, _dump_ext, _link, _stats } mode;
 
-    enum { _dump, _dump_all, _dump_ext, _stats } mode;
-
-    if (strcmp(argv[1], "--dump") == 0) mode = _dump;
+    if (strcmp(argv[1], "--dump") == 0) mode = _dump_std;
     else if (strcmp(argv[1], "--dump-all") == 0) mode = _dump_all;
     else if (strcmp(argv[1], "--dump-ext") == 0) mode = _dump_ext;
+    else if (strcmp(argv[1], "--link") == 0) mode = _link;
     else if (strcmp(argv[1], "--stats") == 0) mode = _stats;
     else goto help_exit;
 
-    db = crefl_db_new();
-    crefl_db_read_file(db, argv[2]);
-    switch (mode) {
-        case _dump_ext: crefl_db_set_dump_fmt(crefl_db_dump_ext); goto dump;
-        case _dump_all: crefl_db_set_dump_fmt(crefl_db_dump_all); goto dump;
-        case _dump: dump: crefl_db_dump(db); break;
-        case _stats: crefl_db_dump_stats(db); break;
+    if ( (mode == _link && argc < 4) || (mode != _link && argc != 3) )
+    {
+        fprintf(stderr, "error: *** unknown command line option\n\n");
+        goto help_exit;
     }
-    crefl_db_destroy(db);
+
+    switch (mode) {
+        case _dump_std: do_dump(crefl_db_dump_std, argv[2]); break;
+        case _dump_ext: do_dump(crefl_db_dump_ext, argv[2]); break;
+        case _dump_all: do_dump(crefl_db_dump_all, argv[2]); break;
+        case _stats: do_stats(argv[2]); break;
+        case _link: do_link(argv[2], argv + 3, argc - 3); break;
+    }
     exit(0);
 
 help_exit:
-    fprintf(stderr, "usage: %s <command> <filename.refl>\n\n"
+    fprintf(stderr, "usage: %s <command>\n\n"
     "Commands:\n\n"
-    "--dump      dump main reflection database fields in 80-col format\n"
-    "--dump-all  dump all reflection database fields in 160-col format\n"
-    "--dump-ext  dump all reflection database fields in 192-col format\n"
-    "--stats     print reflection database statistics\n\n", argv[0]);
+    "--link <output> [<input>]+   link reflection metadata\n"
+    "--dump <input>               dump main fields in 80-col format\n"
+    "--dump-all <input>           dump all fields in 160-col format\n"
+    "--dump-ext <input>           dump all fields in 200-col format\n"
+    "--stats                      print reflection db statistics\n\n", argv[0]);
     exit(1);
 }

@@ -57,6 +57,9 @@ int crefl_is_function(decl_ref d) { return crefl_decl_tag(d) == _decl_function; 
 int crefl_is_param(decl_ref d) { return crefl_decl_tag(d) == _decl_param; }
 int crefl_is_attribute(decl_ref d) { return crefl_decl_tag(d) == _decl_attribute; }
 int crefl_is_value(decl_ref d) { return crefl_decl_tag(d) == _decl_value; }
+int crefl_is_archive(decl_ref d) { return crefl_decl_tag(d) == _decl_archive; }
+int crefl_is_source(decl_ref d) { return crefl_decl_tag(d) == _decl_source; }
+int crefl_is_alias(decl_ref d) { return crefl_decl_tag(d) == _decl_alias; }
 
 /*
  * decl accessors
@@ -92,7 +95,10 @@ static const char * crefl_tag_names_arr[] = {
     "function",
     "param",
     "attribute",
-    "value"
+    "value",
+    "archive",
+    "source",
+    "alias",
 };
 
 const char * crefl_tag_name(decl_tag tag)

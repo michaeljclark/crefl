@@ -26,6 +26,8 @@
 #include "cbits.h"
 #include "cmodel.h"
 #include "clink.h"
+#include "cutil.h"
+#include "hashmap.h"
 
 /*
  * node hash algorithm
@@ -87,8 +89,11 @@ static void crefl_hash_update(decl_sum *sum, const void *data, size_t len)
     sha224_update(&sum->ctx, data, len);
 }
 
-static void crefl_hash_node_impl(decl_ref d, decl_sum *sum,
-    decl_index *index, std::string prefix)
+decl_hash * crefl_node_hash(decl_index *index,
+    decl_ref d, decl_ref p, std::string prefix);
+
+static void crefl_hash_node_sum(decl_sum *sum, decl_index *index,
+    decl_ref d, decl_ref p, std::string prefix)
 {
     decl_node *node = crefl_decl_ptr(d);
     decl_hash *hash;
@@ -106,17 +111,19 @@ static void crefl_hash_node_impl(decl_ref d, decl_sum *sum,
     if (node->_attr) {
         next = crefl_lookup(d.db, node->_attr);
         crefl_hash_absorb(sum, attr_delimeter);
-        hash = crefl_node_hash(next, index, prefix);
+        hash = crefl_node_hash(index, next, d, prefix);
         crefl_hash_absorb(sum, hash_delimeter);
         crefl_hash_update(sum, (const char*)hash->sum, sizeof(decl_hash));
     }
     if (node->_link) {
         switch (crefl_decl_tag(d)) {
         /*
-         * follow `link` to child list `next` for container types:
-         * 'set', 'enum', 'struct', 'union', 'function' are lists
-         * containing: constants, types, fields and parameters.
+         * follow `link` to child list for container types: 'object',
+         * 'set', 'enum', 'struct', 'union', and 'function' are lists
+         * containing: 'typedef', 'field', 'pointer', 'array', etc.
          */
+        case _decl_archive:
+        case _decl_source:
         case _decl_set:
         case _decl_enum:
         case _decl_struct:
@@ -126,7 +133,7 @@ static void crefl_hash_node_impl(decl_ref d, decl_sum *sum,
             next = crefl_lookup(d.db, node->_link);
             while (crefl_decl_idx(next))  {
                 crefl_hash_absorb(sum, next_delimeter);
-                decl_hash *hash = crefl_node_hash(next, index, prefix);
+                decl_hash *hash = crefl_node_hash(index, next, d, prefix);
                 crefl_hash_absorb(sum, hash_delimeter);
                 crefl_hash_update(sum, (const char*)hash->sum, sizeof(decl_hash));
                 next = crefl_decl_next(next);
@@ -134,9 +141,9 @@ static void crefl_hash_node_impl(decl_ref d, decl_sum *sum,
             break;
         /*
          * follow `link` to child element without processing `next`
-         * for non container types such as 'field', 'pointer', 'array'
-         * and 'param'. following `next` in these node types would cause
-         * cycles from type references to adjacent anonymous types.
+         * for non container types such as 'typedef', 'field', 'pointer',
+         * 'array' and 'param'. following `next` in these node types would
+         * cause cycles from type references to adjacent anonymous types.
          */
         default:
             next = crefl_lookup(d.db, node->_link);
@@ -146,7 +153,7 @@ static void crefl_hash_node_impl(decl_ref d, decl_sum *sum,
                 crefl_hash_absorb(sum, crefl_tag_name(crefl_decl_tag(next)));
                 crefl_hash_absorb(sum, crefl_decl_name(next));
             } else {
-                hash = crefl_node_hash(next, index, prefix);
+                hash = crefl_node_hash(index, next, d, prefix);
                 crefl_hash_absorb(sum, hash_delimeter);
                 crefl_hash_update(sum, (const char*)hash->sum, sizeof(decl_hash));
             }
@@ -168,37 +175,48 @@ int crefl_entry_is_valid(decl_entry_ref er)
 
 static const std::string sep = "::";
 
-decl_hash * crefl_node_hash(decl_ref d, decl_index *index, std::string prefix)
+std::string crefl_node_name(decl_ref d, decl_ref p, std::string prefix)
 {
-    decl_entry_ref er = crefl_entry_ref(index, d);
-    decl_entry *ent = crefl_entry_ptr(er);
-
     static bool anon_parenthesis = false;
     std::string osep = prefix.size() > 0 ? sep : "";
+
+    if (crefl_is_source(p)) return crefl_decl_name(d);
+    if (crefl_is_archive(p)) return crefl_decl_name(d);
 
     switch (crefl_decl_tag(d)) {
     case _decl_array:
     case _decl_pointer:
         if (anon_parenthesis) {
-            prefix += osep + std::string("(") + std::string(
+            return prefix + osep + std::string("(") + std::string(
                 crefl_tag_name(crefl_decl_tag(d))) + std::string(")");
-        }
-        break;
-    default:
-        if (strlen(crefl_decl_name(d))) {
-            prefix += osep + crefl_decl_name(d);
-        } else if (anon_parenthesis) {
-            prefix += osep + std::string("(") + std::string(
-                crefl_tag_name(crefl_decl_tag(d))) + std::string(")");
+        } else {
+            return prefix;
         }
         break;
     }
+
+    if (strlen(crefl_decl_name(d))) {
+        return prefix + osep + crefl_decl_name(d);
+    } else if (anon_parenthesis) {
+        return prefix + osep + std::string("(") + std::string(
+            crefl_tag_name(crefl_decl_tag(d))) + std::string(")");
+    } else {
+        return prefix;
+    }
+}
+
+decl_hash * crefl_node_hash(decl_index *index, decl_ref d, decl_ref p, std::string prefix)
+{
+    decl_entry_ref er = crefl_entry_ref(index, d);
+    decl_entry *ent = crefl_entry_ptr(er);
+
+    prefix = crefl_node_name(d, p, prefix);
 
     if ((ent->props & decl_entry_valid) != decl_entry_valid) {
         decl_sum sum;
         ent->props |= decl_entry_marked;
         crefl_hash_init(&sum);
-        crefl_hash_node_impl(d, &sum, index, prefix);
+        crefl_hash_node_sum(&sum, index, d, p, prefix);
         ent = crefl_entry_ptr(er); /* revalidate due to realloc */
         crefl_hash_final(&sum, &ent->hash);
         ent->fqn = crefl_entry_name_new(index, prefix.c_str());
@@ -274,8 +292,149 @@ const char* crefl_entry_fqn(decl_entry_ref d)
 void crefl_index_scan(decl_index *index, decl_db *db)
 {
     decl_ref d = crefl_lookup(db, db->root_element);
-    while (crefl_decl_idx(d))  {
-        crefl_node_hash(d, index, "");
-        d = crefl_decl_next(d);
+    crefl_node_hash(index, d, crefl_decl_void(d), "");
+}
+
+static std::string _hex_str(const uint8_t *data, size_t sz)
+{
+    std::string s;
+    char hex[3];
+    for (size_t i = 0; i < sz; i++) {
+        snprintf(hex, sizeof(hex), "%02hhx", data[i]);
+        s.append(hex);
     }
+    return s;
+}
+
+struct _hash_fn
+{
+    size_t operator()(const decl_hash &h) const { return ((size_t*)h.sum)[0]; }
+};
+
+bool operator==(const decl_hash &a, const decl_hash &b)
+{
+    return memcmp(a.sum, b.sum, sizeof(a.sum)) == 0;
+}
+
+struct crefl_link_state
+{
+    hashmap<decl_hash,decl_ref,_hash_fn> *map;
+    decl_db *db;
+    decl_index *ld;
+    decl_index *src_ld;
+};
+
+bool _should_copy(decl_ref d)
+{
+    /* copy if not one of: 'set', 'enum', 'struct', 'union' and 'function' */
+    decl_ref r = crefl_decl_link(d);
+    return !(crefl_is_set(d) || crefl_is_enum(d) ||
+             crefl_is_struct(d) || crefl_is_union(d) ||
+             crefl_is_function(d));
+}
+
+decl_ref crefl_copy_node(crefl_link_state *state, decl_ref d, decl_ref p,
+    bool _is_child = false)
+{
+    decl_db *db = state->db;
+    decl_node *node = crefl_decl_ptr(d);
+    decl_entry_ref er = crefl_entry_ref(state->src_ld, d);
+    decl_entry *ent = crefl_entry_ptr(er);
+    decl_hash *hash = &ent->hash;
+    decl_ref next, r, c, last = { db, 0 };
+
+    /* always return direct references to intrinsics */
+    if (crefl_decl_tag(d) == _decl_intrinsic) {
+        return decl_ref {db, crefl_decl_idx(d) };
+    }
+
+    /* lookup node in our hash table to decide whether to copy or alias */
+    auto i = state->map->find(*hash);
+    if (i == state->map->end() || _should_copy(d)) {
+        /* copy unseen nodes or non-collection nodes */
+        r = crefl_decl_new(db, crefl_decl_tag(d));
+        crefl_decl_ptr(r)->_name = crefl_name_new(db, crefl_decl_name(d));
+        crefl_decl_ptr(r)->_props = crefl_decl_props(d);
+        crefl_decl_ptr(r)->_quantity = crefl_decl_qty(d);
+        (*state->map)[*hash] = r;
+    } else {
+        /* return node directly if it is a child link */
+        if (_is_child) return decl_ref { db, i->second.decl_idx };
+        /* otherwise alias node so we can override its next element */
+        r = crefl_decl_new(db, _decl_alias);
+        crefl_decl_ptr(r)->_name = crefl_name_new(db, crefl_decl_name(d));
+        crefl_decl_ptr(r)->_link = i->second.decl_idx;
+        (*state->map)[*hash] = r;
+        return r;
+    }
+
+    if (node->_attr) {
+        next = crefl_lookup(d.db, node->_attr);
+        c = crefl_copy_node(state, next, d);
+        crefl_decl_ptr(r)->_attr = crefl_decl_idx(c);
+    }
+    if (node->_link) {
+        switch (crefl_decl_tag(d)) {
+        /*
+         * follow `link` to child list for container types: 'object',
+         * 'set', 'enum', 'struct', 'union', and 'function' are lists
+         * containing: 'typedef', 'field', 'pointer', 'array', etc.
+         */
+        case _decl_archive:
+        case _decl_source:
+        case _decl_set:
+        case _decl_enum:
+        case _decl_struct:
+        case _decl_union:
+        case _decl_function:
+            next = crefl_lookup(d.db, node->_link);
+            while (crefl_decl_idx(next))  {
+                c = crefl_copy_node(state, next, d);
+                if (crefl_decl_idx(last)) crefl_decl_ptr(last)->_next = crefl_decl_idx(c);
+                else crefl_decl_ptr(r)->_link = crefl_decl_idx(c);
+                last = c;
+                next = crefl_decl_next(next);
+            }
+            break;
+        default:
+            next = crefl_lookup(d.db, node->_link);
+            c = crefl_copy_node(state, next, d, true);
+            crefl_decl_ptr(r)->_link = crefl_decl_idx(c);
+            break;
+        }
+    }
+
+    return r;
+}
+
+int crefl_link_merge(decl_db *db, const char *name, decl_db **srcn, size_t n)
+{
+    hashmap<decl_hash,decl_ref,_hash_fn> map;
+    decl_index *ld = crefl_index_new();
+
+    crefl_db_defaults(db);
+    crefl_index_scan(ld, db);
+
+    decl_ref r = crefl_decl_new(db, _decl_archive);
+    crefl_decl_ptr(r)->_name = crefl_name_new(db,
+        crefl_basename(name).c_str());
+    db->root_element = crefl_decl_idx(r);
+
+    decl_ref l { db, 0 };
+    for (size_t i = 0; i < n; i++) {
+        decl_index *src_ld = crefl_index_new();
+        crefl_index_scan(src_ld, srcn[i]);
+        crefl_link_state state{ &map, db, ld, src_ld };
+        decl_ref d = crefl_lookup(srcn[i], srcn[i]->root_element);
+        decl_ref p = crefl_decl_void(d);
+        decl_ref o = crefl_copy_node(&state, d, p);
+        if (crefl_decl_idx(l)) crefl_decl_ptr(l)->_next = crefl_decl_idx(o);
+        else crefl_decl_ptr(r)->_link = crefl_decl_idx(o);
+        l = o;
+        crefl_index_destroy(src_ld);
+    }
+
+    crefl_index_destroy(ld);
+
+    return 0;
 }

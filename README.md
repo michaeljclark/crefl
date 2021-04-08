@@ -161,6 +161,9 @@ This table table lists the properties used by each subtype:
 | `param`     | ✓    |            | named parameter with link to next              |
 | `attribute` | ✓    |            | custom attribute name                          |
 | `value`     |      |            | custom attribute value                         |
+| `archive`   | ✓    |            | collection of source objects                   |
+| `source`    | ✓    |            | maps to translation unit                       |
+| `alias`     | ✓    |            | aliases node overriding its next link          |
 
 ---
 
