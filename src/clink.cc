@@ -341,7 +341,7 @@ decl_ref crefl_copy_node(crefl_link_state *state, decl_ref d, decl_ref p,
     decl_entry_ref er = crefl_entry_ref(state->src_ld, d);
     decl_entry *ent = crefl_entry_ptr(er);
     decl_hash *hash = &ent->hash;
-    decl_ref next, r, c, last = { db, 0 };
+    decl_ref next, r, c, a, last = { db, 0 };
 
     /* always return direct references to intrinsics */
     if (crefl_decl_tag(d) == _decl_intrinsic) {
@@ -361,9 +361,13 @@ decl_ref crefl_copy_node(crefl_link_state *state, decl_ref d, decl_ref p,
         /* return node directly if it is a child link */
         if (_is_child) return decl_ref { db, i->second.decl_idx };
         /* otherwise alias node so we can override its next element */
+        a = crefl_lookup(db, i->second.decl_idx);
+        while (crefl_decl_tag(a) == _decl_alias) {
+            a = crefl_decl_link(a);
+        }
         r = crefl_decl_new(db, _decl_alias);
         crefl_decl_ptr(r)->_name = crefl_name_new(db, crefl_decl_name(d));
-        crefl_decl_ptr(r)->_link = i->second.decl_idx;
+        crefl_decl_ptr(r)->_link = crefl_decl_idx(a);
         (*state->map)[*hash] = r;
         return r;
     }
