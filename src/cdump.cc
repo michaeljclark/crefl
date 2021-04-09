@@ -183,6 +183,15 @@ crefl_db_row crefl_db_get_row(decl_db *db, decl_ref r)
     decl_entry *ent = crefl_entry_ptr(er);
     decl_node *d = crefl_decl_ptr(r);
 
+    std::string fqn;
+    if (crefl_is_alias(r)) {
+        decl_ref a = crefl_decl_link(r);
+        er = crefl_entry_ref(ld, a);
+        fqn = _fqn(a, er);
+    } else {
+        fqn = _fqn(r, er);
+    }
+
     std::string props;
     switch (tag) {
     case _decl_archive:
@@ -209,7 +218,7 @@ crefl_db_row crefl_db_get_row(decl_db *db, decl_ref r)
     return crefl_db_row {
         crefl_decl_idx(r), d->_attr, d->_next, d->_link, crefl_tag_name(tag),
         crefl_decl_has_name(r) ? crefl_decl_name(r) : "(anonymous)", props,
-        _link(r), _hex_str(ent->hash.sum, sizeof(ent->hash.sum)), _fqn(r, er)
+        _link(r), _hex_str(ent->hash.sum, sizeof(ent->hash.sum)), fqn
     };
 }
 
