@@ -44,6 +44,39 @@ void do_link(const char *output, const char **input, size_t n)
     crefl_db_destroy(db_out);
 }
 
+void do_emit(const char *output, const char *input, const char *name)
+{
+    FILE *f;
+    decl_db *db;
+    uint8_t *buf;
+    size_t sz;
+    const size_t w = 16;
+
+    db = crefl_db_new();
+    crefl_db_read_file(db, input);
+    sz = crefl_db_size(db);
+    buf = (uint8_t*)malloc(sz);
+    if (crefl_db_write_mem(db, buf, sz) < 0 || !(f = fopen(output, "wb"))) {
+        free(buf);
+        fprintf(stderr, "error: writing db\n");
+        exit(1);
+    }
+    fprintf(f, "#include <stdlib.h>\n");
+    fprintf(f, "const char __crefl_%s_data[] = {\n", name);
+    for (size_t i = 0; i < sz; i++) {
+        fprintf(f, "0x%02hhx", buf[i]);
+        if (i != sz -1) fprintf(f, ",");
+        if (i % w == w-1 || i == sz - 1) fprintf(f, "\n");
+    }
+    fprintf(f, "};\n");
+    fprintf(f, "const size_t __crefl_%s_size = sizeof(__crefl_%s_data);\n",
+        name, name);
+    fflush(f);
+    fclose(f);
+    free(buf);
+    crefl_db_destroy(db);
+}
+
 void do_dump(crefl_db_dump_fmt fmt, const char *input)
 {
     decl_db *db = crefl_db_new();
@@ -63,19 +96,23 @@ void do_stats(const char *input)
 
 int main(int argc, const char **argv)
 {
+    enum {
+        _dump_std, _dump_fqn, _dump_all, _dump_ext, _link, _emit, _stats
+    } mode;
+
     if (argc < 3) goto help_exit;
-
-    enum { _dump_std, _dump_fqn, _dump_all, _dump_ext, _link, _stats } mode;
-
-    if (strcmp(argv[1], "--dump") == 0) mode = _dump_std;
+    else if (strcmp(argv[1], "--dump") == 0) mode = _dump_std;
     else if (strcmp(argv[1], "--dump-fqn") == 0) mode = _dump_fqn;
     else if (strcmp(argv[1], "--dump-all") == 0) mode = _dump_all;
     else if (strcmp(argv[1], "--dump-ext") == 0) mode = _dump_ext;
     else if (strcmp(argv[1], "--link") == 0) mode = _link;
+    else if (strcmp(argv[1], "--emit") == 0) mode = _emit;
     else if (strcmp(argv[1], "--stats") == 0) mode = _stats;
     else goto help_exit;
 
-    if ( (mode == _link && argc < 4) || (mode != _link && argc != 3) )
+    if ( (mode == _link && argc < 4) ||
+         (mode == _emit && argc != 4) ||
+         (mode != _link && mode != _emit && argc != 3) )
     {
         fprintf(stderr, "error: *** unknown command line option\n\n");
         goto help_exit;
@@ -88,6 +125,7 @@ int main(int argc, const char **argv)
         case _dump_all: do_dump(crefl_db_dump_all, argv[2]); break;
         case _stats: do_stats(argv[2]); break;
         case _link: do_link(argv[2], argv + 3, argc - 3); break;
+        case _emit: do_emit(argv[2], argv[3], "main"); break;
     }
     exit(0);
 
@@ -95,6 +133,7 @@ help_exit:
     fprintf(stderr, "usage: %s <command>\n\n"
     "Commands:\n\n"
     "--link <output> [<input>]+   link reflection metadata\n"
+    "--emit <output> [<input>]    emit reflection metadata\n"
     "--dump <input>               dump main fields in 80-col format\n"
     "--dump-fqn <input>           dump main fields plus fqn in 143-col format\n"
     "--dump-all <input>           dump all fields in 160-col format\n"
