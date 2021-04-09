@@ -336,6 +336,8 @@ int crefl_list_decls(decl_db *db, decl_ref *r, size_t *s);
 int crefl_list_types(decl_db *db, decl_ref *r, size_t *s);
 int crefl_list_fields(decl_db *db, decl_ref *r, size_t *s);
 int crefl_list_functions(decl_db *db, decl_ref *r, size_t *s);
+int crefl_list_sources(decl_db *db, decl_ref *r, size_t *s);
+int crefl_list_archives(decl_db *db, decl_ref *r, size_t *s);
 size_t crefl_type_width(decl_ref d);
 size_t crefl_intrinsic_width(decl_ref d);
 size_t crefl_struct_width(decl_ref d);
@@ -353,6 +355,8 @@ int crefl_set_constants(decl_ref d, decl_ref *r, size_t *s);
 int crefl_struct_fields(decl_ref d, decl_ref *r, size_t *s);
 int crefl_union_fields(decl_ref d, decl_ref *r, size_t *s);
 int crefl_function_params(decl_ref d, decl_ref *r, size_t *s);
+int crefl_archive_sources(decl_ref d, decl_ref *r, size_t *s);
+int crefl_source_decls(decl_ref d, decl_ref *r, size_t *s);
 decl_raw crefl_constant_value(decl_ref d);
 void * crefl_function_addr(decl_ref d);
 
