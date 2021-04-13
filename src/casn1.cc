@@ -416,7 +416,8 @@ err:
 /*
  * ASN.1 does not distinguish between signed and unsigned integers.
  * signed number deserialization requires that values are sign-extended.
- * negative values are complemented and 1-bit is reserved for the sign.
+ * to calculate the length negative values are complemented and 1-bit is
+ * reserved for the sign. the values are stored in two's complement.
  *
  * - 0x000000000000007f -> 0x7f
  * - 0x0000000000000080 -> 0x0080
