@@ -30,7 +30,14 @@
 #include "hashmap.h"
 
 /*
- * node hash algorithm
+ * Crefl node hash algorithm
+ *
+ * Crefl contains a work-in-progress experimental model for C linkage that
+ * composes the identity of function interfaces and their associated types
+ * using Merkle Tree cryptographic hash sums. Merkel Tree style hash sums are
+ * composed from the hierachical node properties of an abstract type tree, a
+ * portion of the abstract syntax tree containing only the function interfaces
+ * and type information.
  *
  * nodes are hashed with the following template where $(var-name) has been
  * substituted with the node property of the same name and H(id) refers to
@@ -42,15 +49,16 @@
  *
  * - (T=intrinsic;N=ulong;P=5;Q=64)
  *
- * nodes have a unique SHA-224 hash with the following constraints:
+ * nodes are assigned hashes with the following constraints and properties:
  *
- * - hashes include all identity information excluding internally assigned
- *   ids and next links. this is so that node hashes are position invariant.
- * - identical declarations in different modules will have identical hashes.
- * - adjacency information is included based on the order nodes are absorbed.
- * - while a node's hash sum includes its own name directly, links to
- *   dependent nodes absorb the hash sum of the dependent not its name.
- * - nodes can thus link to dependencies without knowing their names.
+ * - type hashes include information required to precisely identify types.
+ * - type hashes are composed hierarchically in a deterministic traveral order
+ *   recording successor and adjacency based on hash sum absorbtion order.
+ * - type hashes are position invariant, but order preserving.
+ * - type hashes absorb names but reference dependent nodes using hash sums.
+ * - identical declarations with different ancestors have identical hash sums.
+ * - types and interfaces link to dependencies without knowing their names.
+ * - type hashes for incomplete types have different sums to complete types.
  * - semicolon is used as a delimeter as it does not occur in type names.
  * - SHA-224 is used because it is not subject to length extension attacks.
  */
