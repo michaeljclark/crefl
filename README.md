@@ -165,6 +165,27 @@ This table table lists the properties used by each subtype:
 | `source`    | ✓    |            | maps to translation unit                       |
 | `alias`     | ✓    |            | aliases node overriding its next link          |
 
+### type hashes
+
+Crefl contains a work-in-progress experimental model for C linkage that
+composes the identity of function interfaces and their associated types
+using Merkle Tree cryptographic hash sums. Merkel Tree style hash sums are
+composed from the hierachical node properties of an abstract type tree, a
+portion of the abstract syntax tree containing only the function interfaces
+and type information. All functions and their associated types are assigned
+hashes with the following constraints and properties:
+
+- type hashes include information required to precisely identify types.
+- type hashes are composed hierarchically in a deterministic traveral order
+  recording successor and adjacency based on hash sum absorbtion order.
+- type hashes are position invariant, but order preserving.
+- type hashes absorb names but reference dependent nodes using hash sums.
+- identical declarations with different ancestors have identical hash sums.
+- types and interfaces link to dependencies without knowing their names.
+- type hashes for incomplete types have different sums to complete types.
+- semicolon is used as a delimeter as it does not occur in type names.
+- SHA-224 is used because it is not subject to length extension attacks.
+
 ---
 
 ## Crefl implementation notes
