@@ -16,16 +16,6 @@ _Crefl_ addresses the following three areas:
 
 ---
 
-## crefltool output
-
-This example invocation of `crefltool` shows the extended reflection
-meta-data with matching hash sums in yellow. Linking, merging
-and deduplication of reflection meta-data is a work-in-progress.
-
-![crefltool](/images/crefltool.png)
-
----
-
 ## Crefl C example
 
 This example has an outer-loop iterating through _struct types_ and an
@@ -185,6 +175,14 @@ hashes with the following constraints and properties:
 - type hashes for incomplete types have different sums to complete types.
 - semicolon is used as a delimeter as it does not occur in type names.
 - SHA-224 is used because it is not subject to length extension attacks.
+
+### crefltool output
+
+This example invocation of `crefltool` shows the extended reflection
+meta-data with matching hash sums in yellow. Linking, merging
+and deduplication of reflection meta-data is a work-in-progress.
+
+![crefltool](/images/crefltool.png)
 
 ---
 
