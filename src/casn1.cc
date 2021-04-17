@@ -530,16 +530,21 @@ enum : u64 {
     f64_exp_bias = (1 << (f64_exp_size-1)) - 1
 };
 
-static u32 f32_mant_dec(f32 x) { return (f32_bits{x}.u >> f32_mant_shift) & f32_mant_mask; }
-static u32 f32_exp_dec(f32 x) { return (f32_bits{x}.u >> f32_exp_shift) & f32_exp_mask; }
-static u32 f32_sign_dec(f32 x) { return (f32_bits{x}.u >> f32_sign_shift) & f32_sign_mask; }
-static u32 f32_mant_enc(u32 v) { return ((v & f32_mant_mask) << f32_mant_shift); }
-static u32 f32_exp_enc(u32 v) { return ((v & f32_exp_mask) << f32_exp_shift); }
-static u32 f32_sign_enc(u32 v) { return ((v & f32_sign_mask) << f32_sign_shift); }
-static int f32_is_zero(f32 x) { return f32_exp_dec(x) == 0 && f32_mant_dec(x) == 0; }
-static int f32_is_inf(f32 x) { return f32_exp_dec(x) == f32_exp_mask && f32_mant_dec(x) == 0; }
-static int f32_is_nan(f32 x) { return f32_exp_dec(x) == f32_exp_mask && f32_mant_dec(x) != 0; }
-static int f32_is_denorm(f32 x) { return f32_exp_dec(x) == 0 && f32_mant_dec(x) != 0; }
+static f32 f32_from_bits(u32 v) { union { u32 u; f32 f; } x = { v }; return x.f; }
+static u32 f32_to_bits(f32 x)   { union { f32 f; u32 u; } v = { x }; return v.u; }
+
+static u32 f32_mant_dec(f32 x)  { return ( f32_to_bits(x) >> f32_mant_shift ) & f32_mant_mask; }
+static u32 f32_exp_dec(f32 x)   { return ( f32_to_bits(x) >> f32_exp_shift  ) & f32_exp_mask;  }
+static u32 f32_sign_dec(f32 x)  { return ( f32_to_bits(x) >> f32_sign_shift ) & f32_sign_mask; }
+
+static u32 f32_mant_enc(u32 v)  { return ((v & f32_mant_mask) << f32_mant_shift); }
+static u32 f32_exp_enc(u32 v)   { return ((v & f32_exp_mask)  << f32_exp_shift);  }
+static u32 f32_sign_enc(u32 v)  { return ((v & f32_sign_mask) << f32_sign_shift); }
+
+static int f32_is_zero(f32 x)   { return f32_exp_dec(x) == 0            && f32_mant_dec(x) == 0; }
+static int f32_is_inf(f32 x)    { return f32_exp_dec(x) == f32_exp_mask && f32_mant_dec(x) == 0; }
+static int f32_is_nan(f32 x)    { return f32_exp_dec(x) == f32_exp_mask && f32_mant_dec(x) != 0; }
+static int f32_is_denorm(f32 x) { return f32_exp_dec(x) == 0            && f32_mant_dec(x) != 0; }
 
 static f32_struct f32_unpack_float(f32 x)
 {
@@ -548,21 +553,24 @@ static f32_struct f32_unpack_float(f32 x)
 
 static f32 f32_pack_float(f32_struct s)
 {
-    union { u32 u; f32 f; };
-    u = f32_mant_enc(s.mant) | f32_exp_enc(s.exp) | f32_sign_enc(s.sign);
-    return f;
+    return f32_from_bits(f32_mant_enc(s.mant) | f32_exp_enc(s.exp) | f32_sign_enc(s.sign));
 }
 
-static u64 f64_mant_dec(f64 x) { return (f64_bits{x}.u >> f64_mant_shift) & f64_mant_mask; }
-static u64 f64_exp_dec(f64 x) { return (f64_bits{x}.u >> f64_exp_shift) & f64_exp_mask; }
-static u64 f64_sign_dec(f64 x) { return (f64_bits{x}.u >> f64_sign_shift) & f64_sign_mask; }
-static u64 f64_mant_enc(u64 v) { return ((v & f64_mant_mask) << f64_mant_shift); }
-static u64 f64_exp_enc(u64 v) { return ((v & f64_exp_mask) << f64_exp_shift); }
-static u64 f64_sign_enc(u64 v) { return ((v & f64_sign_mask) << f64_sign_shift); }
-static int f64_is_zero(f64 x) { return f64_exp_dec(x) == 0 && f64_mant_dec(x) == 0; }
-static int f64_is_inf(f64 x) { return f64_exp_dec(x) == f64_exp_mask && f64_mant_dec(x) == 0; }
-static int f64_is_nan(f64 x) { return f64_exp_dec(x) == f64_exp_mask && f64_mant_dec(x) != 0; }
-static int f64_is_denorm(f64 x) { return f64_exp_dec(x) == 0 && f64_mant_dec(x) != 0; }
+static f64 f64_from_bits(u64 v) { union { u64 u; f64 f; } x = { v }; return x.f; }
+static u64 f64_to_bits(f64 x)   { union { f64 f; u64 u; } v = { x }; return v.u; }
+
+static u64 f64_mant_dec(f64 x)  { return ( f64_to_bits(x) >> f64_mant_shift ) & f64_mant_mask; }
+static u64 f64_exp_dec(f64 x)   { return ( f64_to_bits(x) >> f64_exp_shift  ) & f64_exp_mask;  }
+static u64 f64_sign_dec(f64 x)  { return ( f64_to_bits(x) >> f64_sign_shift ) & f64_sign_mask; }
+
+static u64 f64_mant_enc(u64 v)  { return ((v & f64_mant_mask) << f64_mant_shift); }
+static u64 f64_exp_enc(u64 v)   { return ((v & f64_exp_mask)  << f64_exp_shift);  }
+static u64 f64_sign_enc(u64 v)  { return ((v & f64_sign_mask) << f64_sign_shift); }
+
+static int f64_is_zero(f64 x)   { return f64_exp_dec(x) == 0            && f64_mant_dec(x) == 0; }
+static int f64_is_inf(f64 x)    { return f64_exp_dec(x) == f64_exp_mask && f64_mant_dec(x) == 0; }
+static int f64_is_nan(f64 x)    { return f64_exp_dec(x) == f64_exp_mask && f64_mant_dec(x) != 0; }
+static int f64_is_denorm(f64 x) { return f64_exp_dec(x) == 0            && f64_mant_dec(x) != 0; }
 
 static f64_struct f64_unpack_float(f64 x)
 {
@@ -571,9 +579,7 @@ static f64_struct f64_unpack_float(f64 x)
 
 static f64 f64_pack_float(f64_struct s)
 {
-    union { f64 f; u64 u; };
-    u = f64_mant_enc(s.mant) | f64_exp_enc(s.exp) | f64_sign_enc(s.sign);
-    return f;
+    return f64_from_bits( f64_mant_enc(s.mant) | f64_exp_enc(s.exp) | f64_sign_enc(s.sign) );
 }
 
 float _f32_nan() { return std::numeric_limits<float>::quiet_NaN(); }
