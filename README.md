@@ -178,9 +178,8 @@ hashes with the following constraints and properties:
 
 ### crefltool output
 
-This example invocation of `crefltool` shows the extended reflection
-meta-data with matching hash sums in yellow. Linking, merging
-and deduplication of reflection meta-data is a work-in-progress.
+This example invocation of `crefltool` shows the extended reflection meta-data
+generated with `./scripts/run_tests.py --dump-all test/adjacent-decls-3.h`:
 
 ![crefltool](/images/crefltool.png)
 
