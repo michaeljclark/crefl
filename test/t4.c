@@ -22,10 +22,10 @@ void t3()
 
     crefl_db_read_file(db, DB_DIR "array-struct-1.h.refl");
 
-    crefl_list_types(db, NULL, &ntypes);
+    crefl_source_decls(crefl_root(db), NULL, &ntypes);
     _types = calloc(ntypes, sizeof(decl_ref));
     assert(_types);
-    crefl_list_types(db, _types, &ntypes);
+    crefl_source_decls(crefl_root(db), _types, &ntypes);
     assert(ntypes == 1);
     assert(crefl_is_struct(_types[0]));
 

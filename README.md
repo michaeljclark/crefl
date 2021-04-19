@@ -41,10 +41,10 @@ int main(int argc, const char **argv)
     crefl_db_read_file(db, argv[1]);
 
     size_t ntypes = 0;
-    crefl_list_types(db, NULL, &ntypes);
+    crefl_source_decls(crefl_root(db), NULL, &ntypes);
     decl_ref *_types = calloc(ntypes, sizeof(decl_ref));
     assert(_types);
-    crefl_list_types(db, _types, &ntypes);
+    crefl_source_decls(crefl_root(db), _types, &ntypes);
 
     for (size_t i = 0; i < ntypes; i++) {
         size_t nfields = 0;

@@ -16,8 +16,11 @@ void t2_decls()
 	decl_db *db = crefl_db_new();
 	assert(db != NULL);
 
+	decl_ref src = crefl_decl_new(db, _decl_source);
+	db->root_element = crefl_decl_idx(src);
+
 	decl_ref r1 = crefl_decl_new(db, _decl_intrinsic);
-	db->root_element = crefl_decl_idx(r1);
+	crefl_decl_ptr(src)->_link = crefl_decl_idx(r1);
 	decl_ref r2 = crefl_decl_new(db, _decl_struct);
 	crefl_decl_ptr(r1)->_next = crefl_decl_idx(r2);
 	decl_ref r3 = crefl_decl_new(db, _decl_enum);
@@ -28,7 +31,7 @@ void t2_decls()
 	crefl_decl_ptr(r4)->_next = crefl_decl_idx(r5);
 
 	size_t s = array_size(r);
-	crefl_list_decls(db, r, &s);
+	crefl_source_decls(crefl_root(db), r, &s);
 	assert(s == 5);
 	assert(crefl_decl_tag(r[0]) == _decl_intrinsic);
 	assert(crefl_decl_tag(r[1]) == _decl_struct);
@@ -44,15 +47,18 @@ void t2_types()
 	decl_db *db = crefl_db_new();
 	assert(db != NULL);
 
+	decl_ref src = crefl_decl_new(db, _decl_source);
+	db->root_element = crefl_decl_idx(src);
+
 	decl_ref r1 = crefl_decl_new(db, _decl_intrinsic);
-	db->root_element = crefl_decl_idx(r1);
+	crefl_decl_ptr(src)->_link = crefl_decl_idx(r1);
 	decl_ref r2 = crefl_decl_new(db, _decl_struct);
 	crefl_decl_ptr(r1)->_next = crefl_decl_idx(r2);
 	decl_ref r3 = crefl_decl_new(db, _decl_enum);
 	crefl_decl_ptr(r2)->_next = crefl_decl_idx(r3);
 
 	size_t s = array_size(r);
-	crefl_list_types(db, r, &s);
+	crefl_source_types(crefl_root(db), r, &s);
 	assert(s == 3);
 	assert(crefl_decl_tag(r[0]) == _decl_intrinsic);
 	assert(crefl_decl_tag(r[1]) == _decl_struct);
@@ -66,11 +72,14 @@ void t2_fields()
 	decl_db *db = crefl_db_new();
 	assert(db != NULL);
 
+	decl_ref src = crefl_decl_new(db, _decl_source);
+	db->root_element = crefl_decl_idx(src);
+
 	decl_ref r1 = crefl_decl_new(db, _decl_field);
-	db->root_element = crefl_decl_idx(r1);
+	crefl_decl_ptr(src)->_link = crefl_decl_idx(r1);
 
 	size_t s = array_size(r);
-	crefl_list_fields(db, r, &s);
+	crefl_source_fields(crefl_root(db), r, &s);
 	assert(s == 1);
 	assert(crefl_decl_tag(r[0]) == _decl_field);
 
@@ -82,13 +91,16 @@ void t2_functions()
 	decl_db *db = crefl_db_new();
 	assert(db != NULL);
 
+	decl_ref src = crefl_decl_new(db, _decl_source);
+	db->root_element = crefl_decl_idx(src);
+
 	decl_ref r1 = crefl_decl_new(db, _decl_function);
-	db->root_element = crefl_decl_idx(r1);
+	crefl_decl_ptr(src)->_link = crefl_decl_idx(r1);
 	decl_ref r2 = crefl_decl_new(db, _decl_function);
 	crefl_decl_ptr(r1)->_next = crefl_decl_idx(r2);
 
 	size_t s = array_size(r);
-	crefl_list_functions(db, r, &s);
+	crefl_source_functions(crefl_root(db), r, &s);
 	assert(s == 2);
 	assert(crefl_decl_tag(r[0]) == _decl_function);
 	assert(crefl_decl_tag(r[1]) == _decl_function);

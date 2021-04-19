@@ -226,36 +226,6 @@ static int _decl_array_fetch(decl_db *db, decl_ref *r, size_t *s, decl_ref d,
     return 0;
 }
 
-int crefl_list_decls(decl_db *db, decl_ref *r, size_t *s)
-{
-    return _decl_array_fetch(db, r, s, crefl_root(db), crefl_is_any);
-}
-
-int crefl_list_types(decl_db *db, decl_ref *r, size_t *s)
-{
-    return _decl_array_fetch(db, r, s, crefl_root(db), crefl_is_type);
-}
-
-int crefl_list_fields(decl_db *db, decl_ref *r, size_t *s)
-{
-    return _decl_array_fetch(db, r, s, crefl_root(db), crefl_is_field);
-}
-
-int crefl_list_functions(decl_db *db, decl_ref *r, size_t *s)
-{
-    return _decl_array_fetch(db, r, s, crefl_root(db), crefl_is_function);
-}
-
-int crefl_list_sources(decl_db *db, decl_ref *r, size_t *s)
-{
-    return _decl_array_fetch(db, r, s, crefl_root(db), crefl_is_source);
-}
-
-int crefl_list_archives(decl_db *db, decl_ref *r, size_t *s)
-{
-    return _decl_array_fetch(db, r, s, crefl_root(db), crefl_is_archive);
-}
-
 size_t crefl_type_width(decl_ref d)
 {
     switch (crefl_decl_tag(d)) {
@@ -446,16 +416,34 @@ int crefl_function_params(decl_ref d, decl_ref *r, size_t *s)
     return _decl_array_fetch(d.db, r, s, crefl_decl_link(d), crefl_is_param);
 }
 
-int crefl_archive_sources(decl_ref d, decl_ref *r, size_t *s)
-{
-    if (!crefl_is_archive(d)) return -1;
-    return _decl_array_fetch(d.db, r, s, crefl_decl_link(d), crefl_is_source);
-}
-
 int crefl_source_decls(decl_ref d, decl_ref *r, size_t *s)
 {
     if (!crefl_is_source(d)) return -1;
     return _decl_array_fetch(d.db, r, s, crefl_decl_link(d), crefl_is_any);
+}
+
+int crefl_source_types(decl_ref d, decl_ref *r, size_t *s)
+{
+    if (!crefl_is_source(d)) return -1;
+    return _decl_array_fetch(d.db, r, s, crefl_decl_link(d), crefl_is_type);
+}
+
+int crefl_source_fields(decl_ref d, decl_ref *r, size_t *s)
+{
+    if (!crefl_is_source(d)) return -1;
+    return _decl_array_fetch(d.db, r, s, crefl_decl_link(d), crefl_is_field);
+}
+
+int crefl_source_functions(decl_ref d, decl_ref *r, size_t *s)
+{
+    if (!crefl_is_source(d)) return -1;
+    return _decl_array_fetch(d.db, r, s, crefl_decl_link(d), crefl_is_function);
+}
+
+int crefl_archive_sources(decl_ref d, decl_ref *r, size_t *s)
+{
+    if (!crefl_is_archive(d)) return -1;
+    return _decl_array_fetch(d.db, r, s, crefl_decl_link(d), crefl_is_source);
 }
 
 decl_raw crefl_constant_value(decl_ref d)
