@@ -210,7 +210,9 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
 
     decl_ref get_intrinsic_type(const QualType q)
     {
-        TypeInfo t = context.getTypeInfo(q);
+        decl_ref tr = decl_ref { db, 0 };
+
+        if (q->isIncompleteType()) return tr;
 
         bool _is_scalar = q->isScalarType();
         bool _is_pointer = q->isPointerType();
@@ -224,7 +226,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         bool _is_restrict = (q.getLocalFastQualifiers() & Qualifiers::Restrict);
         bool _is_volatile = (q.getLocalFastQualifiers() & Qualifiers::Volatile);
 
-        decl_ref tr = decl_ref { db, 0 };
+        TypeInfo t = context.getTypeInfo(q);
 
         if (_is_pointer) {
             const QualType pq = q->getPointeeType();
