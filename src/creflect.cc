@@ -97,7 +97,8 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         SourceLocation sl = d->getLocation();
         std::string sls = sl.printToString(context.getSourceManager());
         const Decl *nd = d->getNextDeclInContext();
-        std::string mod = d->getLocalOwningModule()->getFullModuleName(true);
+        auto module = d->getLocalOwningModule();
+        std::string mod = module ? module->getFullModuleName(true) : "";
         if (nd) {
             log_debug("(%" PRId64 " -> %" PRId64 ") %s : %s : module=%s\n",
                 d->getID(), nd->getID(), dps.c_str(), sls.c_str(), mod.c_str());
