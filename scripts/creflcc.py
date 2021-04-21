@@ -15,8 +15,11 @@ def xclang_cmd(is_cpp):
     cmd += xclang_args(['-load', 'build/libcrefl.so', '-plugin', 'crefl'])
     return cmd
 
-def crefl_meta_cmd(sources, output, is_cpp):
+def crefl_meta_cmd(sources, output, includes, is_cpp):
     cmd = xclang_cmd(is_cpp)
+    if includes:
+        for include in includes:
+            cmd += ['-I%s' % (include)]
     cmd += xplugin_arg('-o')
     cmd += xplugin_arg(output)
     cmd += sources
@@ -34,8 +37,8 @@ def format_cmd(cmd):
         lines.append(str)
     return " \\\n    ".join(lines)
 
-def crefl_meta(sources, output, is_cpp, no_exec):
-    cmd = crefl_meta_cmd(sources, output, is_cpp)
+def crefl_meta(sources, output, includes, is_cpp, no_exec):
+    cmd = crefl_meta_cmd(sources, output, includes, is_cpp)
     if no_exec:
         print(format_cmd(cmd))
     else:
@@ -46,6 +49,8 @@ parser.add_argument('-n', '--no-exec', default=False, action='store_true',
                     help='show the comand line invocation')
 parser.add_argument('--cpp', default=False, action='store_true',
                     help='enable c++ mode')
+parser.add_argument('-I', '--include', action='append',
+                    help='include directory')
 parser.add_argument('-o', '--output', required=True,
                     help='reflection metadata output')
 parser.add_argument('files', nargs='*',
@@ -55,4 +60,4 @@ args = parser.parse_args()
 if len(args.files) == 0:
     parser.error("no input files")
 
-crefl_meta(args.files, args.output, args.cpp, args.no_exec)
+crefl_meta(args.files, args.output, args.include, args.cpp, args.no_exec)
