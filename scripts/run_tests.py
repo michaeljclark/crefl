@@ -24,13 +24,19 @@ def xclang_cmd(hdr, is_cpp):
     cmd += xclang_args(['-load', 'build/libcrefl.so', '-plugin', 'crefl'])
     return cmd
 
-def crefl_debug_cmd(hdr, is_cpp):
+def crefl_debug_cmd(hdr, includes, is_cpp):
     cmd = xclang_cmd(hdr, is_cpp)
+    if includes:
+        for include in includes:
+            cmd += ['-I%s' % (include)]
     cmd += xplugin_arg('-debug')
     return cmd
 
-def crefl_meta_cmd(hdr, is_cpp):
+def crefl_meta_cmd(hdr, includes, is_cpp):
     cmd = xclang_cmd(hdr, is_cpp)
+    if includes:
+        for include in includes:
+            cmd += ['-I%s' % (include)]
     cmd += xplugin_arg('-o')
     cmd += xplugin_arg(crefl_file(hdr))
     return cmd
@@ -40,12 +46,12 @@ def crefl_cat(hdr):
         data = f.read()
         print(data)
 
-def crefl_meta(hdr, is_cpp):
-    cmd = crefl_meta_cmd(hdr, is_cpp)
+def crefl_meta(hdr, includes, is_cpp):
+    cmd = crefl_meta_cmd(hdr, includes, is_cpp)
     return subprocess.run(cmd, check=True)
 
-def crefl_debug(hdr, is_cpp):
-    cmd = crefl_debug_cmd(hdr, is_cpp)
+def crefl_debug(hdr, includes, is_cpp):
+    cmd = crefl_debug_cmd(hdr, includes, is_cpp)
     return subprocess.run(cmd, check=True)
 
 def crefl_dump(hdr):
@@ -74,6 +80,8 @@ def crefl_header(lab, hdr):
 parser = argparse.ArgumentParser(description='runs crefl clang plugin on test cases')
 parser.add_argument('--cpp', default=False, action='store_true',
                     help='enable c++ mode')
+parser.add_argument('-I', '--include', action='append',
+                    help='include directory')
 parser.add_argument('--dump', default=True, action='store_true',
                     help='include standard fields in dump')
 parser.add_argument('--dump-fqn', default=False, action='store_true',
@@ -101,9 +109,9 @@ for f in args.files:
         crefl_cat(hdr)
         if args.debug:
             crefl_header('DEBUG', hdr)
-            crefl_debug(hdr, args.cpp)
+            crefl_debug(hdr, args.include, args.cpp)
         crefl_header('OUTPUT', hdr)
-        crefl_meta(hdr, args.cpp)
+        crefl_meta(hdr, args.include, args.cpp)
         if args.dump_ext:
             crefl_dump_ext(hdr)
         elif args.dump_fqn:
