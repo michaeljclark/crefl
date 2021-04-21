@@ -167,7 +167,9 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
 
         AttrVec& av = d->getAttrs();
         for (auto &at : av) {
-            debugf("\tattribute:%s\n", at->getNormalizedFullName().c_str());
+            if (at->getAttrName()) {
+                debugf("\tattribute:%s\n", at->getAttrName()->getNameStart());
+            }
             if (isa<AlwaysInlineAttr>(*at)) {
                 last = create_attribute(last, "always_inline");
             }
