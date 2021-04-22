@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.12)
 
 project(crefl)
 
+include(cmake/crefl_macro.cmake)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -42,7 +44,8 @@ add_executable(asn1tool tool/asn1tool.cc)
 target_link_libraries(asn1tool cmodel)
 
 add_executable(example1 samples/example1.c)
-target_link_libraries(example1 cmodel)
+crefl_target_reflect(example1_refl example1)
+target_link_libraries(example1 example1_refl cmodel)
 
 enable_testing()
 
