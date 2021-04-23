@@ -6,7 +6,7 @@
 # for runtime access to crefl reflection metadata.
 #
 
-macro(crefl_target_reflect target_lib target)
+macro(crefl_target_reflect target target_lib)
 
 	# transform includes for this target
     get_target_property(${target}_includes ${target} INCLUDE_DIRECTORIES)
@@ -16,15 +16,14 @@ macro(crefl_target_reflect target_lib target)
     # add custom commands that reflect on sources for this target
     get_target_property(${target}_sources ${target} SOURCES)
     set(_source_refl "")
-    foreach(_file ${${target}_sources})
-        get_filename_component(_comp ${_file} NAME)
-        list(APPEND _source_refl ${_comp}.refl)
+    foreach(_source ${${target}_sources})
+        list(APPEND _source_refl ${_source}.refl)
         add_custom_command(
-            OUTPUT ${_comp}.refl
+            OUTPUT ${_source}.refl
             COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/scripts/creflcc.py -p ${CMAKE_BINARY_DIR}
-                -o ${CMAKE_BINARY_DIR}/${_comp}.refl ${${target}_include_args}
-                   ${CMAKE_CURRENT_SOURCE_DIR}/${_file}
-            DEPENDS ${_file} crefl VERBATIM)
+                -o ${CMAKE_BINARY_DIR}/${_source}.refl ${${target}_include_args}
+                   ${CMAKE_CURRENT_SOURCE_DIR}/${_source}
+            DEPENDS ${_source} crefl VERBATIM)
 	endforeach()
     list(TRANSFORM _source_refl PREPEND "${CMAKE_BINARY_DIR}/")
 

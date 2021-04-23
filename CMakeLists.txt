@@ -43,9 +43,14 @@ target_link_libraries(crefltool cmodel)
 add_executable(asn1tool tool/asn1tool.cc)
 target_link_libraries(asn1tool cmodel)
 
-add_executable(example1 samples/example1.c)
-crefl_target_reflect(example1_refl example1)
-target_link_libraries(example1 example1_refl cmodel)
+# example using the crefl reflection file api
+add_executable(example1_file samples/example1_file/main.c)
+target_link_libraries(example1_file cmodel)
+
+# example using the crefl reflection embedding
+add_executable(example2_embed samples/example2_embed/main.c)
+crefl_target_reflect(example2_embed example2_embed_refl)
+target_link_libraries(example2_embed example2_embed_refl cmodel)
 
 enable_testing()
 
