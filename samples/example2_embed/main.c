@@ -44,7 +44,37 @@ static void _print_struct(decl_ref r, size_t depth)
             crefl_decl_name(ft),
             crefl_type_width(_fields[j]),
             crefl_decl_name(_fields[j]));
-        if (crefl_decl_tag(ft) == _decl_struct) {
+        if (crefl_decl_tag(ft) == _decl_struct || crefl_decl_tag(ft) == _decl_union) {
+            _print(crefl_field_type(_fields[j]), depth + 1);
+        }
+    }
+    printf("%s};\n", _pad_depth(depth));
+}
+
+static void _print_union(decl_ref r, size_t depth)
+{
+    size_t nfields = 0;
+    crefl_union_fields(r, NULL, &nfields);
+
+    printf("%s%s %s /* sz=%zu */%s\n",
+        _pad_depth(depth),
+        crefl_tag_name(crefl_decl_tag(r)),
+        crefl_decl_has_name(r) ? crefl_decl_name(r) : "(anonymous)",
+        crefl_type_width(r), nfields > 0 ? " {" : ";");
+    if (nfields == 0) return;
+
+    decl_ref *_fields = calloc(nfields, sizeof(decl_ref));
+    assert(_fields);
+    crefl_union_fields(r, _fields, &nfields);
+
+    for (size_t j = 0; j < nfields; j++) {
+        decl_ref ft = crefl_field_type(_fields[j]);
+        printf("%s%s /* sz=%zu */ %s;\n",
+            _pad_depth(depth+1),
+            crefl_decl_name(ft),
+            crefl_type_width(_fields[j]),
+            crefl_decl_name(_fields[j]));
+        if (crefl_decl_tag(ft) == _decl_struct || crefl_decl_tag(ft) == _decl_union) {
             _print(crefl_field_type(_fields[j]), depth + 1);
         }
     }
@@ -103,7 +133,8 @@ static void _print_field(decl_ref r, size_t depth)
 
 static void _print(decl_ref r, size_t depth)
 {
-    if (crefl_is_struct(r) || crefl_is_union(r)) _print_struct(r, depth);
+    if (crefl_is_struct(r)) _print_struct(r, depth);
+    else if (crefl_is_union(r)) _print_union(r, depth);
     else if (crefl_is_function(r)) _print_function(r, depth);
     else if (crefl_is_typedef(r)) _print_typedef(r, depth);
     else if (crefl_is_field(r)) _print_field(r, depth);
