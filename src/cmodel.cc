@@ -215,11 +215,13 @@ static int _decl_array_fetch(decl_db *db, decl_ref *r, size_t *s, decl_ref d,
     int(*decl_lambda)(decl_ref))
 {
     size_t count = 0, limit = s ? *s : 0;
-    while (crefl_decl_idx(d) && decl_lambda(d))  {
-        if (r && count < limit) {
-            r[count] = d;
+    while (crefl_decl_idx(d))  {
+        if (decl_lambda(d)) {
+            if (r && count < limit) {
+                r[count] = d;
+            }
+            count++;
         }
-        count++;
         d = crefl_decl_next(d);
     }
     if (s) *s = count;
