@@ -42,24 +42,24 @@ int crefl_is_type(decl_ref d)
            t == _decl_array   || t == _decl_pointer;
 }
 
-int crefl_is_none(decl_ref d) { return crefl_decl_tag(d) == _decl_none; }
-int crefl_is_typedef(decl_ref d) { return crefl_decl_tag(d) == _decl_typedef; }
-int crefl_is_intrinsic(decl_ref d) { return crefl_decl_tag(d) == _decl_intrinsic; }
-int crefl_is_set(decl_ref d) { return crefl_decl_tag(d) == _decl_set; }
-int crefl_is_enum(decl_ref d) { return crefl_decl_tag(d) == _decl_enum; }
-int crefl_is_struct(decl_ref d) { return crefl_decl_tag(d) == _decl_struct; }
-int crefl_is_union(decl_ref d) { return crefl_decl_tag(d) == _decl_union; }
-int crefl_is_field(decl_ref d) { return crefl_decl_tag(d) == _decl_field; }
-int crefl_is_array(decl_ref d) { return crefl_decl_tag(d) == _decl_array; }
-int crefl_is_pointer(decl_ref d) { return crefl_decl_tag(d) == _decl_pointer; }
-int crefl_is_constant(decl_ref d) { return crefl_decl_tag(d) == _decl_constant; }
-int crefl_is_function(decl_ref d) { return crefl_decl_tag(d) == _decl_function; }
-int crefl_is_param(decl_ref d) { return crefl_decl_tag(d) == _decl_param; }
-int crefl_is_attribute(decl_ref d) { return crefl_decl_tag(d) == _decl_attribute; }
-int crefl_is_value(decl_ref d) { return crefl_decl_tag(d) == _decl_value; }
-int crefl_is_archive(decl_ref d) { return crefl_decl_tag(d) == _decl_archive; }
-int crefl_is_source(decl_ref d) { return crefl_decl_tag(d) == _decl_source; }
-int crefl_is_alias(decl_ref d) { return crefl_decl_tag(d) == _decl_alias; }
+int crefl_is_none      (decl_ref d) { return crefl_decl_tag(d) == _decl_none;      }
+int crefl_is_typedef   (decl_ref d) { return crefl_decl_tag(d) == _decl_typedef;   }
+int crefl_is_intrinsic (decl_ref d) { return crefl_decl_tag(d) == _decl_intrinsic; }
+int crefl_is_set       (decl_ref d) { return crefl_decl_tag(d) == _decl_set;       }
+int crefl_is_enum      (decl_ref d) { return crefl_decl_tag(d) == _decl_enum;      }
+int crefl_is_struct    (decl_ref d) { return crefl_decl_tag(d) == _decl_struct;    }
+int crefl_is_union     (decl_ref d) { return crefl_decl_tag(d) == _decl_union;     }
+int crefl_is_field     (decl_ref d) { return crefl_decl_tag(d) == _decl_field;     }
+int crefl_is_array     (decl_ref d) { return crefl_decl_tag(d) == _decl_array;     }
+int crefl_is_pointer   (decl_ref d) { return crefl_decl_tag(d) == _decl_pointer;   }
+int crefl_is_constant  (decl_ref d) { return crefl_decl_tag(d) == _decl_constant;  }
+int crefl_is_function  (decl_ref d) { return crefl_decl_tag(d) == _decl_function;  }
+int crefl_is_param     (decl_ref d) { return crefl_decl_tag(d) == _decl_param;     }
+int crefl_is_attribute (decl_ref d) { return crefl_decl_tag(d) == _decl_attribute; }
+int crefl_is_value     (decl_ref d) { return crefl_decl_tag(d) == _decl_value;     }
+int crefl_is_archive   (decl_ref d) { return crefl_decl_tag(d) == _decl_archive;   }
+int crefl_is_source    (decl_ref d) { return crefl_decl_tag(d) == _decl_source;    }
+int crefl_is_alias     (decl_ref d) { return crefl_decl_tag(d) == _decl_alias;     }
 
 /*
  * decl accessors
