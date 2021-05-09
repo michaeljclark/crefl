@@ -22,6 +22,7 @@
 
 #include <string>
 
+#include "cbits.h"
 #include "cmodel.h"
 #include "ctypes.h"
 
@@ -250,33 +251,11 @@ size_t crefl_intrinsic_width(decl_ref d)
     return 0;
 }
 
-#if defined _MSC_VER && defined _M_X64
-static inline unsigned _clz(size_t val)
-{
-    unsigned long count;
-    return _BitScanReverse64(&count, val) ? 63 - count : 64;
-}
-#elif defined _MSC_VER && defined _M_IX86
-static inline unsigned _clz(size_t val)
-{
-    unsigned long hi_count;
-    unsigned long lo_count;
-    int hi_res = _BitScanReverse(&hi_count, uint32_t(val >> 32));
-    int lo_res = _BitScanReverse(&lo_count, uint32_t(val));
-    return hi_res ? 31 - hi_count : (lo_res ? 63 - lo_count : 64);
-}
-#elif defined __GNUC__
-static inline unsigned _clz(size_t val)
-{
-    return __builtin_clzll(val);
-}
-#endif
-
 static inline size_t _pad_align(intptr_t offset, intptr_t width, size_t count, decl_set props)
 {
     const intptr_t maxalign = 9; /* 128 bits */
 
-    intptr_t n = 63 - _clz(width), addend;
+    intptr_t n = 63 - clz(width), addend;
 
     if (n > maxalign) n = maxalign;
 
