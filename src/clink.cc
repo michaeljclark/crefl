@@ -62,6 +62,9 @@
  * - type hashes for incomplete types have different sums to complete types.
  * - semicolon is used as a delimeter as it does not occur in type names.
  * - SHA-224 is used because it is not subject to length extension attacks.
+ * - type hashes for functions include parameter names and types. the index
+ *   is decoupled so that alternative hashing algorithms can be used. e.g. a
+ *   model used for linkage may omit parameter names.
  */
 static const char *tag_delimeter      = "(T=";
 static const char *name_delimeter     = ";N=";
