@@ -61,6 +61,9 @@ add_executable(example2_embed samples/example2_embed/main.c)
 crefl_target_reflect(example2_embed example2_embed_refl)
 target_link_libraries(example2_embed example2_embed_refl cmodel)
 
+add_executable(bench_asn1 test/bench_asn1.cc)
+target_link_libraries(bench_asn1 cmodel)
+
 enable_testing()
 
 foreach(prog IN ITEMS t1 t2 t3 t4 t5 t6)
