@@ -8,6 +8,15 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+include(CheckCXXCompilerFlag)
+
+# We need haswell for TZCNT/LZCNT
+check_cxx_compiler_flag("-march=haswell" has_march_haswell "int main() { return 0; }")
+if (has_march_haswell)
+	list(APPEND CMAKE_C_FLAGS -march=haswell)
+	list(APPEND CMAKE_CXX_FLAGS -march=haswell)
+endif()
+
 # llvm-config --cxxflags --ldflags --libs
 find_program(LLVM_CONFIG NAMES llvm-config REQUIRED PATHS /usr/bin)
 exec_program(${LLVM_CONFIG} ARGS --cxxflags OUTPUT_VARIABLE LLVM_CXXFLAGS)
