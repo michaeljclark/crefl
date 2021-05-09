@@ -22,7 +22,8 @@
 
 #include <string>
 
-#include "cbits.h"
+#include "stdbits.h"
+
 #include "cmodel.h"
 #include "ctypes.h"
 

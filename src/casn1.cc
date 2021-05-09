@@ -23,10 +23,10 @@
 #include <limits>
 
 #include "stdendian.h"
+#include "stdbits.h"
 
 #include "cmodel.h"
 #include "cbuf.h"
-#include "cbits.h"
 #include "casn1.h"
 
 /*
