@@ -94,7 +94,7 @@ parser.add_argument('--debug', default=False, action='store_true',
                     help='enable crefl debug output')
 parser.add_argument('--stats', default=False, action='store_true',
                     help='enable crefl stats output')
-parser.add_argument('files', nargs='*', default=['test/*.h'],
+parser.add_argument('files', nargs='*', default=['test/input/*.h'],
                     help='files to be processed')
 args = parser.parse_args()
 
