@@ -24,7 +24,7 @@ void test_oid(const char *s, const char *exp, const asn1_oid *oid, int result)
 }
 
 static const char *test_1_str = "";
-static const asn1_oid test_1_oid = { 0, { } };
+static const asn1_oid test_1_oid = { 0, { 0 } };
 
 static const char *test_2_str = "1";
 static const asn1_oid test_2_oid = { 1, { 1 } };
