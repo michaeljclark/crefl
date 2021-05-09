@@ -210,7 +210,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
 
     decl_ref get_intrinsic_type(const QualType q)
     {
-        decl_ref tr = decl_ref { db, 0 };
+        decl_ref tr = crefl_intrinsic(db, _decl_void, 0);
 
         if (q->isIncompleteType()) return tr;
 
