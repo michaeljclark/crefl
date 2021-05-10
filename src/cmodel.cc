@@ -281,6 +281,14 @@ size_t crefl_struct_width(decl_ref d)
 
     if (crefl_decl_tag(d) != _decl_struct) return 0;
 
+    /*
+     * structure alignment rules
+     *
+     * - handles nearest power of two alignment for 1,2,4,8,16 bytes
+     * - [not yet supported] trailing pad based on largest member
+     * - [not yet supported] packing and alignment attributes
+     */
+
     decl_ref dx = crefl_lookup(d.db, crefl_decl_ptr(d)->_link);
     while (crefl_decl_idx(dx)) {
         switch (crefl_decl_tag(dx)) {
