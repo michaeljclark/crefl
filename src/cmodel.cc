@@ -275,51 +275,50 @@ static inline size_t _pad_align(intptr_t offset, intptr_t width, size_t count, d
     return offset + addend * count;
 }
 
-size_t crefl_struct_width(decl_ref d)
+size_t _field_align(decl_ref d, size_t offset)
 {
-    size_t offset = 0;
-
-    if (crefl_decl_tag(d) != _decl_struct) return 0;
+    decl_ref ft = crefl_field_type(d);
 
     /*
-     * structure alignment rules
+     * structure field alignment rules
      *
      * - handles nearest power of two alignment for 1,2,4,8,16 bytes
      * - [not yet supported] trailing pad based on largest member
      * - [not yet supported] packing and alignment attributes
      */
 
-    decl_ref dx = crefl_lookup(d.db, crefl_decl_ptr(d)->_link);
-    while (crefl_decl_idx(dx)) {
-        switch (crefl_decl_tag(dx)) {
-        decl_ref t;
-        case _decl_field:
-            t = crefl_field_type(dx);
-            switch (crefl_decl_tag(t)) {
-            case _decl_array:
-                offset = _pad_align(offset, crefl_type_width(crefl_array_type(t)),
-                    crefl_decl_qty(t), crefl_decl_props(crefl_array_type(t)));
-                break;
-            case _decl_pointer:
-                offset = _pad_align(offset, crefl_type_width(t), 1, _decl_pad_pow2);
-                break;
-            case _decl_struct:
-                offset = _pad_align(offset, crefl_type_width(t), 1, _decl_pad_pow2);
-                break;
-            case _decl_union:
-            case _decl_intrinsic:
-                offset = _pad_align(offset, crefl_type_width(t), 1, crefl_decl_props(t));
-                break;
-            }
-            break;
-        case _decl_intrinsic:
-        case _decl_struct:
-        case _decl_union:
-        default:
-            /* type definitions don't add any width to a struct or union */
-            break;
+    switch (crefl_decl_tag(ft)) {
+    case _decl_array:
+        offset = _pad_align(offset, crefl_type_width(crefl_array_type(ft)),
+            crefl_decl_qty(ft), crefl_decl_props(crefl_array_type(ft)));
+        break;
+    case _decl_pointer:
+        offset = _pad_align(offset, crefl_type_width(ft), 1, _decl_pad_pow2);
+        break;
+    case _decl_struct:
+        offset = _pad_align(offset, crefl_type_width(ft), 1, _decl_pad_pow2);
+        break;
+    case _decl_union:
+    case _decl_intrinsic:
+        offset = _pad_align(offset, crefl_type_width(ft), 1, crefl_decl_props(ft));
+        break;
+    }
+
+    return offset;
+}
+
+size_t crefl_struct_width(decl_ref d)
+{
+    size_t offset = 0;
+
+    if (crefl_decl_tag(d) != _decl_struct) return 0;
+
+    d = crefl_decl_link(d);
+    while (crefl_decl_idx(d)) {
+        if (crefl_decl_tag(d) == _decl_field) {
+            offset = _field_align(d, offset);
         }
-        dx = crefl_decl_next(dx);
+        d = crefl_decl_next(d);
     }
 
     return offset;
@@ -332,38 +331,13 @@ size_t crefl_union_width(decl_ref d)
 
     if (crefl_decl_tag(d) != _decl_union) return 0;
 
-    decl_ref dx = crefl_lookup(d.db, crefl_decl_ptr(d)->_link);
-    while (crefl_decl_idx(dx)) {
-        switch (crefl_decl_tag(dx)) {
-        case _decl_field:
-            t = crefl_field_type(dx);
-            switch (crefl_decl_tag(t)) {
-            case _decl_array:
-                width = _pad_align(0, crefl_type_width(crefl_array_type(t)),
-                    crefl_decl_qty(t), crefl_decl_props(crefl_array_type(t)));
-                break;
-            case _decl_pointer:
-                width = _pad_align(0, crefl_type_width(t), 1, _decl_pad_pow2);
-                break;
-            case _decl_struct:
-                width = _pad_align(0, crefl_type_width(t), 1, _decl_pad_pow2);
-                break;
-            case _decl_union:
-            case _decl_intrinsic:
-                width = _pad_align(0, crefl_type_width(t), 1, crefl_decl_props(t));
-                break;
-            }
+    d = crefl_decl_link(d);
+    while (crefl_decl_idx(d)) {
+        if (crefl_decl_tag(d) == _decl_field) {
+            width = _field_align(d, 0);
             if (width > offset) offset = width;
-            break;
-        case _decl_intrinsic:
-        case _decl_struct:
-        case _decl_union:
-        default:
-            /* type definitions don't add any width to a struct or union */
-            break;
         }
-
-        dx = crefl_decl_next(dx);
+        d = crefl_decl_next(d);
     }
 
     return offset;
