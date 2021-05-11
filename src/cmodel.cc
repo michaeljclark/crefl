@@ -230,127 +230,150 @@ static int _decl_array_fetch(decl_db *db, decl_ref *r, size_t *s, decl_ref d,
     return 0;
 }
 
-size_t crefl_type_width(decl_ref d)
+/*
+ * structure alignment rules
+ *
+ * - handles nearest power of two alignment for 1,2,4,8,16 bytes
+ * - handles trailing padding based on largest alignment
+ * - [not yet supported] packing and alignment attributes
+ */
+
+static size_t _align(size_t offset, size_t n)
 {
-    switch (crefl_decl_tag(d)) {
-    case _decl_intrinsic: return crefl_intrinsic_width(d);
-    case _decl_struct: return crefl_struct_width(d);
-    case _decl_union: return crefl_union_width(d);
-    case _decl_field: return crefl_type_width(crefl_decl_link(d));
-    case _decl_array: return crefl_type_width(crefl_array_type(d))
-        * crefl_array_count(d);
-    case _decl_pointer: return crefl_pointer_width(d);
-    }
-    return 0;
+    return (offset + ((1llu<<n)-1llu)) & ~((1llu<<n)-1llu);
 }
 
-size_t crefl_intrinsic_width(decl_ref d)
-{
-    if (crefl_decl_tag(d) == _decl_intrinsic) {
-        return crefl_decl_qty(d);
-    }
-    return 0;
-}
+struct _alignment { size_t align; size_t size; };
 
-static inline size_t _pad_align(intptr_t offset, intptr_t width, size_t count, decl_set props)
+static _alignment _pad_align(size_t width, size_t count, decl_set props)
 {
     const intptr_t maxalign = 9; /* 128 bits */
 
-    intptr_t n = 63 - clz(width), addend;
-
-    if (n > maxalign) n = maxalign;
+    size_t n;
 
     if ((props & _decl_pad_byte)) {
-        offset = (offset + 7) & ~7;
-        addend = (width + 7) & ~7;
+        n = 8;
     }
     else if ((props & _decl_pad_pow2)) {
-        offset  = (offset + ((1<<n)-1)) & ~((1<<n)-1);
-        addend = (width + ((1<<n)-1)) & ~((1<<n)-1);
-    }
-    else {
-        addend = width;
+        n = 63 - clz(width);
+        if (n > maxalign) n = maxalign;
+    } else {
+        n = 0;
     }
 
-    return offset + addend * count;
+    return { n, _align(width, n) * count };
 }
 
-size_t _field_align(decl_ref d, size_t offset)
+static _alignment _type_pad(decl_ref d);
+
+static _alignment _field_pad(decl_ref d)
 {
-    decl_ref ft = crefl_field_type(d);
-
-    /*
-     * structure field alignment rules
-     *
-     * - handles nearest power of two alignment for 1,2,4,8,16 bytes
-     * - [not yet supported] trailing pad based on largest member
-     * - [not yet supported] packing and alignment attributes
-     */
-
-    switch (crefl_decl_tag(ft)) {
-    case _decl_array:
-        offset = _pad_align(offset, crefl_type_width(crefl_array_type(ft)),
-            crefl_decl_qty(ft), crefl_decl_props(crefl_array_type(ft)));
-        break;
-    case _decl_pointer:
-        offset = _pad_align(offset, crefl_type_width(ft), 1, _decl_pad_pow2);
-        break;
-    case _decl_struct:
-        offset = _pad_align(offset, crefl_type_width(ft), 1, _decl_pad_pow2);
-        break;
-    case _decl_union:
-    case _decl_intrinsic:
-        offset = _pad_align(offset, crefl_type_width(ft), 1, crefl_decl_props(ft));
-        break;
-    }
-
-    return offset;
+    return crefl_is_field(d) ?
+        _type_pad(crefl_decl_link(d)) : _alignment { 0 };
 }
 
-size_t crefl_struct_width(decl_ref d)
+static _alignment _intrinsic_pad(decl_ref d)
 {
+    return crefl_is_intrinsic(d) ?
+        _pad_align(crefl_decl_qty(d), 1, crefl_decl_props(d)) : _alignment { 0 };
+}
+
+static _alignment _pointer_pad(decl_ref d)
+{
+    return crefl_is_pointer(d) ?
+        _pad_align(crefl_decl_qty(d), 1, _decl_pad_pow2) : _alignment { 0 };
+}
+
+static _alignment _array_pad(decl_ref d)
+{
+    size_t qty = 1;
+    _alignment pad;
+
+    if (!crefl_is_array(d)) return _alignment { 0 };
+
+    do  {
+        qty *= crefl_array_count(d);
+        d = crefl_array_type(d);
+    } while (crefl_is_array(d));
+
+    pad = _type_pad(d);
+    pad.size *= qty;
+
+    return pad;
+}
+
+static _alignment _struct_pad(decl_ref d)
+{
+    _alignment max = { 0 };
     size_t offset = 0;
 
-    if (crefl_decl_tag(d) != _decl_struct) return 0;
+    if (!crefl_is_struct(d)) return _alignment { 0 };
 
     d = crefl_decl_link(d);
     while (crefl_decl_idx(d)) {
         if (crefl_decl_tag(d) == _decl_field) {
-            offset = _field_align(d, offset);
+            _alignment pad = _type_pad(crefl_field_type(d));
+            if (pad.align > max.align) max.align = pad.align;
+            if (pad.size > max.size) max.size = pad.size;
+            offset = _align(offset, pad.align) + pad.size;
         }
         d = crefl_decl_next(d);
     }
 
-    return offset;
+    return _alignment { max.align, _align(offset, max.align) };
 }
 
-size_t crefl_union_width(decl_ref d)
+static _alignment _union_pad(decl_ref d)
 {
-    decl_ref t;
-    size_t offset = 0, width;
+    _alignment max = { 0 };
 
-    if (crefl_decl_tag(d) != _decl_union) return 0;
+    if (!crefl_is_union(d)) return _alignment { 0 };
 
     d = crefl_decl_link(d);
     while (crefl_decl_idx(d)) {
         if (crefl_decl_tag(d) == _decl_field) {
-            width = _field_align(d, 0);
-            if (width > offset) offset = width;
+            _alignment pad = _type_pad(crefl_field_type(d));
+            if (pad.align > max.align) max.align = pad.align;
+            if (pad.size > max.size) max.size = pad.size;
         }
         d = crefl_decl_next(d);
     }
 
-    return offset;
+    return max;
 }
+
+static _alignment _type_pad(decl_ref d)
+{
+    switch (crefl_decl_tag(d)) {
+    case _decl_intrinsic: return _intrinsic_pad(d);
+    case _decl_struct: return _struct_pad(d);
+    case _decl_union: return _union_pad(d);
+    case _decl_field: return _field_pad(d);
+    case _decl_array: return _array_pad(d);
+    case _decl_pointer: return _pointer_pad(d);
+    }
+    return _alignment { 0 };
+}
+
+size_t crefl_type_align(decl_ref d) { return _type_pad(d).align; }
+size_t crefl_field_align(decl_ref d) { return _field_pad(d).align; }
+size_t crefl_intrinsic_align(decl_ref d) { return _intrinsic_pad(d).align; }
+size_t crefl_pointer_align(decl_ref d) { return _pointer_pad(d).align; }
+size_t crefl_array_align(decl_ref d) { return _array_pad(d).align; }
+size_t crefl_struct_align(decl_ref d) { return _struct_pad(d).align; }
+size_t crefl_union_align(decl_ref d) { return _union_pad(d).align; }
+
+size_t crefl_type_width(decl_ref d) { return _type_pad(d).size; }
+size_t crefl_field_width(decl_ref d) { return _field_pad(d).size; }
+size_t crefl_intrinsic_width(decl_ref d) { return _intrinsic_pad(d).size; }
+size_t crefl_pointer_width(decl_ref d) { return _pointer_pad(d).size; }
+size_t crefl_array_width(decl_ref d) { return _array_pad(d).size; }
+size_t crefl_struct_width(decl_ref d) { return _struct_pad(d).size; }
+size_t crefl_union_width(decl_ref d) { return _union_pad(d).size; }
 
 size_t crefl_array_count(decl_ref d)
 {
     return crefl_is_array(d) ? crefl_decl_qty(d) : 0;
-}
-
-size_t crefl_pointer_width(decl_ref d)
-{
-    return crefl_is_pointer(d) ? crefl_decl_qty(d) : 0;
 }
 
 decl_ref crefl_typedef_type(decl_ref d)
