@@ -31,7 +31,7 @@ macro(crefl_target_reflect target target_lib)
     set(_archive_refl "${target}.refl")
     add_custom_command(
         OUTPUT ${_archive_refl}
-        COMMAND ${CMAKE_BINARY_DIR}/crefltool --link
+        COMMAND ${CMAKE_BINARY_DIR}/crefltool --merge
             ${CMAKE_BINARY_DIR}/${_archive_refl} ${_source_refl}
         DEPENDS ${_source_refl} crefltool VERBATIM)
 

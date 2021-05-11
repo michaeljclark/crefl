@@ -25,7 +25,7 @@
 #include "clink.h"
 #include "cfileio.h"
 
-void do_link(const char *output, const char **input, size_t n)
+void do_merge(const char *output, const char **input, size_t n)
 {
     decl_db *db_out = crefl_db_new();
     decl_db **db_in = (decl_db**)malloc(sizeof(decl_db*) * n);
@@ -34,7 +34,7 @@ void do_link(const char *output, const char **input, size_t n)
         crefl_db_read_file(db_in[i], input[i]);
     }
     if (crefl_link_merge(db_out, output, db_in, n) < 0) {
-        fprintf(stderr, "error: linking input files\n");
+        fprintf(stderr, "error: merging input files\n");
         exit(1);
     }
     crefl_db_write_file(db_out, output);
@@ -97,7 +97,7 @@ void do_stats(const char *input)
 int main(int argc, const char **argv)
 {
     enum {
-        _dump_std, _dump_fqn, _dump_all, _dump_ext, _link, _emit, _stats
+        _dump_std, _dump_fqn, _dump_all, _dump_ext, _merge, _emit, _stats
     } mode;
 
     if (argc < 3) goto help_exit;
@@ -105,14 +105,14 @@ int main(int argc, const char **argv)
     else if (strcmp(argv[1], "--dump-fqn") == 0) mode = _dump_fqn;
     else if (strcmp(argv[1], "--dump-all") == 0) mode = _dump_all;
     else if (strcmp(argv[1], "--dump-ext") == 0) mode = _dump_ext;
-    else if (strcmp(argv[1], "--link") == 0) mode = _link;
+    else if (strcmp(argv[1], "--merge") == 0) mode = _merge;
     else if (strcmp(argv[1], "--emit") == 0) mode = _emit;
     else if (strcmp(argv[1], "--stats") == 0) mode = _stats;
     else goto help_exit;
 
-    if ( (mode == _link && argc < 4) ||
+    if ( (mode == _merge && argc < 4) ||
          (mode == _emit && argc != 4) ||
-         (mode != _link && mode != _emit && argc != 3) )
+         (mode != _merge && mode != _emit && argc != 3) )
     {
         fprintf(stderr, "error: *** unknown command line option\n\n");
         goto help_exit;
@@ -124,7 +124,7 @@ int main(int argc, const char **argv)
         case _dump_ext: do_dump(crefl_db_dump_ext, argv[2]); break;
         case _dump_all: do_dump(crefl_db_dump_all, argv[2]); break;
         case _stats: do_stats(argv[2]); break;
-        case _link: do_link(argv[2], argv + 3, argc - 3); break;
+        case _merge: do_merge(argv[2], argv + 3, argc - 3); break;
         case _emit: do_emit(argv[2], argv[3], "main"); break;
     }
     exit(0);
@@ -132,7 +132,7 @@ int main(int argc, const char **argv)
 help_exit:
     fprintf(stderr, "usage: %s <command>\n\n"
     "Commands:\n\n"
-    "--link <output> [<input>]+   link reflection metadata\n"
+    "--merge <output> [<input>]+  merge reflection metadata\n"
     "--emit <output> [<input>]    emit reflection metadata\n"
     "--dump <input>               dump main fields in 80-col format\n"
     "--dump-fqn <input>           dump main fields plus fqn in 143-col format\n"
