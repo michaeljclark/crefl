@@ -347,6 +347,7 @@ decl_ref crefl_param_type(decl_ref d);
 int crefl_enum_constants(decl_ref d, decl_ref *r, size_t *s);
 int crefl_set_constants(decl_ref d, decl_ref *r, size_t *s);
 int crefl_struct_fields(decl_ref d, decl_ref *r, size_t *s);
+int crefl_struct_fields_offsets(decl_ref d, decl_ref *r, size_t *o, size_t *s);
 int crefl_union_fields(decl_ref d, decl_ref *r, size_t *s);
 int crefl_function_params(decl_ref d, decl_ref *r, size_t *s);
 int crefl_source_decls(decl_ref d, decl_ref *r, size_t *s);

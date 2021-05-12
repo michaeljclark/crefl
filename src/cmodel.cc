@@ -355,6 +355,39 @@ static _alignment _type_pad(decl_ref d)
     return _alignment { 0 };
 }
 
+int crefl_struct_fields_offsets(decl_ref d, decl_ref *r, size_t *o, size_t *s)
+{
+    size_t count = 0, offset = 0, limit = s ? *s : 0;
+    _alignment max = { 0 };
+
+    if (!crefl_is_struct(d)) return -1;
+
+    d = crefl_decl_link(d);
+    while (crefl_decl_idx(d))  {
+        if (crefl_is_field(d)) {
+            _alignment pad = _type_pad(crefl_field_type(d));
+            if (pad.align > max.align) max.align = pad.align;
+            if (pad.size > max.size) max.size = pad.size;
+            offset = _align(offset, pad.align);
+            if (count < limit) {
+                if (r) r[count] = d;
+                if (o) o[count] = offset;
+            }
+            offset += pad.size;
+            ++count;
+        }
+        d = crefl_decl_next(d);
+    }
+    if (count < limit) {
+        if (r) r[count] = crefl_decl_void(d);
+        if (o) o[count] = _align(offset, max.align);
+    }
+    if (count > 0) ++count;
+    if (s) *s = count;
+
+    return 0;
+}
+
 size_t crefl_type_align(decl_ref d) { return _type_pad(d).align; }
 size_t crefl_field_align(decl_ref d) { return _field_pad(d).align; }
 size_t crefl_intrinsic_align(decl_ref d) { return _intrinsic_pad(d).align; }
