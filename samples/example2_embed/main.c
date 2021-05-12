@@ -111,6 +111,7 @@ static void _print_struct(decl_ref r, size_t depth)
         printf(";\n");
     }
     printf("%s}", _pad_depth(depth));
+    free(_fields);
 }
 
 static void _print_union(decl_ref r, size_t depth)
@@ -133,6 +134,7 @@ static void _print_union(decl_ref r, size_t depth)
         printf(";\n");
     }
     printf("%s}", _pad_depth(depth));
+    free(_fields);
 }
 
 static void _print_function(decl_ref r, size_t depth)
@@ -157,6 +159,7 @@ static void _print_function(decl_ref r, size_t depth)
         printf("%s %s", crefl_decl_name(pt), crefl_decl_name(_params[j]));
     }
     printf(")");
+    free(_params);
 }
 
 static void _print(decl_ref r, size_t depth)
@@ -192,6 +195,8 @@ int main(int argc, const char **argv)
     for (size_t i = 0; i < ntypes; i++) {
         _print(_types[i], 0);
     }
+    free(_types);
+    free(_sources);
 
     crefl_db_destroy(db);
 }
