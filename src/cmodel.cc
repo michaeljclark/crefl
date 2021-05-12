@@ -204,7 +204,7 @@ decl_ref crefl_intrinsic(decl_db *db, decl_set props, size_t width)
 {
     for (size_t i = 0; i < db->decl_offset; i++) {
         decl_ref d = crefl_lookup(db, i);
-        if (crefl_decl_tag(d) == _decl_intrinsic &&
+        if (crefl_is_intrinsic(d) &&
             crefl_decl_qty(d) == width &&
                 ((crefl_decl_props(d) & props) == props)) {
             return decl_ref { db, i };
@@ -311,7 +311,7 @@ static _alignment _struct_pad(decl_ref d)
 
     d = crefl_decl_link(d);
     while (crefl_decl_idx(d)) {
-        if (crefl_decl_tag(d) == _decl_field) {
+        if (crefl_is_field(d)) {
             _alignment pad = _type_pad(crefl_field_type(d));
             if (pad.align > max.align) max.align = pad.align;
             if (pad.size > max.size) max.size = pad.size;
@@ -331,7 +331,7 @@ static _alignment _union_pad(decl_ref d)
 
     d = crefl_decl_link(d);
     while (crefl_decl_idx(d)) {
-        if (crefl_decl_tag(d) == _decl_field) {
+        if (crefl_is_field(d)) {
             _alignment pad = _type_pad(crefl_field_type(d));
             if (pad.align > max.align) max.align = pad.align;
             if (pad.size > max.size) max.size = pad.size;
