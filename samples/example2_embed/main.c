@@ -19,7 +19,7 @@ static const char* _pad_depth(size_t depth)
     return buf;
 }
 
-static char * _type_name(decl_ref r)
+static char * _decl_name(decl_ref r)
 {
     static char buf[256];
     if (crefl_is_none(r)) {
@@ -27,21 +27,17 @@ static char * _type_name(decl_ref r)
     } else if (crefl_is_struct(r) || crefl_is_union(r)) {
         if (crefl_decl_has_name(r)) {
             snprintf(buf, sizeof(buf), "%s %s",
-                crefl_tag_name(crefl_decl_tag(r)),
-                crefl_decl_name(r));
+                crefl_tag_name(crefl_decl_tag(r)), crefl_decl_name(r));
         } else {
             snprintf(buf, sizeof(buf), "%s /* anonymous id=%u */",
-                crefl_tag_name(crefl_decl_tag(r)),
-                crefl_decl_idx(r));
+                crefl_tag_name(crefl_decl_tag(r)), crefl_decl_idx(r));
         }
     } else {
         if (crefl_decl_has_name(r)) {
-            snprintf(buf, sizeof(buf), "%s",
-                crefl_decl_name(r));
+            snprintf(buf, sizeof(buf), "%s", crefl_decl_name(r));
         } else {
             snprintf(buf, sizeof(buf), "%s /* anonymous id=%u */",
-                crefl_tag_name(crefl_decl_tag(r)),
-                crefl_decl_idx(r));
+                crefl_tag_name(crefl_decl_tag(r)), crefl_decl_idx(r));
         }
     }
     return buf;
@@ -57,21 +53,17 @@ static void _print_typedef(decl_ref r, size_t depth)
 {
     decl_ref ft = crefl_typedef_type(r);
 
-    printf("%s%s ",
-        _pad_depth(depth),
-        crefl_tag_name(crefl_decl_tag(r)));
+    printf("%s%s ", _pad_depth(depth), crefl_tag_name(crefl_decl_tag(r)));
 
     switch (crefl_decl_tag(ft)) {
     case _decl_struct: _print_struct(ft, depth); break;
     case _decl_union: _print_union(ft, depth); break;
     default:
-        printf("%s%s", _pad_depth(depth), _type_name(ft));
+        printf("%s%s", _pad_depth(depth), _decl_name(ft));
         break;
     }
 
-    printf(" /* size=%zu */ %s",
-        crefl_type_width(ft),
-        crefl_decl_name(r));
+    printf(" /* size=%zu */ %s", crefl_type_width(ft), crefl_decl_name(r));
 }
 
 static void _print_field(decl_ref r, size_t depth)
@@ -82,13 +74,11 @@ static void _print_field(decl_ref r, size_t depth)
     case _decl_struct: _print_struct(ft, depth); break;
     case _decl_union: _print_union(ft, depth); break;
     default:
-        printf("%s%s", _pad_depth(depth), _type_name(ft));
+        printf("%s%s", _pad_depth(depth), _decl_name(ft));
         break;
     }
 
-    printf(" /* size=%zu */ %s",
-        crefl_type_width(r),
-        crefl_decl_name(r));
+    printf(" /* size=%zu */ %s", crefl_type_width(r), crefl_decl_name(r));
 }
 
 static void _print_struct(decl_ref r, size_t depth)
@@ -96,10 +86,9 @@ static void _print_struct(decl_ref r, size_t depth)
     size_t nfields = 0;
     crefl_struct_fields(r, NULL, &nfields);
 
-    printf("%s%s /* size=%zu */%s",
-        _pad_depth(depth),
-        _type_name(r),
+    printf("%s%s /* size=%zu */%s", _pad_depth(depth), _decl_name(r),
         crefl_type_width(r), nfields > 0 ? " {\n" : "");
+
     if (nfields == 0) return;
 
     decl_ref *_fields = calloc(nfields, sizeof(decl_ref));
@@ -119,9 +108,7 @@ static void _print_union(decl_ref r, size_t depth)
     size_t nfields = 0;
     crefl_union_fields(r, NULL, &nfields);
 
-    printf("%s%s /* size=%zu */%s",
-        _pad_depth(depth),
-        _type_name(r),
+    printf("%s%s /* size=%zu */%s", _pad_depth(depth), _decl_name(r),
         crefl_type_width(r), nfields > 0 ? " {\n" : "");
     if (nfields == 0) return;
 
@@ -148,11 +135,11 @@ static void _print_function(decl_ref r, size_t depth)
 
     if (nparams > 0) {
         decl_ref pt = crefl_param_type(_params[0]);
-        printf("%s%s ", _pad_depth(depth), _type_name(pt));
+        printf("%s%s ", _pad_depth(depth), _decl_name(pt));
     } else {
         printf("%s", _pad_depth(depth));
     }
-    printf("%s(", _type_name(r));
+    printf("%s(", _decl_name(r));
     for (size_t j = 1; j < nparams; j++) {
         decl_ref pt = crefl_param_type(_params[j]);
         if (j > 1) printf(", ");
