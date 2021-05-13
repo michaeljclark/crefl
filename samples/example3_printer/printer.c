@@ -9,6 +9,7 @@
 #include "cprinter.h"
 
 #define array_size(a) (sizeof(a)/sizeof(a[0]))
+#define ptr_offset(ptr,offset) ((u8*)ptr + (offset >> 3))
 
 typedef const char* (*print_fn)(char *buf, size_t len, void *ptr);
 
@@ -44,44 +45,65 @@ static _type_fmt _find_intrinsic_format(decl_ref r)
 {
     size_t width = crefl_intrinsic_width(r);
     decl_set props = crefl_decl_props(r);
-    for (size_t i = 0; i < array_size(_formats); i++) {
-        if ((_formats[i].props & props) == _formats[i].props && _formats[i].width == width) {
-            return _formats[i];
-        }
-    }
+    for (size_t i = 0; i < array_size(_formats); i++)
+        if ((_formats[i].props & props) == _formats[i].props &&
+            _formats[i].width == width) return _formats[i];
     return _formats[0];
-}
-
-static void _print_intrinsic(decl_ref r, void *ptr, size_t offset, size_t depth)
-{
-    char buf[128];
-    _type_fmt fmt = _find_intrinsic_format(r);
-    fmt.fn(buf, sizeof(buf), (char *)ptr + (offset >> 3));
-    printf("%s", buf);
 }
 
 static const char* _pad_depth(size_t depth)
 {
     static char buf[256];
     memset(buf, ' ', sizeof(buf));
-    if ((depth<<2) >= 256) buf[255] = '\0';
-    else buf[(depth<<2)] = '\0';
+    if ((depth<<2) >= sizeof(buf)) {
+        buf[sizeof(buf)-1] = '\0';
+    } else {
+        buf[(depth<<2)] = '\0';
+    }
     return buf;
 }
 
-void _print_struct(decl_ref r, void *ptr, size_t offset, size_t depth);
+static void _print_type(decl_ref r, void *ptr, size_t offset, size_t depth);
+
+static void _print_array(decl_ref r, void *ptr, size_t offset, size_t depth)
+{
+    size_t qty = 1, width;
+    do  {
+        qty *= crefl_array_count(r);
+        r = crefl_array_type(r);
+    } while (crefl_is_array(r));
+    width = crefl_type_width(r);
+
+    printf("[ ");
+    for (size_t i = 0; i < qty; i++) {
+        if (i > 0) printf(", ");
+        _print_type(r, ptr, offset + width * i, depth + 1);
+    }
+    printf(" ]");
+}
+
+static void _print_pointer(decl_ref r, void *ptr, size_t offset, size_t depth)
+{
+    char buf[128];
+    snprintf(buf, sizeof(buf), "(%s) 0x%016llx", crefl_decl_name(r),
+        *(u64*)ptr_offset(ptr, offset));
+    printf("%s", buf);
+}
+
+static void _print_intrinsic(decl_ref r, void *ptr, size_t offset, size_t depth)
+{
+    char buf[128];
+    _type_fmt fmt = _find_intrinsic_format(r);
+    fmt.fn(buf, sizeof(buf), ptr_offset(ptr, offset));
+    printf("%s", buf);
+}
 
 static void _print_field(decl_ref r, void *ptr, size_t offset, size_t depth)
 {
     decl_ref ft = crefl_field_type(r);
 
     printf("%s : ", crefl_decl_name(r));
-
-    switch (crefl_decl_tag(ft)) {
-    case _decl_struct: _print_struct(ft, ptr, offset, depth); break;
-    case _decl_intrinsic: _print_intrinsic(ft, ptr, offset, depth); break;
-    default: break;
-    }
+    _print_type(ft, ptr, offset, depth);
     printf("; ");
 }
 
@@ -108,7 +130,40 @@ void _print_struct(decl_ref r, void *ptr, size_t offset, size_t depth)
     free(_offsets);
 }
 
-decl_ref _find_type(decl_db *db, const char *name)
+void _print_union(decl_ref r, void *ptr, size_t offset, size_t depth)
+{
+    size_t nfields = 0;
+    crefl_union_fields(r, NULL, &nfields);
+
+    printf("%s%s",
+        crefl_decl_name(r),
+        nfields > 0 ? " { " : "{}");
+    if (nfields == 0) return;
+
+    decl_ref *_fields = calloc(nfields, sizeof(decl_ref));
+    assert(_fields);
+    crefl_union_fields(r, _fields, &nfields);
+
+    for (size_t j = 0; j < nfields; j++) {
+        _print_field(_fields[j], ptr, offset, depth + 1);
+    }
+    printf("}");
+    free(_fields);
+}
+
+static void _print_type(decl_ref r, void *ptr, size_t offset, size_t depth)
+{
+    switch (crefl_decl_tag(r)) {
+    case _decl_struct: _print_struct(r, ptr, offset, depth); break;
+    case _decl_union: _print_union(r, ptr, offset, depth); break;
+    case _decl_array: _print_array(r, ptr, offset, depth); break;
+    case _decl_pointer: _print_pointer(r, ptr, offset, depth); break;
+    case _decl_intrinsic: _print_intrinsic(r, ptr, offset, depth); break;
+    default: break;
+    }
+}
+
+decl_ref crefl_type_by_name(decl_db *db, const char *name)
 {
     decl_ref t = { db, 0 };
 
@@ -125,13 +180,15 @@ decl_ref _find_type(decl_db *db, const char *name)
     assert(_types);
     crefl_source_decls(_sources[0], _types, &ntypes);
 
-    if (strncmp(name, "struct ", 7) == 0) name +=7;
-
-    for (size_t i = 0; i < ntypes; i++) {
-        decl_ref r = _types[i];
-        if (crefl_is_struct(r) && strcmp(crefl_decl_name(r), name) == 0) {
-            t = r;
-            break;
+    /* fix me - currently we can only find struct */
+    if (strncmp(name, "struct ", 7) == 0) {
+        name +=7;
+        for (size_t i = 0; i < ntypes; i++) {
+            decl_ref r = _types[i];
+            if (crefl_is_struct(r) && strcmp(crefl_decl_name(r), name) == 0) {
+                t = r;
+                break;
+            }
         }
     }
 
@@ -153,8 +210,6 @@ decl_db* crefl_db_internal()
 
 void crefl_print(decl_ref r, void *ptr)
 {
-    if (crefl_is_struct(r)) {
-        _print_struct(r, ptr, 0, 0);
-        printf("\n");
-    }
+    _print_type(r, ptr, 0, 0);
+    puts("");
 }
