@@ -299,6 +299,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             const ConstantArrayType * cat = context.getAsConstantArrayType(q);
             const ArrayType *at = context.getAsArrayType(q);
             const QualType q = at->getElementType();
+            bool is_static = at->getSizeModifier() == clang::ArrayType::ArraySizeModifier::Static;
             std::string name;
 
             decl_ref ti = get_intrinsic_type(q);
@@ -313,6 +314,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
                 name = string_printf("%s[]", crefl_decl_name(ti));
             }
             crefl_decl_ptr(tr)->_name = crefl_name_new(db, name.c_str());
+            crefl_decl_ptr(tr)->_props |= -(int)is_static & _decl_static;
         }
         else if (_is_vector) {
             const VectorType *vt = q->getAs<VectorType>();
@@ -551,7 +553,8 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         decl_ref r = create_named_node(d, _decl_field);
         crefl_decl_ptr(r)->_link = crefl_decl_idx(get_intrinsic_type(q));
         crefl_decl_ptr(r)->_width = width;
-        crefl_decl_ptr(r)->_props |= get_cvr_props(q) | (-(int)d->isBitField() & _decl_bitfield);
+        crefl_decl_ptr(r)->_props |= get_cvr_props(q)
+            | (-(int)d->isBitField() & _decl_bitfield);
         crefl_decl_ptr(r)->_attr = create_attributes(d, r);
 
         last = r;
@@ -572,6 +575,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         /* create function */
         decl_ref r = create_named_node(d, _decl_function);
         crefl_decl_ptr(r)->_attr = create_attributes(d, r);
+        crefl_decl_ptr(r)->_props |= (-(int)d->isStatic() & _decl_static);
 
         last = r;
 
@@ -617,8 +621,10 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         /* create field */
         decl_ref r = create_named_node(d, _decl_field);
         const QualType q = d->getTypeSourceInfo()->getType();
+        bool is_static = d->getStorageDuration() == clang::StorageDuration::SD_Static;
         crefl_decl_ptr(r)->_link = crefl_decl_idx(get_intrinsic_type(q));
-        crefl_decl_ptr(r)->_props |= get_cvr_props(q);
+        crefl_decl_ptr(r)->_props |= get_cvr_props(q)
+            | (-(int)is_static & _decl_static);
         crefl_decl_ptr(r)->_attr = create_attributes(d, r);
 
         last = r;

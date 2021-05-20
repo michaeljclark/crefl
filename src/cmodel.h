@@ -232,19 +232,20 @@ enum decl_props
     _decl_const    = 1 << 10,
     _decl_volatile = 1 << 11,
     _decl_restrict = 1 << 12,
+    _decl_static   = 1 << 13,
 
     /* binding */
-    _decl_local    = 1 << 13,
-    _decl_global   = 1 << 14,
-    _decl_weak     = 1 << 15,
+    _decl_local    = 1 << 14,
+    _decl_global   = 1 << 15,
+    _decl_weak     = 1 << 16,
 
     /* visibility */
-    _decl_default  = 1 << 16,
-    _decl_hidden   = 1 << 17,
+    _decl_default  = 1 << 17,
+    _decl_hidden   = 1 << 18,
 
     /* param */
-    _decl_in       = 1 << 18,
-    _decl_out      = 1 << 19,
+    _decl_in       = 1 << 19,
+    _decl_out      = 1 << 20,
 };
 
 /*
