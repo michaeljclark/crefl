@@ -575,7 +575,12 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         /* create function */
         decl_ref r = create_named_node(d, _decl_function);
         crefl_decl_ptr(r)->_attr = create_attributes(d, r);
-        crefl_decl_ptr(r)->_props |= (-(int)d->isStatic() & _decl_static);
+        crefl_decl_ptr(r)->_props |=
+            (-(int)d->isGlobal() & _decl_global) |
+            (-(int)d->isExternC() & _decl_extern_c) |
+            (-(int)d->isStatic() & _decl_static) |
+            (-(int)d->isInlined() & _decl_inline) |
+            (-(int)d->isNoReturn() & _decl_noreturn);
 
         last = r;
 

@@ -58,9 +58,23 @@ struct crefl_prop
 };
 
 static crefl_prop prop_names[] = {
+    /* cvr-qualifiers */
     { _decl_const,     "const"      },
     { _decl_volatile,  "volatile"   },
     { _decl_restrict,  "restrict"   },
+    /* interface qualifiers */
+    { _decl_static,    "static"     },
+    { _decl_extern_c,  "extern_c"   },
+    { _decl_inline,    "inline"     },
+    { _decl_noreturn,  "noreturn"   },
+    /* binding */
+    { _decl_local,     "local"      },
+    { _decl_global,    "global"     },
+    { _decl_weak,      "weak"       },
+    /* visibility */
+    { _decl_default,   "default"    },
+    { _decl_hidden,    "hidden"     },
+    /* param */
     { _decl_in,        "in"         },
     { _decl_out,       "out"        }
 };
