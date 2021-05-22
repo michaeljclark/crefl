@@ -628,8 +628,9 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         const QualType q = d->getTypeSourceInfo()->getType();
         bool is_static = d->getStorageDuration() == clang::StorageDuration::SD_Static;
         crefl_decl_ptr(r)->_link = crefl_decl_idx(get_intrinsic_type(q));
-        crefl_decl_ptr(r)->_props |= get_cvr_props(q)
-            | (-(int)is_static & _decl_static);
+        crefl_decl_ptr(r)->_props |= get_cvr_props(q) |
+            (-(int)d->isExternC() & _decl_extern_c) |
+            (-(int)is_static & _decl_static);
         crefl_decl_ptr(r)->_attr = create_attributes(d, r);
 
         last = r;
