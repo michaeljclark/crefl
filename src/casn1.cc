@@ -370,19 +370,21 @@ size_t crefl_asn1_ber_integer_u64_length(const u64 *value)
 
 int crefl_asn1_ber_integer_u64_read(crefl_buf *buf, size_t len, u64 *value)
 {
-    int8_t b;
-    u64 v = 0;
+    u64 v = 0, o = 0;
+    size_t shift = (64 - len * 8);
 
     if (len > 8) {
         goto err;
     }
-    for (size_t i = 0; i < len; i++) {
-        if (crefl_buf_read_i8(buf, &b) != 1) {
-            goto err;
-        }
-        v <<= 8;
-        v |= (uint8_t)b;
+    if (crefl_buf_read_bytes(buf, (char*)&o, len) != len) {
+        goto err;
     }
+
+#if _BYTE_ORDER == _BIG_ENDIAN
+    v = be64(o >> shift);
+#elif _BYTE_ORDER == _LITTLE_ENDIAN
+    v = be64(o << shift);
+#endif
 
     *value = v;
     return 0;
@@ -393,19 +395,21 @@ err:
 
 int crefl_asn1_ber_integer_u64_write(crefl_buf *buf, size_t len, const u64 *value)
 {
-    int8_t b;
-    u64 v = 0;
+    u64 v = 0, o = 0;
+    size_t shift = (64 - len * 8);
 
     if (len < 1 || len > 8) {
         goto err;
     }
-    v = *value << (64 - len * 8);
-    for (size_t i = 0; i < len; i++) {
-        b = (v >> 56) & 0xff;
-        v <<= 8;
-        if (crefl_buf_write_i8(buf, b) != 1) {
-            goto err;
-        }
+
+#if _BYTE_ORDER == _BIG_ENDIAN
+    o = be64(*value) << shift;
+#elif _BYTE_ORDER == _LITTLE_ENDIAN
+    o = be64(*value) >> shift;
+#endif
+
+    if (crefl_buf_write_bytes(buf, (const char*)&o, len) != len) {
+        goto err;
     }
 
     return 0;
