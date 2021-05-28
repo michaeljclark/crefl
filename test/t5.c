@@ -201,6 +201,7 @@ T_BER_UINT(10,2863311530)
 T_BER_UINT(11,4294967296)
 T_BER_UINT(12,733007751850)
 T_BER_UINT(13,1099511627776)
+T_BER_UINT(14,72057594037927935)
 
 #define T_BER_SINT(X,num)                                          \
 void FN(ber_sint,X)()                                              \
@@ -231,6 +232,7 @@ T_BER_SINT(10,-2863311530)
 T_BER_SINT(11,4294967296)
 T_BER_SINT(12,-733007751850)
 T_BER_SINT(13,1099511627776)
+T_BER_SINT(14,72057594037927935)
 
 #define T_BER_OID(X)                                               \
 void FN(ber_oid,X)()                                               \
@@ -288,8 +290,8 @@ T_BER_REAL(2,0.5)
 T_BER_REAL(3,1.0)
 T_BER_REAL(4,2.0)
 T_BER_REAL(5,1/256.0)
-T_BER_REAL(6,_f64_pos_inf())
-T_BER_REAL(7,_f64_neg_inf())
+T_BER_REAL(6,_f64_inf())
+T_BER_REAL(7,-_f64_inf())
 T_BER_REAL(8,-0.0)
 T_BER_REAL(9,_f64_nan())
 T_BER_REAL(10,3279/65536.0)
@@ -376,6 +378,7 @@ T_DER_UINT(10,2863311530)
 T_DER_UINT(11,4294967296)
 T_DER_UINT(12,733007751850)
 T_DER_UINT(13,1099511627776)
+T_DER_UINT(14,72057594037927935)
 
 #define T_DER_SINT(X,num)                                          \
 void FN(der_sint,X)()                                              \
@@ -407,6 +410,7 @@ T_DER_SINT(10,2863311530)
 T_DER_SINT(11,4294967296)
 T_DER_SINT(12,733007751850)
 T_DER_SINT(13,1099511627776)
+T_DER_SINT(14,72057594037927935)
 
 #define T_DER_OID(X)                                               \
 void FN(der_oid,X)()                                               \
@@ -460,8 +464,8 @@ T_DER_REAL(2,0.5)
 T_DER_REAL(3,1.0)
 T_DER_REAL(4,2.0)
 T_DER_REAL(5,1/256.0)
-T_DER_REAL(6,_f64_pos_inf())
-T_DER_REAL(7,_f64_neg_inf())
+T_DER_REAL(6,_f64_inf())
+T_DER_REAL(7,-_f64_inf())
 T_DER_REAL(8,-0.0)
 T_DER_REAL(9,_f64_nan())
 T_DER_REAL(10,3279/65536.0)
@@ -560,6 +564,7 @@ int main()
     test_ber_uint_11();
     test_ber_uint_12();
     test_ber_uint_13();
+    test_ber_uint_14();
 
     test_ber_sint_1();
     test_ber_sint_2();
@@ -574,6 +579,7 @@ int main()
     test_ber_sint_11();
     test_ber_sint_12();
     test_ber_sint_13();
+    test_ber_sint_14();
 
     test_ber_oid_0();
     test_ber_oid_1();
@@ -614,6 +620,7 @@ int main()
     test_der_uint_11();
     test_der_uint_12();
     test_der_uint_13();
+    test_der_uint_14();
 
     test_der_sint_1();
     test_der_sint_2();
@@ -628,6 +635,7 @@ int main()
     test_der_sint_11();
     test_der_sint_12();
     test_der_sint_13();
+    test_der_sint_14();
 
     test_der_oid_0();
     test_der_oid_1();

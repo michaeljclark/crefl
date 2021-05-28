@@ -586,12 +586,12 @@ static f64 f64_pack_float(f64_struct s)
     return f64_from_bits( f64_mant_enc(s.mant) | f64_exp_enc(s.exp) | f64_sign_enc(s.sign) );
 }
 
+float _f32_inf() { return std::numeric_limits<float>::infinity(); }
 float _f32_nan() { return std::numeric_limits<float>::quiet_NaN(); }
-float _f32_pos_inf() { return std::numeric_limits<float>::infinity(); }
-float _f32_neg_inf() { return -std::numeric_limits<float>::infinity(); }
+float _f32_snan() { return std::numeric_limits<float>::signaling_NaN(); }
+double _f64_inf() { return std::numeric_limits<double>::infinity(); }
 double _f64_nan() { return std::numeric_limits<double>::quiet_NaN(); }
-double _f64_pos_inf() { return std::numeric_limits<double>::infinity(); }
-double _f64_neg_inf() { return -std::numeric_limits<double>::infinity(); }
+double _f64_snan() { return std::numeric_limits<double>::signaling_NaN(); }
 
 /*
  * ISO/IEC 8825-1:2003 8.5 real
@@ -722,7 +722,7 @@ static f64_asn1_data f64_asn1_data_get(double value)
     size_t frac_tz, frac_lz;
 
     sexp = (s64)f64_exp_dec(value);
-    frac = (s64)f64_mant_dec(value) | (-(s64)sexp & f64_mant_prefix);
+    frac = (s64)f64_mant_dec(value) | (-(s64)(sexp > 0) & f64_mant_prefix);
     frac_tz = ctz(frac);
     frac_lz = clz(frac);
     frac >>= frac_tz;
