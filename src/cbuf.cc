@@ -16,23 +16,11 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <cinttypes>
 
-#include <string>
-
-#include "stdendian.h"
-
-#include "cmodel.h"
-#include "cutil.h"
 #include "cbuf.h"
-
-static bool _debug_enabled = false;
-
-#define _debug(...) if (_debug_enabled) { printf(__VA_ARGS__); }
-#define _debug_func(fmt,...) \
-if (_debug_enabled) { printf("%s: " fmt, __func__, __VA_ARGS__); }
 
 crefl_buf* crefl_buf_new(size_t size)
 {
@@ -52,43 +40,6 @@ void crefl_buf_destroy(crefl_buf* buf)
     free(buf);
 }
 
-void crefl_buf_reset(crefl_buf* buf)
-{
-    buf->data_offset = 0;
-}
-
-void crefl_buf_seek(crefl_buf* buf, size_t offset)
-{
-    buf->data_offset = offset;
-}
-
-char* crefl_buf_data(crefl_buf *buf)
-{
-    return buf->data;
-}
-
-size_t crefl_buf_offset(crefl_buf* buf)
-{
-    return buf->data_offset;
-}
-
-crefl_span crefl_buf_remaining(crefl_buf* buf)
-{
-    return crefl_span {
-        &buf->data[buf->data_offset], buf->data_size - buf->data_offset
-    };
-}
-
-static std::string _to_binary(uint64_t symbol, size_t bit_width)
-{
-    static const char* arr[] = { "▄", "▟", "▙", "█" };
-    std::string s;
-    for (intptr_t i = bit_width-2; i >= 0; i-=2) {
-        s.append(arr[(symbol>>i) & 3]);
-    }
-    return s;
-}
-
 void crefl_buf_dump(crefl_buf *buf)
 {
     intptr_t stride = 16;
@@ -98,78 +49,18 @@ void crefl_buf_dump(crefl_buf *buf)
             if (j >= buf->data_offset) printf("     ");
             else printf(" 0x%02hhX", buf->data[j]);
         }
-        printf("\n");
-        printf("%04zX: ", i & 0xffff);
+        printf("\n%04zX: ", i & 0xffff);
         for (intptr_t j = i+stride-1; j >= i; j--) {
-            if (j >= buf->data_offset) printf(" ░░░░");
-            else printf(" %s", _to_binary(buf->data[j], 8).c_str());
+            const char arr[4][4] = { "▄", "▟", "▙", "█" };
+            printf(" ");
+            for (intptr_t i = 6; i >= 0; i-=2) {
+                if (j < buf->data_offset) {
+                    printf("%s", arr[(buf->data[j]>>i) & 3]);
+                } else {
+                    printf("░");
+                }
+            }
         }
         printf("\n");
     }
-}
-
-template <typename INT, typename SWAP>
-static size_t crefl_buf_write_int(crefl_buf *buf, INT num, SWAP f);
-template <typename INT, typename SWAP>
-static size_t crefl_buf_read_int(crefl_buf *buf, INT *num, SWAP f);
-
-size_t crefl_buf_write_i8(crefl_buf* buf, int8_t num)
-{ return crefl_buf_write_int<int8_t>(buf,num,le8); }
-size_t crefl_buf_write_i16(crefl_buf* buf, int16_t num)
-{ return crefl_buf_write_int<int16_t>(buf,num,le16); }
-size_t crefl_buf_write_i32(crefl_buf* buf, int32_t num)
-{ return crefl_buf_write_int<int32_t>(buf,num,le32); }
-size_t crefl_buf_write_i64(crefl_buf* buf, int64_t num)
-{ return crefl_buf_write_int<int64_t>(buf,num,le64); }
-
-size_t crefl_buf_read_i8(crefl_buf* buf, int8_t *num)
-{ return crefl_buf_read_int<int8_t>(buf,num,le8); }
-size_t crefl_buf_read_i16(crefl_buf* buf, int16_t *num)
-{ return crefl_buf_read_int<int16_t>(buf,num,le16); }
-size_t crefl_buf_read_i32(crefl_buf* buf, int32_t *num)
-{ return crefl_buf_read_int<int32_t>(buf,num,le32); }
-size_t crefl_buf_read_i64(crefl_buf* buf, int64_t *num)
-{ return crefl_buf_read_int<int64_t>(buf,num,le64); }
-
-template <typename INT, typename SWAP>
-static size_t crefl_buf_write_int(crefl_buf *buf, INT num, SWAP f)
-{
-    if (buf->data_offset + sizeof(num) > buf->data_size) return 0;
-    INT t = f(num);
-    memcpy(buf->data + buf->data_offset, &t, sizeof(INT));
-    _debug_func("bits=%zu, offset=%zu, value=%lld\n",
-                sizeof(num)<<3, buf->data_offset, (long long)num);
-    buf->data_offset += sizeof(num);
-    return sizeof(num);
-}
-
-template <typename INT, typename SWAP>
-static size_t crefl_buf_read_int(crefl_buf *buf, INT *num, SWAP f)
-{
-    if (buf->data_offset + sizeof(*num) > buf->data_size) return 0;
-    INT t;
-    memcpy(&t, buf->data + buf->data_offset, sizeof(INT));
-    *num = f(t);
-    _debug_func("bits=%zu, offset=%zu, value=%lld\n",
-                sizeof(num)<<3, buf->data_offset, (long long)*num);
-    buf->data_offset += sizeof(*num);
-    return sizeof(*num);
-}
-
-size_t crefl_buf_write_bytes(crefl_buf* buf, const char *s, size_t len)
-{
-    if (buf->data_offset + len > buf->data_size) return 0;
-    memcpy(&buf->data[buf->data_offset], s, len);
-    _debug_func("length=%zu, offset=%zu\n", len, buf->data_offset);
-    buf->data_offset += len;
-    return len;
-}
-
-size_t crefl_buf_read_bytes(crefl_buf* buf, char *s, size_t len)
-{
-    if (buf->data_offset + len > buf->data_size) return 0;
-    memcpy(s, &buf->data[buf->data_offset], len);
-    _debug_func("length=%" PRIu64 ", offset=%zu\n", len, buf->data_offset);
-    buf->data_offset += len;
-    return len;
 }
