@@ -1,0 +1,133 @@
+
+\documentclass{standalone}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usepackage{lipsum}
+\usepackage{mwe}
+\usetikzlibrary{decorations.pathreplacing}
+\begin{document}
+
+\hspace{1cm}
+\centering
+\begin{minipage}[c]{1.775\textwidth}
+\paragraph{ }
+\paragraph{ }
+\paragraph{ }
+
+\begin{tikzpicture}[fill=blue!20,scale=0.75]
+\begin{scope}[every node/.style={font=\normalsize, inner sep=0pt, right}]
+
+\node [font=\large,above,scale=0.9,anchor=south] at (13,2.75)  {\emph{e.g.} $-0x1.f\cdot2^3\:(-15.5)$};
+
+\fill [black!15] (0,0)    rectangle (1,1);
+\draw [black!50] (0,0)    rectangle (1,1);
+\node [font=\small,below,scale=0.9,anchor=north] at (0.5,1.4)  {$7$};
+\node [font=\ttfamily,anchor=south] at (0.5,0.33)  {0};
+
+\draw [decorate,decoration={brace,amplitude=5pt,mirror,raise=4ex}]
+    (0,0.66) -- (1,0.66) node[font=\small,midway,below,yshift=-2.7em]{inline};
+
+\fill [black!5] (1,0)    rectangle (2,1);
+\draw [black!50] (1,0)    rectangle (2,1);
+\node [font=\small,below,scale=0.9,anchor=north] at (1.5,1.4)  {$6$};
+\node [font=\ttfamily,anchor=south] at (1.5,0.33)  {1};
+
+\draw [decorate,decoration={brace,amplitude=5pt,mirror,raise=4ex}]
+    (1,0.66) -- (2,0.66) node[font=\small,midway,below,yshift=-2.7em]{sign};
+
+\fill [black!15] (2,0)    rectangle (4,1);
+\draw [black!50] (2,0)    rectangle (3,1);
+\draw [black!50] (3,0)    rectangle (4,1);
+\node [font=\small,below,scale=0.9,anchor=north] at (2.5,1.4)  {$5$};
+\node [font=\small,below,scale=0.9,anchor=north] at (3.5,1.4)  {$4$};
+\node [font=\ttfamily,anchor=south] at (2.5,0.33)  {0};
+\node [font=\ttfamily,anchor=south] at (3.5,0.33)  {1};
+
+\draw [decorate,decoration={brace,amplitude=5pt,mirror,raise=4ex}]
+    (2,0.66) -- (4,0.66) node[font=\small,midway,below,yshift=-2.7em]{exponent};
+
+\fill [black!5]  (4,0)    rectangle (8,1);
+\draw [black!50] (4,0)    rectangle (5,1);
+\draw [black!50] (5,0)    rectangle (6,1);
+\draw [black!50] (6,0)    rectangle (7,1);
+\draw [black!50] (7,0)    rectangle (8,1);
+\node [font=\small,below,scale=0.9,anchor=north] at (4.5,1.4)  {$3$};
+\node [font=\small,below,scale=0.9,anchor=north] at (5.5,1.4)  {$2$};
+\node [font=\small,below,scale=0.9,anchor=north] at (6.5,1.4)  {$1$};
+\node [font=\small,below,scale=0.9,anchor=north] at (7.5,1.4)  {$0$};
+\node [font=\ttfamily,anchor=south] at (4.5,0.33)  {0};
+\node [font=\ttfamily,anchor=south] at (5.5,0.33)  {0};
+\node [font=\ttfamily,anchor=south] at (6.5,0.33)  {0};
+\node [font=\ttfamily,anchor=south] at (7.5,0.33)  {1};
+
+\node [font=\small,above,scale=0.9,anchor=south] at (4,1.75)  {byte 0};
+\draw [decorate,decoration={brace,amplitude=5pt,mirror,raise=4ex}]
+    (4,0.66) -- (8,0.66) node[font=\small,midway,below,yshift=-2.7em]{mantissa};
+
+\fill [black!15]  (9, 0) rectangle (17,1);
+\draw [black!50] (9, 0) rectangle (10,1);
+\draw [black!50] (10, 0) rectangle (11,1);
+\draw [black!50] (11, 0) rectangle (12,1);
+\draw [black!50] (12, 0) rectangle (13,1);
+\draw [black!50] (13, 0) rectangle (14,1);
+\draw [black!50] (14, 0) rectangle (15,1);
+\draw [black!50] (15, 0) rectangle (16,1);
+\draw [black!50] (16, 0) rectangle (17,1);
+\node [font=\small,below,scale=0.9,anchor=north] at (9.5,1.4)  {$7$};
+\node [font=\small,below,scale=0.9,anchor=north] at (10.5,1.4)  {$6$};
+\node [font=\small,below,scale=0.9,anchor=north] at (11.5,1.4)  {$5$};
+\node [font=\small,below,scale=0.9,anchor=north] at (12.5,1.4)  {$4$};
+\node [font=\small,below,scale=0.9,anchor=north] at (13.5,1.4)  {$3$};
+\node [font=\small,below,scale=0.9,anchor=north] at (14.5,1.4)  {$2$};
+\node [font=\small,below,scale=0.9,anchor=north] at (15.5,1.4)  {$1$};
+\node [font=\small,below,scale=0.9,anchor=north] at (16.5,1.4)  {$0$};
+\node [font=\ttfamily,anchor=south] at (9.5,0.33)  {0};
+\node [font=\ttfamily,anchor=south] at (10.5,0.33)  {0};
+\node [font=\ttfamily,anchor=south] at (11.5,0.33)  {0};
+\node [font=\ttfamily,anchor=south] at (12.5,0.33)  {1};
+\node [font=\ttfamily,anchor=south] at (13.5,0.33)  {1};
+\node [font=\ttfamily,anchor=south] at (14.5,0.33)  {1};
+\node [font=\ttfamily,anchor=south] at (15.5,0.33)  {1};
+\node [font=\ttfamily,anchor=south] at (16.5,0.33)  {1};
+
+\node [font=\small,above,scale=0.9,anchor=south] at (13,1.75)  {byte 1 ... 1+len(exp)};
+\draw [decorate,decoration={brace,amplitude=5pt,mirror,raise=4ex}]
+    (9,0.66) -- (17,0.66) node[font=\small,midway,below,yshift=-2.7em]{signed little-endian exponent};
+
+\fill [black!5]  (18,0) rectangle (26,1);
+\draw [black!50] (18,0) rectangle (19,1);
+\draw [black!50] (19,0) rectangle (20,1);
+\draw [black!50] (20,0) rectangle (21,1);
+\draw [black!50] (21,0) rectangle (22,1);
+\draw [black!50] (22,0) rectangle (23,1);
+\draw [black!50] (23,0) rectangle (24,1);
+\draw [black!50] (24,0) rectangle (25,1);
+\draw [black!50] (25,0) rectangle (26,1);
+\node [font=\small,below,scale=0.9,anchor=north] at (18.5,1.4)  {$7$};
+\node [font=\small,below,scale=0.9,anchor=north] at (19.5,1.4)  {$6$};
+\node [font=\small,below,scale=0.9,anchor=north] at (20.5,1.4)  {$5$};
+\node [font=\small,below,scale=0.9,anchor=north] at (21.5,1.4)  {$4$};
+\node [font=\small,below,scale=0.9,anchor=north] at (22.5,1.4)  {$3$};
+\node [font=\small,below,scale=0.9,anchor=north] at (23.5,1.4)  {$2$};
+\node [font=\small,below,scale=0.9,anchor=north] at (24.5,1.4)  {$1$};
+\node [font=\small,below,scale=0.9,anchor=north] at (25.5,1.4)  {$0$};
+\node [font=\ttfamily,anchor=south] at (18.5,0.33)  {0};
+\node [font=\ttfamily,anchor=south] at (19.5,0.33)  {0};
+\node [font=\ttfamily,anchor=south] at (20.5,0.33)  {0};
+\node [font=\ttfamily,anchor=south] at (21.5,0.33)  {0};
+\node [font=\ttfamily,anchor=south] at (22.5,0.33)  {0};
+\node [font=\ttfamily,anchor=south] at (23.5,0.33)  {0};
+\node [font=\ttfamily,anchor=south] at (24.5,0.33)  {1};
+\node [font=\ttfamily,anchor=south] at (25.5,0.33)  {1};
+
+\node [font=\small,above,scale=0.9,anchor=south] at (22,1.75)  {byte 1+len(exp) ... 1+len(exp)+len(man)};
+\draw [decorate,decoration={brace,amplitude=5pt,mirror,raise=4ex}]
+    (18,0.66) -- (26,0.66) node[font=\small,midway,below,yshift=-2.7em]{unsigned little-endian mantissa};
+
+\end{scope}
+\end{tikzpicture}
+
+\bigskip
+\end{minipage}
+
+\end{document}

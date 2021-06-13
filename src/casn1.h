@@ -145,6 +145,11 @@ double _f64_snan();
  * ASN.1 serialisation and deserialization
  */
 
+struct f32_result { f32 value; s32 error; };
+struct f64_result { f64 value; s64 error; };
+struct s64_result { s64 value; s64 error; };
+struct u64_result { u64 value; s64 error; };
+
 const char* asn1_tag_name(u64 tag);
 
 size_t crefl_asn1_ber_tag_length(u64 len);
@@ -171,17 +176,71 @@ int crefl_asn1_ber_integer_u64_write(crefl_buf *buf, size_t len, const u64 *valu
 int crefl_asn1_der_integer_u64_read(crefl_buf *buf, asn1_tag _tag, u64 *value);
 int crefl_asn1_der_integer_u64_write(crefl_buf *buf, asn1_tag _tag, const u64 *value);
 
+size_t crefl_asn1_ber_integer_u64_length_byval(const u64 value);
+struct u64_result crefl_asn1_ber_integer_u64_read_byval(crefl_buf *buf, size_t len);
+int crefl_asn1_ber_integer_u64_write_byval(crefl_buf *buf, size_t len, const u64 value);
+struct u64_result crefl_asn1_der_integer_u64_read_byval(crefl_buf *buf, asn1_tag _tag);
+int crefl_asn1_der_integer_u64_write_byval(crefl_buf *buf, asn1_tag _tag, const u64 value);
+
 size_t crefl_asn1_ber_integer_s64_length(const s64 *value);
 int crefl_asn1_ber_integer_s64_read(crefl_buf *buf, size_t len, s64 *value);
 int crefl_asn1_ber_integer_s64_write(crefl_buf *buf, size_t len, const s64 *value);
 int crefl_asn1_der_integer_s64_read(crefl_buf *buf, asn1_tag _tag, s64 *value);
 int crefl_asn1_der_integer_s64_write(crefl_buf *buf, asn1_tag _tag, const s64 *value);
 
+size_t crefl_asn1_ber_integer_s64_length_byval(const s64 value);
+struct s64_result crefl_asn1_ber_integer_s64_read_byval(crefl_buf *buf, size_t len);
+int crefl_asn1_ber_integer_s64_write_byval(crefl_buf *buf, size_t len, const s64 value);
+struct s64_result crefl_asn1_der_integer_s64_read_byval(crefl_buf *buf, asn1_tag _tag);
+int crefl_asn1_der_integer_s64_write_byval(crefl_buf *buf, asn1_tag _tag, const s64 value);
+
+size_t crefl_le_ber_integer_u64_length(const u64 *value);
+int crefl_le_ber_integer_u64_read(crefl_buf *buf, size_t len, u64 *value);
+int crefl_le_ber_integer_u64_write(crefl_buf *buf, size_t len, const u64 *value);
+
+size_t crefl_le_ber_integer_u64_length_byval(const u64 value);
+struct u64_result crefl_le_ber_integer_u64_read_byval(crefl_buf *buf, size_t len);
+int crefl_le_ber_integer_u64_write_byval(crefl_buf *buf, size_t len, const u64 value);
+
+size_t crefl_le_ber_integer_s64_length(const s64 *value);
+int crefl_le_ber_integer_s64_read(crefl_buf *buf, size_t len, s64 *value);
+int crefl_le_ber_integer_s64_write(crefl_buf *buf, size_t len, const s64 *value);
+
+size_t crefl_le_ber_integer_s64_length_byval(const s64 *value);
+struct s64_result crefl_le_ber_integer_s64_read_byval(crefl_buf *buf, size_t len);
+int crefl_le_ber_integer_s64_write_byval(crefl_buf *buf, size_t len, const s64 value);
+
 size_t crefl_asn1_ber_real_f64_length(const double *value);
 int crefl_asn1_ber_real_f64_read(crefl_buf *buf, size_t len, double *value);
 int crefl_asn1_ber_real_f64_write(crefl_buf *buf, size_t len, const double *value);
 int crefl_asn1_der_real_f64_read(crefl_buf *buf, asn1_tag _tag, double *value);
 int crefl_asn1_der_real_f64_write(crefl_buf *buf, asn1_tag _tag, const double *value);
+
+size_t crefl_asn1_ber_real_f64_length_byval(const double value);
+struct f64_result crefl_asn1_ber_real_f64_read_byval(crefl_buf *buf, size_t len);
+int crefl_asn1_ber_real_f64_write_byval(crefl_buf *buf, size_t len, const double value);
+struct f64_result crefl_asn1_der_real_f64_read_byval(crefl_buf *buf, asn1_tag _tag);
+int crefl_asn1_der_real_f64_write_byval(crefl_buf *buf, asn1_tag _tag, const double value);
+
+int crefl_vf_f64_read(crefl_buf *buf, double *value);
+int crefl_vf_f64_write(crefl_buf *buf, const double *value);
+struct f64_result crefl_vf_f64_read_byval(crefl_buf *buf);
+int crefl_vf_f64_write_byval(crefl_buf *buf, const double value);
+
+int crefl_vf_f32_read(crefl_buf *buf, float *value);
+int crefl_vf_f32_write(crefl_buf *buf, const float *value);
+struct f32_result crefl_vf_f32_read_byval(crefl_buf *buf);
+int crefl_vf_f32_write_byval(crefl_buf *buf, const float value);
+
+int crefl_leb_u64_read(crefl_buf *buf, u64 *value);
+int crefl_leb_u64_write(crefl_buf *buf, const u64 *value);
+struct u64_result crefl_leb_u64_read_byval(crefl_buf *buf);
+int crefl_leb_u64_write_byval(crefl_buf *buf, const u64 value);
+
+int crefl_vlu_u64_read(crefl_buf *buf, u64 *value);
+int crefl_vlu_u64_write(crefl_buf *buf, const u64 *value);
+struct u64_result crefl_vlu_u64_read_byval(crefl_buf *buf);
+int crefl_vlu_u64_write_byval(crefl_buf *buf, const u64 value);
 
 size_t crefl_asn1_ber_oid_length(const asn1_oid *obj);
 int crefl_asn1_ber_oid_read(crefl_buf *buf, size_t len, asn1_oid *obj);
