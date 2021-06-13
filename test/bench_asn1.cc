@@ -39,15 +39,18 @@ static void _millisleep(llong sleep_ms)
 #endif
 }
 
-static const char pi_str[] = "3.141592653589793";
-static const unsigned char pi_asn[] = { 0x09, 0x09, 0x80, 0xD0, 0x03, 0x24, 0x3F, 0x6A, 0x88, 0x85, 0xA3 };
-static const unsigned long long i13 = 72057594037927935;
-static const char i13_str[] = "72057594037927935";
-static const unsigned char i13_asn[] = { 0x02, 0x08, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
-static const unsigned long long i12 = 18014398509481984;
-static const unsigned char i12_leb[] = { 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x20 };
-static const unsigned char i12_vlu[] = { 0x7F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40 };
-static const unsigned char pi_vf8[] = { 0x17, 0x01, 0xA3, 0x85, 0x88, 0x6A, 0x3F, 0x24, 0x03 };
+char pi_str[] = "3.141592653589793";
+char pi_strf[] = "3.141592";
+unsigned char pi_asn[] = { 0x09, 0x09, 0x80, 0xD0, 0x03, 0x24, 0x3F, 0x6A, 0x88, 0x85, 0xA3 };
+unsigned long long i17 = 72057594037927935;
+char i17_str[] = "72057594037927935";
+unsigned int i10 = 2147483648;
+char i10_str[] = "2147483648";
+unsigned char i17_asn[] = { 0x02, 0x08, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+unsigned long long i12 = 18014398509481984;
+unsigned char i12_leb[] = { 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x20 };
+unsigned char i12_vlu[] = { 0x7F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40 };
+unsigned char pi_vf8[] = { 0x17, 0x01, 0xA3, 0x85, 0x88, 0x6A, 0x3F, 0x24, 0x03 };
 
 struct bench_result { const char *name; llong count; double t; llong size; };
 
@@ -64,6 +67,22 @@ static bench_result bench_ascii_strtod(llong count)
 
     double t = (double)duration_cast<nanoseconds>(et - st).count();
     return bench_result { "f64-strtod-base10", count, t, 8 * count };
+}
+
+
+static bench_result bench_ascii_strtof(llong count)
+{
+    float f;
+    auto st = high_resolution_clock::now();
+    for (llong i = 0; i < count; i++) {
+        f = strtof(pi_strf, NULL);
+    }
+    auto et = high_resolution_clock::now();
+
+    assert(fabsf(f - 3.141592f) < 0.0001f);
+
+    double t = (double)duration_cast<nanoseconds>(et - st).count();
+    return bench_result { "f64-strtof-base10", count, t, 4 * count };
 }
 
 static bench_result bench_asn1_read_byptr_real(llong count)
@@ -318,16 +337,46 @@ static bench_result bench_vf32_write_byval_real(llong count)
     return bench_result { "f32-vf128-write-byval", count, t, 4 * count };
 }
 
+static bench_result bench_ascii_atoi(llong count)
+{
+    unsigned int d;
+    auto st = high_resolution_clock::now();
+    for (llong i = 0; i < count; i++) {
+        d = atoi(i10_str);
+    }
+    auto et = high_resolution_clock::now();
+
+    assert(d == i10);
+
+    double t = (double)duration_cast<nanoseconds>(et - st).count();
+    return bench_result { "u64-atoi", count, t, 4 * count };
+}
+
+static bench_result bench_ascii_atoll(llong count)
+{
+    unsigned long long d;
+    auto st = high_resolution_clock::now();
+    for (llong i = 0; i < count; i++) {
+        d = atoll(i17_str);
+    }
+    auto et = high_resolution_clock::now();
+
+    assert(d == i17);
+
+    double t = (double)duration_cast<nanoseconds>(et - st).count();
+    return bench_result { "u64-atoll", count, t, 8 * count };
+}
+
 static bench_result bench_ascii_strtoull(llong count)
 {
     unsigned long long d;
     auto st = high_resolution_clock::now();
     for (llong i = 0; i < count; i++) {
-        d = strtoull(i13_str, NULL, 10);
+        d = strtoull(i17_str, NULL, 10);
     }
     auto et = high_resolution_clock::now();
 
-    assert(d == i13);
+    assert(d == i17);
 
     double t = (double)duration_cast<nanoseconds>(et - st).count();
     return bench_result { "u64-strtoull-base10", count, t, 8 * count };
@@ -337,7 +386,7 @@ static bench_result bench_asn1_read_byptr_integer(llong count)
 {
     unsigned long long d;
     crefl_buf *buf = crefl_buf_new(128);
-    crefl_buf_write_bytes(buf, (const char*)i13_asn, sizeof(i13_asn));
+    crefl_buf_write_bytes(buf, (const char*)i17_asn, sizeof(i17_asn));
 
     auto st = high_resolution_clock::now();
     for (llong i = 0; i < count; i++) {
@@ -346,7 +395,7 @@ static bench_result bench_asn1_read_byptr_integer(llong count)
     }
     auto et = high_resolution_clock::now();
 
-    assert(d == i13);
+    assert(d == i17);
     crefl_buf_destroy(buf);
 
     double t = (double)duration_cast<nanoseconds>(et - st).count();
@@ -357,7 +406,7 @@ static bench_result bench_asn1_read_byval_integer(llong count)
 {
     u64_result r;
     crefl_buf *buf = crefl_buf_new(128);
-    crefl_buf_write_bytes(buf, (const char*)i13_asn, sizeof(i13_asn));
+    crefl_buf_write_bytes(buf, (const char*)i17_asn, sizeof(i17_asn));
 
     auto st = high_resolution_clock::now();
     for (llong i = 0; i < count; i++) {
@@ -367,7 +416,7 @@ static bench_result bench_asn1_read_byval_integer(llong count)
     }
     auto et = high_resolution_clock::now();
 
-    assert(r.value == i13);
+    assert(r.value == i17);
     crefl_buf_destroy(buf);
 
     double t = (double)duration_cast<nanoseconds>(et - st).count();
@@ -619,6 +668,7 @@ static const char* format_comma(llong count)
 
 static bench_result(* const benchmarks[])(llong) = {
     bench_ascii_strtod,
+    bench_ascii_strtof,
     bench_asn1_read_byptr_real,
     bench_asn1_read_byval_real,
     bench_asn1_write_byptr_real,
@@ -631,6 +681,8 @@ static bench_result(* const benchmarks[])(llong) = {
     bench_vf64_read_byval_real,
     bench_vf64_write_byptr_real,
     bench_vf64_write_byval_real,
+    bench_ascii_atoi,
+    bench_ascii_atoll,
     bench_ascii_strtoull,
     bench_asn1_read_byptr_integer,
     bench_asn1_read_byval_integer,
