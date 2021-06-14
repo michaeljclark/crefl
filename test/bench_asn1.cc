@@ -66,7 +66,7 @@ static bench_result bench_ascii_strtod(llong count)
     assert(fabs(f - 3.141592) < 0.0001);
 
     double t = (double)duration_cast<nanoseconds>(et - st).count();
-    return bench_result { "f64-strtod-base10", count, t, 8 * count };
+    return bench_result { "f64-read-strtod-dec", count, t, 8 * count };
 }
 
 
@@ -82,7 +82,40 @@ static bench_result bench_ascii_strtof(llong count)
     assert(fabsf(f - 3.141592f) < 0.0001f);
 
     double t = (double)duration_cast<nanoseconds>(et - st).count();
-    return bench_result { "f64-strtof-base10", count, t, 4 * count };
+    return bench_result { "f32-read-strtof-dec", count, t, 4 * count };
+}
+
+static bench_result bench_ascii_snprintf_f(llong count)
+{
+    char buf[32];
+    const float pi = 3.141592f;
+    auto st = high_resolution_clock::now();
+    for (llong i = 0; i < count; i++) {
+        assert(snprintf(buf, sizeof(buf), "%.8lf", pi) > 0);
+    }
+    auto et = high_resolution_clock::now();
+
+    assert(strncmp(buf,"3.141592", 8) == 0);
+
+    double t = (double)duration_cast<nanoseconds>(et - st).count();
+    return bench_result { "f32-write-snprintf-dec", count, t, 4 * count };
+}
+
+
+static bench_result bench_ascii_snprintf_d(llong count)
+{
+    char buf[32];
+    const double pi = 3.141592653589793;
+    auto st = high_resolution_clock::now();
+    for (llong i = 0; i < count; i++) {
+        assert(snprintf(buf, sizeof(buf), "%.16lf", pi) > 0);
+    }
+    auto et = high_resolution_clock::now();
+
+    assert(strncmp(buf,"3.141592653589793", 17) == 0);
+
+    double t = (double)duration_cast<nanoseconds>(et - st).count();
+    return bench_result { "f64-write-snprintf-dec", count, t, 8 * count };
 }
 
 static bench_result bench_asn1_read_byptr_real(llong count)
@@ -349,7 +382,7 @@ static bench_result bench_ascii_atoi(llong count)
     assert(d == i10);
 
     double t = (double)duration_cast<nanoseconds>(et - st).count();
-    return bench_result { "u64-atoi", count, t, 4 * count };
+    return bench_result { "u32-read-atoi-dec", count, t, 4 * count };
 }
 
 static bench_result bench_ascii_atoll(llong count)
@@ -364,7 +397,7 @@ static bench_result bench_ascii_atoll(llong count)
     assert(d == i17);
 
     double t = (double)duration_cast<nanoseconds>(et - st).count();
-    return bench_result { "u64-atoll", count, t, 8 * count };
+    return bench_result { "u64-read-atoll-dec", count, t, 8 * count };
 }
 
 static bench_result bench_ascii_strtoull(llong count)
@@ -379,7 +412,22 @@ static bench_result bench_ascii_strtoull(llong count)
     assert(d == i17);
 
     double t = (double)duration_cast<nanoseconds>(et - st).count();
-    return bench_result { "u64-strtoull-base10", count, t, 8 * count };
+    return bench_result { "u64-read-strtoull-dec", count, t, 8 * count };
+}
+
+static bench_result bench_ascii_snprintf_llu(llong count)
+{
+    char buf[32];
+    auto st = high_resolution_clock::now();
+    for (llong i = 0; i < count; i++) {
+        assert(snprintf(buf, sizeof(buf), "%llu", i17) > 0);
+    }
+    auto et = high_resolution_clock::now();
+
+    assert(strncmp(buf, i17_str, 17) == 0);
+
+    double t = (double)duration_cast<nanoseconds>(et - st).count();
+    return bench_result { "u64-write-snprintf-dec", count, t, 8 * count };
 }
 
 static bench_result bench_asn1_read_byptr_integer(llong count)
@@ -669,6 +717,8 @@ static const char* format_comma(llong count)
 static bench_result(* const benchmarks[])(llong) = {
     bench_ascii_strtod,
     bench_ascii_strtof,
+    bench_ascii_snprintf_f,
+    bench_ascii_snprintf_d,
     bench_asn1_read_byptr_real,
     bench_asn1_read_byval_real,
     bench_asn1_write_byptr_real,
@@ -684,6 +734,7 @@ static bench_result(* const benchmarks[])(llong) = {
     bench_ascii_atoi,
     bench_ascii_atoll,
     bench_ascii_strtoull,
+    bench_ascii_snprintf_llu,
     bench_asn1_read_byptr_integer,
     bench_asn1_read_byval_integer,
     bench_asn1_write_byptr_integer,
