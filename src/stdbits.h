@@ -14,7 +14,7 @@
  *   GCC -O2 -x c++ -std=c++14
  *   MSVC /O2 /TP /std:c++14
  *
- * This header can be included from C uses C11 _Generic selection
+ * This header can be included from C and uses C11 _Generic selection
  *
  *   GCC -O2 -x c -std=c11
  *   MSVC /O2 /TC /std:c11
