@@ -25,17 +25,17 @@
  *
  *   uint16_t bswap16(uint16_t x); (* swap bytes 16-bit word *)
  *   uint32_t bswap32(uint32_t x); (* swap bytes 32-bit word *)
- *   uint64_t bswap64(uint32_t x); (* swap bytes 64-bit word *)
+ *   uint64_t bswap64(uint64_t x); (* swap bytes 64-bit word *)
  *
  * Simplified host endian interfaces:
  *
  *   uint16_t be16(uint16_t x); (* big-endian representation 16-bit word *)
  *   uint32_t be32(uint32_t x); (* big-endian representation 32-bit word *)
- *   uint64_t be64(uint32_t x); (* big-endian representation 64-bit word *)
+ *   uint64_t be64(uint64_t x); (* big-endian representation 64-bit word *)
  *
  *   uint16_t le16(uint16_t x); (* little-endian representation 16-bit word *)
  *   uint32_t le32(uint32_t x); (* little-endian representation 32-bit word *)
- *   uint64_t le64(uint32_t x); (* little-endian representation 64-bit word *)
+ *   uint64_t le64(uint64_t x); (* little-endian representation 64-bit word *)
  *
  * BSD host endian interfaces:
  *
@@ -49,10 +49,10 @@
  *   uint32_t be32toh(uint32_t x) { return be32(x); }
  *   uint32_t le32toh(uint32_t x) { return le32(x); }
  *
- *   uint64_t htobe64(uint32_t x) { return be64(x); }
- *   uint64_t htole64(uint32_t x) { return le64(x); }
- *   uint64_t be64toh(uint32_t x) { return be64(x); }
- *   uint64_t le64toh(uint32_t x) { return le64(x); }
+ *   uint64_t htobe64(uint64_t x) { return be64(x); }
+ *   uint64_t htole64(uint64_t x) { return le64(x); }
+ *   uint64_t be64toh(uint64_t x) { return be64(x); }
+ *   uint64_t le64toh(uint64_t x) { return le64(x); }
  */
 
 #include <stdint.h>
@@ -282,10 +282,10 @@ static inline uint32_t htole32(uint32_t x) { return le32(x); }
 static inline uint32_t be32toh(uint32_t x) { return be32(x); }
 static inline uint32_t le32toh(uint32_t x) { return le32(x); }
 
-static inline uint64_t htobe64(uint32_t x) { return be64(x); }
-static inline uint64_t htole64(uint32_t x) { return le64(x); }
-static inline uint64_t be64toh(uint32_t x) { return be64(x); }
-static inline uint64_t le64toh(uint32_t x) { return le64(x); }
+static inline uint64_t htobe64(uint64_t x) { return be64(x); }
+static inline uint64_t htole64(uint64_t x) { return le64(x); }
+static inline uint64_t be64toh(uint64_t x) { return be64(x); }
+static inline uint64_t le64toh(uint64_t x) { return le64(x); }
 #endif
 
 #ifdef __cplusplus
