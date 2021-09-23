@@ -1304,28 +1304,28 @@ static crefl_vf_f64_data crefl_vf_f64_data_get(double value)
 #if DEBUG_ENCODING
 static void _crefl_vf_f64_debug(double v, u8 pre, s64 vp_exp, u64 vp_man, s64 vd_exp, u64 vd_man)
 {
-    bool crefl_inl = (pre >> 7) & 1;
-    bool crefl_sgn = (pre >> 6) & 1;
-    int crefl_exp = (pre >> 4) & 3;
-    int crefl_man = pre & 15;
+    bool vf_inl = (pre >> 7) & 1;
+    bool vf_sgn = (pre >> 6) & 1;
+    int vf_exp = (pre >> 4) & 3;
+    int vf_man = pre & 15;
 
     printf("\n%16s %20s -> %18s %5s -> %1s %1s %2s %4s %4s\n",
         "value (dec)", "value (hex)", "fraction", "exp",
         "i", "s", "ex", "mant", "len");
     printf("%16f %20a    0x%016llx %05lld    %1u %1u %c%c %c%c%c%c",
-        v, v, vp_man, vp_exp, crefl_inl, crefl_sgn,
-        '0' + ((crefl_exp >> 1) & 1),
-        '0' + ((crefl_exp >> 0) & 1),
-        '0' + ((crefl_man >> 3) & 1),
-        '0' + ((crefl_man >> 2) & 1),
-        '0' + ((crefl_man >> 1) & 1),
-        '0' + ((crefl_man >> 0) & 1));
+        v, v, vp_man, vp_exp, vf_inl, vf_sgn,
+        '0' + ((vf_exp >> 1) & 1),
+        '0' + ((vf_exp >> 0) & 1),
+        '0' + ((vf_man >> 3) & 1),
+        '0' + ((vf_man >> 2) & 1),
+        '0' + ((vf_man >> 1) & 1),
+        '0' + ((vf_man >> 0) & 1));
 
-    printf(" [%02d] { pre=0x%02hhx", 1 + (crefl_inl ? 0 : crefl_exp + crefl_man), pre);
-    if (!crefl_inl && crefl_man) {
+    printf(" [%02d] { pre=0x%02hhx", 1 + (vf_inl ? 0 : vf_exp + vf_man), pre);
+    if (!vf_inl && vf_man) {
         printf(" man=0x%02llx", vd_man);
     }
-    if (!crefl_inl && crefl_exp) {
+    if (!vf_inl && vf_exp) {
         printf(" exp=%lld", vd_exp);
     }
     printf(" }\n");
@@ -1336,10 +1336,10 @@ int crefl_vf_f64_read(crefl_buf *buf, double *value)
 {
     s8 pre;
     double v = 0;
-    bool crefl_inl;
-    bool crefl_sgn;
-    int crefl_exp;
-    int crefl_man;
+    bool vf_inl;
+    bool vf_sgn;
+    int vf_exp;
+    int vf_man;
     u64 vr_man = 0;
     s64 vr_exp = 0;
     u64 vp_man = 0;
@@ -1349,48 +1349,48 @@ int crefl_vf_f64_read(crefl_buf *buf, double *value)
         goto err;
     }
 
-    crefl_inl = (pre >> 7) & 1;
-    crefl_sgn = (pre >> 6) & 1;
-    crefl_exp = (pre >> 4) & 3;
-    crefl_man = pre & 15;
+    vf_inl = (pre >> 7) & 1;
+    vf_sgn = (pre >> 6) & 1;
+    vf_exp = (pre >> 4) & 3;
+    vf_man = pre & 15;
 
-    if (!crefl_inl) {
-        if (crefl_exp && crefl_le_ber_integer_s64_read(buf, crefl_exp, &vr_exp) < 0) {
+    if (!vf_inl) {
+        if (vf_exp && crefl_le_ber_integer_s64_read(buf, vf_exp, &vr_exp) < 0) {
             goto err;
         }
-        if (crefl_man && crefl_le_ber_integer_u64_read(buf, crefl_man, &vr_man) < 0) {
+        if (vf_man && crefl_le_ber_integer_u64_read(buf, vf_man, &vr_man) < 0) {
             goto err;
         }
     }
 
     /* inline exponent and mantissa using float7 */
-    if (crefl_inl) {
-        if (crefl_exp == 0) {
-            if (crefl_man > 0) {
-                size_t lz = clz((u64)crefl_man);
+    if (vf_inl) {
+        if (vf_exp == 0) {
+            if (vf_man > 0) {
+                size_t lz = clz((u64)vf_man);
                 /* inline subnormal - normalize by calculating exponent
                  * based on the leading zero count for the 4 bits right
                  * of the point hence 59 = (63 - 4) then left-justify
                  * the mantissa and truncate the leading 1. */
                 vp_exp = f64_exp_bias + 59 - lz;
-                vp_man = ((u64)crefl_man << (lz + 1)) >> (f64_exp_size + 1);
+                vp_man = ((u64)vf_man << (lz + 1)) >> (f64_exp_size + 1);
             } else {
                 /* Zero */
                 vp_exp = 0;
                 vp_man = 0;
             }
         }
-        else if (crefl_exp == 3) {
+        else if (vf_exp == 3) {
             /* inline Inf/NaN - set exponent then left-justify the mantissa,
              * containing 0b0000 for infinity or 0b1000 for canonical NaN. */
             vp_exp = f64_exp_mask;
-            vp_man = (u64)crefl_man << (f64_mant_size - 4);
+            vp_man = (u64)vf_man << (f64_mant_size - 4);
         }
         else {
             /* inline normal - adjust exponent bias from 2-bit bias 1 to
              * the IEEE 754 bias then left-justify the mantissa. */
-            vp_exp = f64_exp_bias + crefl_exp - 1;
-            vp_man = (u64)crefl_man << (f64_mant_size - 4);
+            vp_exp = f64_exp_bias + vf_exp - 1;
+            vp_man = (u64)vf_man << (f64_mant_size - 4);
         }
     }
     /* out-of-line little-endian exponent and mantissa */
@@ -1406,13 +1406,13 @@ int crefl_vf_f64_read(crefl_buf *buf, double *value)
         } else {
             /* normal - if no exponent, mantissa is a fraction in the range
              * +/-0.9900.. with a unary prefix containing the exponent. */
-            if (crefl_exp == 0) vr_exp = -tz - 1;
+            if (vf_exp == 0) vr_exp = -tz - 1;
             vp_exp = f64_exp_bias + vr_exp;
             vp_man = (u64)vr_man << (lz + 1) >> (f64_exp_size + 1);
         }
     }
 
-    v = f64_pack_float(f64_struct{vp_man, (u64)vp_exp, crefl_sgn});
+    v = f64_pack_float(f64_struct{vp_man, (u64)vp_exp, vf_sgn});
     *value = v;
 
 #if DEBUG_ENCODING
@@ -1434,10 +1434,10 @@ f64_result crefl_vf_f64_read_byval(crefl_buf *buf)
 {
     s8 pre;
     double v = 0;
-    bool crefl_inl;
-    bool crefl_sgn;
-    int crefl_exp;
-    int crefl_man;
+    bool vf_inl;
+    bool vf_sgn;
+    int vf_exp;
+    int vf_man;
     u64 vr_man = 0;
     s64 vr_exp = 0;
     u64 vp_man = 0;
@@ -1447,52 +1447,52 @@ f64_result crefl_vf_f64_read_byval(crefl_buf *buf)
         return f64_result { 0, -1 };
     }
 
-    crefl_inl = (pre >> 7) & 1;
-    crefl_sgn = (pre >> 6) & 1;
-    crefl_exp = (pre >> 4) & 3;
-    crefl_man = pre & 15;
+    vf_inl = (pre >> 7) & 1;
+    vf_sgn = (pre >> 6) & 1;
+    vf_exp = (pre >> 4) & 3;
+    vf_man = pre & 15;
 
-    if (!crefl_inl) {
-        if (crefl_exp) {
-            s64_result r = crefl_le_ber_integer_s64_read_byval(buf, crefl_exp);
+    if (!vf_inl) {
+        if (vf_exp) {
+            s64_result r = crefl_le_ber_integer_s64_read_byval(buf, vf_exp);
             if (r.error < 0) return f64_result { 0, r.error };
             vr_exp = r.value;
         }
-        if (crefl_man) {
-            u64_result r = crefl_le_ber_integer_u64_read_byval(buf, crefl_man);
+        if (vf_man) {
+            u64_result r = crefl_le_ber_integer_u64_read_byval(buf, vf_man);
             if (r.error < 0) return f64_result { 0, r.error };
             vr_man = r.value;
         }
     }
 
     /* inline exponent and mantissa using float7 */
-    if (crefl_inl) {
-        if (crefl_exp == 0) {
-            if (crefl_man > 0) {
-                size_t lz = clz((u64)crefl_man);
+    if (vf_inl) {
+        if (vf_exp == 0) {
+            if (vf_man > 0) {
+                size_t lz = clz((u64)vf_man);
                 /* inline subnormal - normalize by calculating exponent
                  * based on the leading zero count for the 4 bits right
                  * of the point hence 59 = (63 - 4) then left-justify
                  * the mantissa and truncate the leading 1. */
                 vp_exp = f64_exp_bias + 59 - lz;
-                vp_man = ((u64)crefl_man << (lz + 1)) >> (f64_exp_size + 1);
+                vp_man = ((u64)vf_man << (lz + 1)) >> (f64_exp_size + 1);
             } else {
                 /* Zero */
                 vp_exp = 0;
                 vp_man = 0;
             }
         }
-        else if (crefl_exp == 3) {
+        else if (vf_exp == 3) {
             /* inline Inf/NaN - set exponent then left-justify the mantissa,
              * containing 0b0000 for infinity or 0b1000 for canonical NaN. */
             vp_exp = f64_exp_mask;
-            vp_man = (u64)crefl_man << (f64_mant_size - 4);
+            vp_man = (u64)vf_man << (f64_mant_size - 4);
         }
         else {
             /* inline normal - adjust exponent bias from 2-bit bias 1 to
              * the IEEE 754 bias then left-justify the mantissa. */
-            vp_exp = f64_exp_bias + crefl_exp - 1;
-            vp_man = (u64)crefl_man << (f64_mant_size - 4);
+            vp_exp = f64_exp_bias + vf_exp - 1;
+            vp_man = (u64)vf_man << (f64_mant_size - 4);
         }
     }
     /* out-of-line little-endian exponent and mantissa */
@@ -1508,13 +1508,13 @@ f64_result crefl_vf_f64_read_byval(crefl_buf *buf)
         } else {
             /* normal - if no exponent, mantissa is a fraction in the range
              * +/-0.9900.. with a unary prefix containing the exponent. */
-            if (crefl_exp == 0) vr_exp = -tz - 1;
+            if (vf_exp == 0) vr_exp = -tz - 1;
             vp_exp = f64_exp_bias + vr_exp;
             vp_man = (u64)vr_man << (lz + 1) >> (f64_exp_size + 1);
         }
     }
 
-    v = f64_pack_float(f64_struct{vp_man, (u64)vp_exp, crefl_sgn});
+    v = f64_pack_float(f64_struct{vp_man, (u64)vp_exp, vf_sgn});
 
 #if DEBUG_ENCODING
     _crefl_vf_f64_debug(v, pre, vp_exp - f64_exp_bias, vp_man << 12, vr_exp, vr_man);
@@ -1528,16 +1528,16 @@ int crefl_vf_f64_write(crefl_buf *buf, const double *value)
     s8 pre;
     double v = *value;
     crefl_vf_f64_data d = crefl_vf_f64_data_get(v);
-    int crefl_exp = 0;
-    int crefl_man = 0;
+    int vf_exp = 0;
+    int vf_man = 0;
     u64 vw_man = 0;
     s64 vw_exp = 0;
 
     // Inf/NaN
     if (d.sexp == f64_exp_bias + 1) {
-        crefl_exp = 3;
-        crefl_man = (d.frac != 0) << 3;
-        pre = 0x80 | (d.sign << 6) | (crefl_exp << 4) | crefl_man;
+        vf_exp = 3;
+        vf_man = (d.frac != 0) << 3;
+        pre = 0x80 | (d.sign << 6) | (vf_exp << 4) | vf_man;
     }
     // Zero
     else if (d.sexp == -(s64)f64_exp_bias && d.frac == 0) {
@@ -1565,14 +1565,14 @@ int crefl_vf_f64_write(crefl_buf *buf, const double *value)
         if (d.sexp == -(s64)f64_exp_bias) {
             vw_man = d.frac >> tz;
             vw_exp = d.sexp - lz - 1;
-            crefl_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
-            crefl_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
-            pre = (d.sign << 6) | (crefl_exp << 4) | crefl_man;
+            vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
+            vf_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
+            pre = (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
         else if (d.frac == 0) {
             vw_exp = d.sexp;
-            crefl_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
-            pre = (d.sign << 6) | (crefl_exp << 4);
+            vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
+            pre = (d.sign << 6) | (vf_exp << 4);
         }
         else if (d.sexp < 0 && d.sexp >= -8) {
             /*
@@ -1586,28 +1586,28 @@ int crefl_vf_f64_write(crefl_buf *buf, const double *value)
             size_t sh = -d.sexp - 1;
             u64 vw_man_a = (d.frac >> tz) | (u64_msb >> (tz - 1));
             u64 vw_man_b = ((d.frac >> tz) << sh) | ((u64_msb >> (tz - 1)) << sh);
-            int crefl_exp_a = (u8)crefl_le_ber_integer_s64_length_byval(d.sexp);
-            int crefl_man_a = (u8)crefl_le_ber_integer_u64_length_byval(vw_man_a);
-            int crefl_man_b = (u8)crefl_le_ber_integer_u64_length_byval(vw_man_b);
-            if (crefl_man_a + crefl_exp_a < crefl_man_b) {
+            int vf_exp_a = (u8)crefl_le_ber_integer_s64_length_byval(d.sexp);
+            int vf_man_a = (u8)crefl_le_ber_integer_u64_length_byval(vw_man_a);
+            int vf_man_b = (u8)crefl_le_ber_integer_u64_length_byval(vw_man_b);
+            if (vf_man_a + vf_exp_a < vf_man_b) {
                 vw_man = vw_man_a;
                 vw_exp = d.sexp;
-                crefl_exp = crefl_exp_a;
-                crefl_man = crefl_man_a;
+                vf_exp = vf_exp_a;
+                vf_man = vf_man_a;
             } else {
                 vw_man = vw_man_b;
-                crefl_man = crefl_man_b;
+                vf_man = vf_man_b;
             }
-            pre = (d.sign << 6) | (crefl_exp << 4) | crefl_man;
+            pre = (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
         else {
             vw_man = (d.frac >> tz) | (u64_msb >> (tz - 1));
             vw_exp = d.sexp;
-            crefl_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
-            crefl_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
-            pre = (d.sign << 6) | (crefl_exp << 4) | crefl_man;
+            vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
+            vf_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
+            pre = (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
-        /* crefl_exp and crefl_man contain length of exponent and fraction in bytes */
+        /* vf_exp and vf_man contain length of exponent and fraction in bytes */
     }
 
     if (crefl_buf_write_i8(buf, pre) != 1) {
@@ -1615,10 +1615,10 @@ int crefl_vf_f64_write(crefl_buf *buf, const double *value)
     }
 
     if ((pre & 0x80) == 0) {
-        if (crefl_exp && crefl_le_ber_integer_s64_write_byval(buf, crefl_exp, vw_exp) < 0) {
+        if (vf_exp && crefl_le_ber_integer_s64_write_byval(buf, vf_exp, vw_exp) < 0) {
             return -1;
         }
-        if (crefl_man && crefl_le_ber_integer_u64_write_byval(buf, crefl_man, vw_man) < 0) {
+        if (vf_man && crefl_le_ber_integer_u64_write_byval(buf, vf_man, vw_man) < 0) {
             return -1;
         }
     }
@@ -1635,16 +1635,16 @@ int crefl_vf_f64_write_byval(crefl_buf *buf, const double value)
     s8 pre;
     const double v = value;
     crefl_vf_f64_data d = crefl_vf_f64_data_get(v);
-    int crefl_exp = 0;
-    int crefl_man = 0;
+    int vf_exp = 0;
+    int vf_man = 0;
     u64 vw_man = 0;
     s64 vw_exp = 0;
 
     // Inf/NaN
     if (d.sexp == f64_exp_bias + 1) {
-        crefl_exp = 3;
-        crefl_man = (d.frac != 0) << 3;
-        pre = 0x80 | (d.sign << 6) | (crefl_exp << 4) | crefl_man;
+        vf_exp = 3;
+        vf_man = (d.frac != 0) << 3;
+        pre = 0x80 | (d.sign << 6) | (vf_exp << 4) | vf_man;
     }
     // Zero
     else if (d.sexp == -(s64)f64_exp_bias && d.frac == 0) {
@@ -1672,14 +1672,14 @@ int crefl_vf_f64_write_byval(crefl_buf *buf, const double value)
         if (d.sexp == -(s64)f64_exp_bias) {
             vw_man = d.frac >> tz;
             vw_exp = d.sexp - lz - 1;
-            crefl_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
-            crefl_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
-            pre = (d.sign << 6) | (crefl_exp << 4) | crefl_man;
+            vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
+            vf_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
+            pre = (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
         else if (d.frac == 0) {
             vw_exp = d.sexp;
-            crefl_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
-            pre = (d.sign << 6) | (crefl_exp << 4);
+            vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
+            pre = (d.sign << 6) | (vf_exp << 4);
         }
         else if (d.sexp < 0 && d.sexp >= -8) {
             /*
@@ -1693,28 +1693,28 @@ int crefl_vf_f64_write_byval(crefl_buf *buf, const double value)
             size_t sh = -d.sexp - 1;
             u64 vw_man_a = (d.frac >> tz) | (u64_msb >> (tz - 1));
             u64 vw_man_b = ((d.frac >> tz) << sh) | ((u64_msb >> (tz - 1)) << sh);
-            int crefl_exp_a = (u8)crefl_le_ber_integer_s64_length_byval(d.sexp);
-            int crefl_man_a = (u8)crefl_le_ber_integer_u64_length_byval(vw_man_a);
-            int crefl_man_b = (u8)crefl_le_ber_integer_u64_length_byval(vw_man_b);
-            if (crefl_man_a + crefl_exp_a < crefl_man_b) {
+            int vf_exp_a = (u8)crefl_le_ber_integer_s64_length_byval(d.sexp);
+            int vf_man_a = (u8)crefl_le_ber_integer_u64_length_byval(vw_man_a);
+            int vf_man_b = (u8)crefl_le_ber_integer_u64_length_byval(vw_man_b);
+            if (vf_man_a + vf_exp_a < vf_man_b) {
                 vw_man = vw_man_a;
                 vw_exp = d.sexp;
-                crefl_exp = crefl_exp_a;
-                crefl_man = crefl_man_a;
+                vf_exp = vf_exp_a;
+                vf_man = vf_man_a;
             } else {
                 vw_man = vw_man_b;
-                crefl_man = crefl_man_b;
+                vf_man = vf_man_b;
             }
-            pre = (d.sign << 6) | (crefl_exp << 4) | crefl_man;
+            pre = (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
         else {
             vw_man = (d.frac >> tz) | (u64_msb >> (tz - 1));
             vw_exp = d.sexp;
-            crefl_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
-            crefl_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
-            pre = (d.sign << 6) | (crefl_exp << 4) | crefl_man;
+            vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
+            vf_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
+            pre = (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
-        /* crefl_exp and crefl_man contain length of exponent and fraction in bytes */
+        /* vf_exp and vf_man contain length of exponent and fraction in bytes */
     }
 
     if (crefl_buf_write_i8(buf, pre) != 1) {
@@ -1722,10 +1722,10 @@ int crefl_vf_f64_write_byval(crefl_buf *buf, const double value)
     }
 
     if ((pre & 0x80) == 0) {
-        if (crefl_exp && crefl_le_ber_integer_s64_write_byval(buf, crefl_exp, vw_exp) < 0) {
+        if (vf_exp && crefl_le_ber_integer_s64_write_byval(buf, vf_exp, vw_exp) < 0) {
             return -1;
         }
-        if (crefl_man && crefl_le_ber_integer_u64_write_byval(buf, crefl_man, vw_man) < 0) {
+        if (vf_man && crefl_le_ber_integer_u64_write_byval(buf, vf_man, vw_man) < 0) {
             return -1;
         }
     }
@@ -1767,28 +1767,28 @@ static crefl_vf_f32_data crefl_vf_f32_data_get(float value)
 #if DEBUG_ENCODING
 static void _crefl_vf_f32_debug(float v, u8 pre, s32 vp_exp, u32 vp_man, s32 vd_exp, u32 vd_man)
 {
-    bool crefl_inl = (pre >> 7) & 1;
-    bool crefl_sgn = (pre >> 6) & 1;
-    int crefl_exp = (pre >> 4) & 3;
-    int crefl_man = pre & 15;
+    bool vf_inl = (pre >> 7) & 1;
+    bool vf_sgn = (pre >> 6) & 1;
+    int vf_exp = (pre >> 4) & 3;
+    int vf_man = pre & 15;
 
     printf("\n%9s %20s -> %18s %5s -> %1s %1s %2s %4s %4s\n",
         "value (dec)", "value (hex)", "fraction", "exp",
         "i", "s", "ex", "mant", "len");
     printf("%8f %20a    0x%08x %05d    %1u %1u %c%c %c%c%c%c",
-        v, v, vp_man, vp_exp, crefl_inl, crefl_sgn,
-        '0' + ((crefl_exp >> 1) & 1),
-        '0' + ((crefl_exp >> 0) & 1),
-        '0' + ((crefl_man >> 3) & 1),
-        '0' + ((crefl_man >> 2) & 1),
-        '0' + ((crefl_man >> 1) & 1),
-        '0' + ((crefl_man >> 0) & 1));
+        v, v, vp_man, vp_exp, vf_inl, vf_sgn,
+        '0' + ((vf_exp >> 1) & 1),
+        '0' + ((vf_exp >> 0) & 1),
+        '0' + ((vf_man >> 3) & 1),
+        '0' + ((vf_man >> 2) & 1),
+        '0' + ((vf_man >> 1) & 1),
+        '0' + ((vf_man >> 0) & 1));
 
-    printf(" [%02d] { pre=0x%02hhx", 1 + (crefl_inl ? 0 : crefl_exp + crefl_man), pre);
-    if (!crefl_inl && crefl_man) {
+    printf(" [%02d] { pre=0x%02hhx", 1 + (vf_inl ? 0 : vf_exp + vf_man), pre);
+    if (!vf_inl && vf_man) {
         printf(" man=0x%02x", vd_man);
     }
-    if (!crefl_inl && crefl_exp) {
+    if (!vf_inl && vf_exp) {
         printf(" exp=%d", vd_exp);
     }
     printf(" }\n");
@@ -1799,10 +1799,10 @@ int crefl_vf_f32_read(crefl_buf *buf, float *value)
 {
     s8 pre;
     float v = 0;
-    bool crefl_inl;
-    bool crefl_sgn;
-    int crefl_exp;
-    int crefl_man;
+    bool vf_inl;
+    bool vf_sgn;
+    int vf_exp;
+    int vf_man;
     u32 vr_man = 0;
     s32 vr_exp = 0;
     u32 vp_man = 0;
@@ -1812,19 +1812,19 @@ int crefl_vf_f32_read(crefl_buf *buf, float *value)
         goto err;
     }
 
-    crefl_inl = (pre >> 7) & 1;
-    crefl_sgn = (pre >> 6) & 1;
-    crefl_exp = (pre >> 4) & 3;
-    crefl_man = pre & 15;
+    vf_inl = (pre >> 7) & 1;
+    vf_sgn = (pre >> 6) & 1;
+    vf_exp = (pre >> 4) & 3;
+    vf_man = pre & 15;
 
-    if (!crefl_inl) {
-        if (crefl_exp) {
-            s64_result r = crefl_le_ber_integer_s64_read_byval(buf, crefl_exp);
+    if (!vf_inl) {
+        if (vf_exp) {
+            s64_result r = crefl_le_ber_integer_s64_read_byval(buf, vf_exp);
             if (r.error < 0) goto err;
             vr_exp = (s32)r.value;
         }
-        if (crefl_man) {
-            u64_result r = crefl_le_ber_integer_u64_read_byval(buf, crefl_man);
+        if (vf_man) {
+            u64_result r = crefl_le_ber_integer_u64_read_byval(buf, vf_man);
             if (r.error < 0) goto err;
 
             /* if there are less than 32 leading zeros, then we must
@@ -1836,33 +1836,33 @@ int crefl_vf_f32_read(crefl_buf *buf, float *value)
     }
 
     /* inline exponent and mantissa using float7 */
-    if (crefl_inl) {
-        if (crefl_exp == 0) {
-            if (crefl_man > 0) {
-                size_t lz = clz((u32)crefl_man);
+    if (vf_inl) {
+        if (vf_exp == 0) {
+            if (vf_man > 0) {
+                size_t lz = clz((u32)vf_man);
                 /* inline subnormal - normalize by calculating exponent
                  * based on the leading zero count for the 4 bits right
                  * of the point hence 27 = (31 - 4) then left-justify
                  * the mantissa and truncate the leading 1. */
                 vp_exp = f32_exp_bias + 27 - (u32)lz;
-                vp_man = ((u32)crefl_man << (lz + 1)) >> (f32_exp_size + 1);
+                vp_man = ((u32)vf_man << (lz + 1)) >> (f32_exp_size + 1);
             } else {
                 /* Zero */
                 vp_exp = 0;
                 vp_man = 0;
             }
         }
-        else if (crefl_exp == 3) {
+        else if (vf_exp == 3) {
             /* inline Inf/NaN - set exponent then left-justify the mantissa,
              * containing 0b0000 for infinity or 0b1000 for canonical NaN. */
             vp_exp = f32_exp_mask;
-            vp_man = (u32)crefl_man << (f32_mant_size - 4);
+            vp_man = (u32)vf_man << (f32_mant_size - 4);
         }
         else {
             /* inline normal - adjust exponent bias from 2-bit bias 1 to
              * the IEEE 754 bias then left-justify the mantissa. */
-            vp_exp = f32_exp_bias + crefl_exp - 1;
-            vp_man = (u32)crefl_man << (f32_mant_size - 4);
+            vp_exp = f32_exp_bias + vf_exp - 1;
+            vp_man = (u32)vf_man << (f32_mant_size - 4);
         }
     }
     /* out-of-line little-endian exponent and mantissa */
@@ -1878,13 +1878,13 @@ int crefl_vf_f32_read(crefl_buf *buf, float *value)
         } else {
             /* normal - if no exponent, mantissa is a fraction in the range
              * +/-0.9900.. with a unary prefix containing the exponent. */
-            if (crefl_exp == 0) vr_exp = -(s32)tz - 1;
+            if (vf_exp == 0) vr_exp = -(s32)tz - 1;
             vp_exp = f32_exp_bias + vr_exp;
             vp_man = (u32)vr_man << (lz + 1) >> (f32_exp_size + 1);
         }
     }
 
-    v = f32_pack_float(f32_struct{vp_man, (u32)vp_exp, crefl_sgn});
+    v = f32_pack_float(f32_struct{vp_man, (u32)vp_exp, vf_sgn});
     *value = v;
 
 #if DEBUG_ENCODING
@@ -1906,10 +1906,10 @@ f32_result crefl_vf_f32_read_byval(crefl_buf *buf)
 {
     s8 pre;
     float v = 0;
-    bool crefl_inl;
-    bool crefl_sgn;
-    int crefl_exp;
-    int crefl_man;
+    bool vf_inl;
+    bool vf_sgn;
+    int vf_exp;
+    int vf_man;
     u32 vr_man = 0;
     s32 vr_exp = 0;
     u32 vp_man = 0;
@@ -1919,19 +1919,19 @@ f32_result crefl_vf_f32_read_byval(crefl_buf *buf)
         return f32_result { 0, -1 };
     }
 
-    crefl_inl = (pre >> 7) & 1;
-    crefl_sgn = (pre >> 6) & 1;
-    crefl_exp = (pre >> 4) & 3;
-    crefl_man = pre & 15;
+    vf_inl = (pre >> 7) & 1;
+    vf_sgn = (pre >> 6) & 1;
+    vf_exp = (pre >> 4) & 3;
+    vf_man = pre & 15;
 
-    if (!crefl_inl) {
-        if (crefl_exp) {
-            s64_result r = crefl_le_ber_integer_s64_read_byval(buf, crefl_exp);
+    if (!vf_inl) {
+        if (vf_exp) {
+            s64_result r = crefl_le_ber_integer_s64_read_byval(buf, vf_exp);
             if (r.error < 0) return f32_result { 0, (s32)r.error };
             vr_exp = (s32)r.value;
         }
-        if (crefl_man) {
-            u64_result r = crefl_le_ber_integer_u64_read_byval(buf, crefl_man);
+        if (vf_man) {
+            u64_result r = crefl_le_ber_integer_u64_read_byval(buf, vf_man);
             if (r.error < 0) return f32_result { 0, (s32)r.error };
 
             /* if there are less than 32 leading zeros, then we must
@@ -1943,33 +1943,33 @@ f32_result crefl_vf_f32_read_byval(crefl_buf *buf)
     }
 
     /* inline exponent and mantissa using float7 */
-    if (crefl_inl) {
-        if (crefl_exp == 0) {
-            if (crefl_man > 0) {
-                size_t lz = clz((u32)crefl_man);
+    if (vf_inl) {
+        if (vf_exp == 0) {
+            if (vf_man > 0) {
+                size_t lz = clz((u32)vf_man);
                 /* inline subnormal - normalize by calculating exponent
                  * based on the leading zero count for the 4 bits right
                  * of the point hence 27 = (31 - 4) then left-justify
                  * the mantissa and truncate the leading 1. */
                 vp_exp = f32_exp_bias + 27 - (u32)lz;
-                vp_man = ((u32)crefl_man << (lz + 1)) >> (f32_exp_size + 1);
+                vp_man = ((u32)vf_man << (lz + 1)) >> (f32_exp_size + 1);
             } else {
                 /* Zero */
                 vp_exp = 0;
                 vp_man = 0;
             }
         }
-        else if (crefl_exp == 3) {
+        else if (vf_exp == 3) {
             /* inline Inf/NaN - set exponent then left-justify the mantissa,
              * containing 0b0000 for infinity or 0b1000 for canonical NaN. */
             vp_exp = f32_exp_mask;
-            vp_man = (u32)crefl_man << (f32_mant_size - 4);
+            vp_man = (u32)vf_man << (f32_mant_size - 4);
         }
         else {
             /* inline normal - adjust exponent bias from 2-bit bias 1 to
              * the IEEE 754 bias then left-justify the mantissa. */
-            vp_exp = f32_exp_bias + crefl_exp - 1;
-            vp_man = (u32)crefl_man << (f32_mant_size - 4);
+            vp_exp = f32_exp_bias + vf_exp - 1;
+            vp_man = (u32)vf_man << (f32_mant_size - 4);
         }
     }
     /* out-of-line little-endian exponent and mantissa */
@@ -1985,13 +1985,13 @@ f32_result crefl_vf_f32_read_byval(crefl_buf *buf)
         } else {
             /* normal - if no exponent, mantissa is a fraction in the range
              * +/-0.9900.. with a unary prefix containing the exponent. */
-            if (crefl_exp == 0) vr_exp = -(s32)tz - 1;
+            if (vf_exp == 0) vr_exp = -(s32)tz - 1;
             vp_exp = f32_exp_bias + vr_exp;
             vp_man = (u32)vr_man << (lz + 1) >> (f32_exp_size + 1);
         }
     }
 
-    v = f32_pack_float(f32_struct{vp_man, (u32)vp_exp, crefl_sgn});
+    v = f32_pack_float(f32_struct{vp_man, (u32)vp_exp, vf_sgn});
 
 #if DEBUG_ENCODING
     _crefl_vf_f32_debug(v, pre, vp_exp - f32_exp_bias, vp_man << 9, vr_exp, vr_man);
@@ -2005,16 +2005,16 @@ int crefl_vf_f32_write(crefl_buf *buf, const float *value)
     s8 pre;
     float v = *value;
     crefl_vf_f32_data d = crefl_vf_f32_data_get(v);
-    int crefl_exp = 0;
-    int crefl_man = 0;
+    int vf_exp = 0;
+    int vf_man = 0;
     u32 vw_man = 0;
     s32 vw_exp = 0;
 
     // Inf/NaN
     if (d.sexp == f32_exp_bias + 1) {
-        crefl_exp = 3;
-        crefl_man = (d.frac != 0) << 3;
-        pre = 0x80 | (d.sign << 6) | (crefl_exp << 4) | crefl_man;
+        vf_exp = 3;
+        vf_man = (d.frac != 0) << 3;
+        pre = 0x80 | (d.sign << 6) | (vf_exp << 4) | vf_man;
     }
     // Zero
     else if (d.sexp == -(s32)f32_exp_bias && d.frac == 0) {
@@ -2042,14 +2042,14 @@ int crefl_vf_f32_write(crefl_buf *buf, const float *value)
         if (d.sexp == -(s32)f32_exp_bias) {
             vw_man = d.frac >> tz;
             vw_exp = d.sexp - (u32)lz - 1;
-            crefl_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
-            crefl_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
-            pre = (d.sign << 6) | (crefl_exp << 4) | crefl_man;
+            vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
+            vf_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
+            pre = (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
         else if (d.frac == 0) {
             vw_exp = d.sexp;
-            crefl_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
-            pre = (d.sign << 6) | (crefl_exp << 4);
+            vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
+            pre = (d.sign << 6) | (vf_exp << 4);
         }
         else if (d.sexp < 0 && d.sexp >= -8) {
             /*
@@ -2063,28 +2063,28 @@ int crefl_vf_f32_write(crefl_buf *buf, const float *value)
             size_t sh = -d.sexp - 1;
             u32 vw_man_a = (d.frac >> tz) | (u32_msb >> (tz - 1));
             u32 vw_man_b = ((d.frac >> tz) << sh) | ((u32_msb >> (tz - 1)) << sh);
-            int crefl_exp_a = (u8)crefl_le_ber_integer_s64_length_byval(d.sexp);
-            int crefl_man_a = (u8)crefl_le_ber_integer_u64_length_byval(vw_man_a);
-            int crefl_man_b = (u8)crefl_le_ber_integer_u64_length_byval(vw_man_b);
-            if (crefl_man_a + crefl_exp_a < crefl_man_b) {
+            int vf_exp_a = (u8)crefl_le_ber_integer_s64_length_byval(d.sexp);
+            int vf_man_a = (u8)crefl_le_ber_integer_u64_length_byval(vw_man_a);
+            int vf_man_b = (u8)crefl_le_ber_integer_u64_length_byval(vw_man_b);
+            if (vf_man_a + vf_exp_a < vf_man_b) {
                 vw_man = vw_man_a;
                 vw_exp = d.sexp;
-                crefl_exp = crefl_exp_a;
-                crefl_man = crefl_man_a;
+                vf_exp = vf_exp_a;
+                vf_man = vf_man_a;
             } else {
                 vw_man = vw_man_b;
-                crefl_man = crefl_man_b;
+                vf_man = vf_man_b;
             }
-            pre = (d.sign << 6) | (crefl_exp << 4) | crefl_man;
+            pre = (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
         else {
             vw_man = (d.frac >> tz) | (u32_msb >> (tz - 1));
             vw_exp = d.sexp;
-            crefl_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
-            crefl_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
-            pre = (d.sign << 6) | (crefl_exp << 4) | crefl_man;
+            vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
+            vf_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
+            pre = (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
-        /* crefl_exp and crefl_man contain length of exponent and fraction in bytes */
+        /* vf_exp and vf_man contain length of exponent and fraction in bytes */
     }
 
     if (crefl_buf_write_i8(buf, pre) != 1) {
@@ -2092,10 +2092,10 @@ int crefl_vf_f32_write(crefl_buf *buf, const float *value)
     }
 
     if ((pre & 0x80) == 0) {
-        if (crefl_exp && crefl_le_ber_integer_s64_write_byval(buf, crefl_exp, vw_exp) < 0) {
+        if (vf_exp && crefl_le_ber_integer_s64_write_byval(buf, vf_exp, vw_exp) < 0) {
             return -1;
         }
-        if (crefl_man && crefl_le_ber_integer_u64_write_byval(buf, crefl_man, vw_man) < 0) {
+        if (vf_man && crefl_le_ber_integer_u64_write_byval(buf, vf_man, vw_man) < 0) {
             return -1;
         }
     }
@@ -2112,16 +2112,16 @@ int crefl_vf_f32_write_byval(crefl_buf *buf, const float value)
     s8 pre;
     const float v = value;
     crefl_vf_f32_data d = crefl_vf_f32_data_get(v);
-    int crefl_exp = 0;
-    int crefl_man = 0;
+    int vf_exp = 0;
+    int vf_man = 0;
     u32 vw_man = 0;
     s32 vw_exp = 0;
 
     // Inf/NaN
     if (d.sexp == f32_exp_bias + 1) {
-        crefl_exp = 3;
-        crefl_man = (d.frac != 0) << 3;
-        pre = 0x80 | (d.sign << 6) | (crefl_exp << 4) | crefl_man;
+        vf_exp = 3;
+        vf_man = (d.frac != 0) << 3;
+        pre = 0x80 | (d.sign << 6) | (vf_exp << 4) | vf_man;
     }
     // Zero
     else if (d.sexp == -(s32)f32_exp_bias && d.frac == 0) {
@@ -2149,14 +2149,14 @@ int crefl_vf_f32_write_byval(crefl_buf *buf, const float value)
         if (d.sexp == -(s32)f32_exp_bias) {
             vw_man = d.frac >> tz;
             vw_exp = d.sexp - (u32)lz - 1;
-            crefl_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
-            crefl_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
-            pre = (d.sign << 6) | (crefl_exp << 4) | crefl_man;
+            vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
+            vf_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
+            pre = (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
         else if (d.frac == 0) {
             vw_exp = d.sexp;
-            crefl_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
-            pre = (d.sign << 6) | (crefl_exp << 4);
+            vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
+            pre = (d.sign << 6) | (vf_exp << 4);
         }
         else if (d.sexp < 0 && d.sexp >= -8) {
             /*
@@ -2170,28 +2170,28 @@ int crefl_vf_f32_write_byval(crefl_buf *buf, const float value)
             size_t sh = -d.sexp - 1;
             u32 vw_man_a = (d.frac >> tz) | (u32_msb >> (tz - 1));
             u32 vw_man_b = ((d.frac >> tz) << sh) | ((u32_msb >> (tz - 1)) << sh);
-            int crefl_exp_a = (u8)crefl_le_ber_integer_s64_length_byval(d.sexp);
-            int crefl_man_a = (u8)crefl_le_ber_integer_u64_length_byval(vw_man_a);
-            int crefl_man_b = (u8)crefl_le_ber_integer_u64_length_byval(vw_man_b);
-            if (crefl_man_a + crefl_exp_a < crefl_man_b) {
+            int vf_exp_a = (u8)crefl_le_ber_integer_s64_length_byval(d.sexp);
+            int vf_man_a = (u8)crefl_le_ber_integer_u64_length_byval(vw_man_a);
+            int vf_man_b = (u8)crefl_le_ber_integer_u64_length_byval(vw_man_b);
+            if (vf_man_a + vf_exp_a < vf_man_b) {
                 vw_man = vw_man_a;
                 vw_exp = d.sexp;
-                crefl_exp = crefl_exp_a;
-                crefl_man = crefl_man_a;
+                vf_exp = vf_exp_a;
+                vf_man = vf_man_a;
             } else {
                 vw_man = vw_man_b;
-                crefl_man = crefl_man_b;
+                vf_man = vf_man_b;
             }
-            pre = (d.sign << 6) | (crefl_exp << 4) | crefl_man;
+            pre = (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
         else {
             vw_man = (d.frac >> tz) | (u32_msb >> (tz - 1));
             vw_exp = d.sexp;
-            crefl_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
-            crefl_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
-            pre = (d.sign << 6) | (crefl_exp << 4) | crefl_man;
+            vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
+            vf_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
+            pre = (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
-        /* crefl_exp and crefl_man contain length of exponent and fraction in bytes */
+        /* vf_exp and vf_man contain length of exponent and fraction in bytes */
     }
 
     if (crefl_buf_write_i8(buf, pre) != 1) {
@@ -2199,10 +2199,10 @@ int crefl_vf_f32_write_byval(crefl_buf *buf, const float value)
     }
 
     if ((pre & 0x80) == 0) {
-        if (crefl_exp && crefl_le_ber_integer_s64_write_byval(buf, crefl_exp, vw_exp) < 0) {
+        if (vf_exp && crefl_le_ber_integer_s64_write_byval(buf, vf_exp, vw_exp) < 0) {
             return -1;
         }
-        if (crefl_man && crefl_le_ber_integer_u64_write_byval(buf, crefl_man, vw_man) < 0) {
+        if (vf_man && crefl_le_ber_integer_u64_write_byval(buf, vf_man, vw_man) < 0) {
             return -1;
         }
     }
