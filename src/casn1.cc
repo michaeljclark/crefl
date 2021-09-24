@@ -1304,10 +1304,10 @@ static crefl_vf_f64_data crefl_vf_f64_data_get(double value)
 #if DEBUG_ENCODING
 static void _crefl_vf_f64_debug(double v, u8 pre, s64 vp_exp, u64 vp_man, s64 vd_exp, u64 vd_man)
 {
-    bool vf_inl = (pre >> 7) & 1;
-    bool vf_sgn = (pre >> 6) & 1;
-    int vf_exp = (pre >> 4) & 3;
-    int vf_man = pre & 15;
+    bool vf_inl = ! ((pre >> 7) & 1);
+    bool vf_sgn =    (pre >> 6) & 1;
+    int  vf_exp =    (pre >> 4) & 3;
+    int  vf_man =     pre       & 15;
 
     printf("\n%16s %20s -> %18s %5s -> %1s %1s %2s %4s %4s\n",
         "value (dec)", "value (hex)", "fraction", "exp",
@@ -1349,10 +1349,10 @@ int crefl_vf_f64_read(crefl_buf *buf, double *value)
         goto err;
     }
 
-    vf_inl = (pre >> 7) & 1;
-    vf_sgn = (pre >> 6) & 1;
-    vf_exp = (pre >> 4) & 3;
-    vf_man = pre & 15;
+    vf_inl = ! ((pre >> 7) & 1);
+    vf_sgn =    (pre >> 6) & 1;
+    vf_exp =    (pre >> 4) & 3;
+    vf_man =     pre       & 15;
 
     if (!vf_inl) {
         if (vf_exp && crefl_le_ber_integer_s64_read(buf, vf_exp, &vr_exp) < 0) {
@@ -1447,10 +1447,10 @@ f64_result crefl_vf_f64_read_byval(crefl_buf *buf)
         return f64_result { 0, -1 };
     }
 
-    vf_inl = (pre >> 7) & 1;
-    vf_sgn = (pre >> 6) & 1;
-    vf_exp = (pre >> 4) & 3;
-    vf_man = pre & 15;
+    vf_inl = ! ((pre >> 7) & 1);
+    vf_sgn =    (pre >> 6) & 1;
+    vf_exp =    (pre >> 4) & 3;
+    vf_man =     pre       & 15;
 
     if (!vf_inl) {
         if (vf_exp) {
@@ -1537,21 +1537,21 @@ int crefl_vf_f64_write(crefl_buf *buf, const double *value)
     if (d.sexp == f64_exp_bias + 1) {
         vf_exp = 3;
         vf_man = (d.frac != 0) << 3;
-        pre = 0x80 | (d.sign << 6) | (vf_exp << 4) | vf_man;
+        pre = (d.sign << 6) | (vf_exp << 4) | vf_man;
     }
     // Zero
     else if (d.sexp == -(s64)f64_exp_bias && d.frac == 0) {
-        pre = 0x80 | (d.sign << 6);
+        pre = (d.sign << 6);
     }
     // Inline (normal)
     else if (d.sexp <= 1 && d.sexp >= 0 &&
              (d.frac & u64_msn) == d.frac) {
-        pre = 0x80 | (d.sign << 6) | (u8)((d.sexp+1) << 4) | (u8)(d.frac >> 60);
+        pre = (d.sign << 6) | (u8)((d.sexp+1) << 4) | (u8)(d.frac >> 60);
     }
     // Inline (subnormal)
     else if (d.sexp <= -1 && d.sexp >= -4 &&
              ((d.frac >> -d.sexp) & u64_msn) == (d.frac >> -d.sexp)) {
-        pre = 0x80 | (d.sign << 6) | (u8)((0x10 | (d.frac >> 60)) >> -d.sexp);
+        pre = (d.sign << 6) | (u8)((0x10 | (d.frac >> 60)) >> -d.sexp);
     }
     // Out-of-line
     else {
@@ -1567,12 +1567,12 @@ int crefl_vf_f64_write(crefl_buf *buf, const double *value)
             vw_exp = d.sexp - lz - 1;
             vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
             vf_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
-            pre = (d.sign << 6) | (vf_exp << 4) | vf_man;
+            pre = 0x80 | (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
         else if (d.frac == 0) {
             vw_exp = d.sexp;
             vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
-            pre = (d.sign << 6) | (vf_exp << 4);
+            pre = 0x80 | (d.sign << 6) | (vf_exp << 4);
         }
         else if (d.sexp < 0 && d.sexp >= -8) {
             /*
@@ -1598,14 +1598,14 @@ int crefl_vf_f64_write(crefl_buf *buf, const double *value)
                 vw_man = vw_man_b;
                 vf_man = vf_man_b;
             }
-            pre = (d.sign << 6) | (vf_exp << 4) | vf_man;
+            pre = 0x80 | (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
         else {
             vw_man = (d.frac >> tz) | (u64_msb >> (tz - 1));
             vw_exp = d.sexp;
             vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
             vf_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
-            pre = (d.sign << 6) | (vf_exp << 4) | vf_man;
+            pre = 0x80 | (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
         /* vf_exp and vf_man contain length of exponent and fraction in bytes */
     }
@@ -1614,7 +1614,7 @@ int crefl_vf_f64_write(crefl_buf *buf, const double *value)
         return -1;
     }
 
-    if ((pre & 0x80) == 0) {
+    if ((pre & 0x80)) {
         if (vf_exp && crefl_le_ber_integer_s64_write_byval(buf, vf_exp, vw_exp) < 0) {
             return -1;
         }
@@ -1644,21 +1644,21 @@ int crefl_vf_f64_write_byval(crefl_buf *buf, const double value)
     if (d.sexp == f64_exp_bias + 1) {
         vf_exp = 3;
         vf_man = (d.frac != 0) << 3;
-        pre = 0x80 | (d.sign << 6) | (vf_exp << 4) | vf_man;
+        pre = (d.sign << 6) | (vf_exp << 4) | vf_man;
     }
     // Zero
     else if (d.sexp == -(s64)f64_exp_bias && d.frac == 0) {
-        pre = 0x80 | (d.sign << 6);
+        pre = (d.sign << 6);
     }
     // Inline (normal)
     else if (d.sexp <= 1 && d.sexp >= 0 &&
              (d.frac & u64_msn) == d.frac) {
-        pre = 0x80 | (d.sign << 6) | (u8)((d.sexp+1) << 4) | (u8)(d.frac >> 60);
+        pre = (d.sign << 6) | (u8)((d.sexp+1) << 4) | (u8)(d.frac >> 60);
     }
     // Inline (subnormal)
     else if (d.sexp <= -1 && d.sexp >= -4 &&
              ((d.frac >> -d.sexp) & u64_msn) == (d.frac >> -d.sexp)) {
-        pre = 0x80 | (d.sign << 6) | (u8)((0x10 | (d.frac >> 60)) >> -d.sexp);
+        pre = (d.sign << 6) | (u8)((0x10 | (d.frac >> 60)) >> -d.sexp);
     }
     // Out-of-line
     else {
@@ -1674,12 +1674,12 @@ int crefl_vf_f64_write_byval(crefl_buf *buf, const double value)
             vw_exp = d.sexp - lz - 1;
             vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
             vf_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
-            pre = (d.sign << 6) | (vf_exp << 4) | vf_man;
+            pre = 0x80 | (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
         else if (d.frac == 0) {
             vw_exp = d.sexp;
             vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
-            pre = (d.sign << 6) | (vf_exp << 4);
+            pre = 0x80 | (d.sign << 6) | (vf_exp << 4);
         }
         else if (d.sexp < 0 && d.sexp >= -8) {
             /*
@@ -1705,14 +1705,14 @@ int crefl_vf_f64_write_byval(crefl_buf *buf, const double value)
                 vw_man = vw_man_b;
                 vf_man = vf_man_b;
             }
-            pre = (d.sign << 6) | (vf_exp << 4) | vf_man;
+            pre = 0x80 | (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
         else {
             vw_man = (d.frac >> tz) | (u64_msb >> (tz - 1));
             vw_exp = d.sexp;
             vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
             vf_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
-            pre = (d.sign << 6) | (vf_exp << 4) | vf_man;
+            pre = 0x80 | (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
         /* vf_exp and vf_man contain length of exponent and fraction in bytes */
     }
@@ -1721,7 +1721,7 @@ int crefl_vf_f64_write_byval(crefl_buf *buf, const double value)
         return -1;
     }
 
-    if ((pre & 0x80) == 0) {
+    if ((pre & 0x80)) {
         if (vf_exp && crefl_le_ber_integer_s64_write_byval(buf, vf_exp, vw_exp) < 0) {
             return -1;
         }
@@ -1767,10 +1767,10 @@ static crefl_vf_f32_data crefl_vf_f32_data_get(float value)
 #if DEBUG_ENCODING
 static void _crefl_vf_f32_debug(float v, u8 pre, s32 vp_exp, u32 vp_man, s32 vd_exp, u32 vd_man)
 {
-    bool vf_inl = (pre >> 7) & 1;
-    bool vf_sgn = (pre >> 6) & 1;
-    int vf_exp = (pre >> 4) & 3;
-    int vf_man = pre & 15;
+    bool vf_inl = ! ((pre >> 7) & 1);
+    bool vf_sgn =    (pre >> 6) & 1;
+    int  vf_exp =    (pre >> 4) & 3;
+    int  vf_man =     pre       & 15;
 
     printf("\n%9s %20s -> %18s %5s -> %1s %1s %2s %4s %4s\n",
         "value (dec)", "value (hex)", "fraction", "exp",
@@ -1812,10 +1812,10 @@ int crefl_vf_f32_read(crefl_buf *buf, float *value)
         goto err;
     }
 
-    vf_inl = (pre >> 7) & 1;
-    vf_sgn = (pre >> 6) & 1;
-    vf_exp = (pre >> 4) & 3;
-    vf_man = pre & 15;
+    vf_inl = ! ((pre >> 7) & 1);
+    vf_sgn =    (pre >> 6) & 1;
+    vf_exp =    (pre >> 4) & 3;
+    vf_man =     pre       & 15;
 
     if (!vf_inl) {
         if (vf_exp) {
@@ -2014,21 +2014,21 @@ int crefl_vf_f32_write(crefl_buf *buf, const float *value)
     if (d.sexp == f32_exp_bias + 1) {
         vf_exp = 3;
         vf_man = (d.frac != 0) << 3;
-        pre = 0x80 | (d.sign << 6) | (vf_exp << 4) | vf_man;
+        pre = (d.sign << 6) | (vf_exp << 4) | vf_man;
     }
     // Zero
     else if (d.sexp == -(s32)f32_exp_bias && d.frac == 0) {
-        pre = 0x80 | (d.sign << 6);
+        pre = (d.sign << 6);
     }
     // Inline (normal)
     else if (d.sexp <= 1 && d.sexp >= 0 &&
              (d.frac & u32_msn) == d.frac) {
-        pre = 0x80 | (d.sign << 6) | (u8)((d.sexp+1) << 4) | (u8)(d.frac >> 28);
+        pre = (d.sign << 6) | (u8)((d.sexp+1) << 4) | (u8)(d.frac >> 28);
     }
     // Inline (subnormal)
     else if (d.sexp <= -1 && d.sexp >= -4 &&
              ((d.frac >> -d.sexp) & u32_msn) == (d.frac >> -d.sexp)) {
-        pre = 0x80 | (d.sign << 6) | (u8)((0x10 | (d.frac >> 28)) >> -d.sexp);
+        pre = (d.sign << 6) | (u8)((0x10 | (d.frac >> 28)) >> -d.sexp);
     }
     // Out-of-line
     else {
@@ -2044,12 +2044,12 @@ int crefl_vf_f32_write(crefl_buf *buf, const float *value)
             vw_exp = d.sexp - (u32)lz - 1;
             vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
             vf_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
-            pre = (d.sign << 6) | (vf_exp << 4) | vf_man;
+            pre = 0x80 | (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
         else if (d.frac == 0) {
             vw_exp = d.sexp;
             vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
-            pre = (d.sign << 6) | (vf_exp << 4);
+            pre = 0x80 | (d.sign << 6) | (vf_exp << 4);
         }
         else if (d.sexp < 0 && d.sexp >= -8) {
             /*
@@ -2075,14 +2075,14 @@ int crefl_vf_f32_write(crefl_buf *buf, const float *value)
                 vw_man = vw_man_b;
                 vf_man = vf_man_b;
             }
-            pre = (d.sign << 6) | (vf_exp << 4) | vf_man;
+            pre = 0x80 | (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
         else {
             vw_man = (d.frac >> tz) | (u32_msb >> (tz - 1));
             vw_exp = d.sexp;
             vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
             vf_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
-            pre = (d.sign << 6) | (vf_exp << 4) | vf_man;
+            pre = 0x80 | (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
         /* vf_exp and vf_man contain length of exponent and fraction in bytes */
     }
@@ -2091,7 +2091,7 @@ int crefl_vf_f32_write(crefl_buf *buf, const float *value)
         return -1;
     }
 
-    if ((pre & 0x80) == 0) {
+    if ((pre & 0x80)) {
         if (vf_exp && crefl_le_ber_integer_s64_write_byval(buf, vf_exp, vw_exp) < 0) {
             return -1;
         }
@@ -2121,21 +2121,21 @@ int crefl_vf_f32_write_byval(crefl_buf *buf, const float value)
     if (d.sexp == f32_exp_bias + 1) {
         vf_exp = 3;
         vf_man = (d.frac != 0) << 3;
-        pre = 0x80 | (d.sign << 6) | (vf_exp << 4) | vf_man;
+        pre = (d.sign << 6) | (vf_exp << 4) | vf_man;
     }
     // Zero
     else if (d.sexp == -(s32)f32_exp_bias && d.frac == 0) {
-        pre = 0x80 | (d.sign << 6);
+        pre = (d.sign << 6);
     }
     // Inline (normal)
     else if (d.sexp <= 1 && d.sexp >= 0 &&
              (d.frac & u32_msn) == d.frac) {
-        pre = 0x80 | (d.sign << 6) | (u8)((d.sexp+1) << 4) | (u8)(d.frac >> 28);
+        pre = (d.sign << 6) | (u8)((d.sexp+1) << 4) | (u8)(d.frac >> 28);
     }
     // Inline (subnormal)
     else if (d.sexp <= -1 && d.sexp >= -4 &&
              ((d.frac >> -d.sexp) & u32_msn) == (d.frac >> -d.sexp)) {
-        pre = 0x80 | (d.sign << 6) | (u8)((0x10 | (d.frac >> 28)) >> -d.sexp);
+        pre = (d.sign << 6) | (u8)((0x10 | (d.frac >> 28)) >> -d.sexp);
     }
     // Out-of-line
     else {
@@ -2151,12 +2151,12 @@ int crefl_vf_f32_write_byval(crefl_buf *buf, const float value)
             vw_exp = d.sexp - (u32)lz - 1;
             vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
             vf_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
-            pre = (d.sign << 6) | (vf_exp << 4) | vf_man;
+            pre = 0x80 | (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
         else if (d.frac == 0) {
             vw_exp = d.sexp;
             vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
-            pre = (d.sign << 6) | (vf_exp << 4);
+            pre = 0x80 | (d.sign << 6) | (vf_exp << 4);
         }
         else if (d.sexp < 0 && d.sexp >= -8) {
             /*
@@ -2182,14 +2182,14 @@ int crefl_vf_f32_write_byval(crefl_buf *buf, const float value)
                 vw_man = vw_man_b;
                 vf_man = vf_man_b;
             }
-            pre = (d.sign << 6) | (vf_exp << 4) | vf_man;
+            pre = 0x80 | (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
         else {
             vw_man = (d.frac >> tz) | (u32_msb >> (tz - 1));
             vw_exp = d.sexp;
             vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
             vf_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
-            pre = (d.sign << 6) | (vf_exp << 4) | vf_man;
+            pre = 0x80 | (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
         /* vf_exp and vf_man contain length of exponent and fraction in bytes */
     }
@@ -2198,7 +2198,7 @@ int crefl_vf_f32_write_byval(crefl_buf *buf, const float value)
         return -1;
     }
 
-    if ((pre & 0x80) == 0) {
+    if ((pre & 0x80)) {
         if (vf_exp && crefl_le_ber_integer_s64_write_byval(buf, vf_exp, vw_exp) < 0) {
             return -1;
         }
