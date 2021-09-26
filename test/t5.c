@@ -56,19 +56,19 @@ struct oid_test oid_tests[] = {
 #define S64(X) X ## ll
 
 #define T_TAGNUM(X,num)                                            \
-void FN(ber_tag,X)()                                                \
+void FN(ber_tag,X)()                                               \
 {                                                                  \
     u64 num2;                                                      \
     crefl_buf *buf;                                                \
-    printf(ber_tag_fmt, (size_t)num, (size_t)num);                  \
-    assert(buf = crefl_buf_new(1024));                             \
-    assert(!crefl_asn1_ber_tag_write(buf, U64(num)));               \
+    printf(ber_tag_fmt, (size_t)num, (size_t)num);                 \
+    assert((buf = crefl_buf_new(1024)));                           \
+    assert(!crefl_asn1_ber_tag_write(buf, U64(num)));              \
     crefl_buf_dump(buf);                                           \
     crefl_buf_reset(buf);                                          \
-    assert(!crefl_asn1_ber_tag_read(buf, &num2));                   \
+    assert(!crefl_asn1_ber_tag_read(buf, &num2));                  \
     assert(num == num2);                                           \
     assert(crefl_buf_offset(buf) ==                                \
-           crefl_asn1_ber_tag_length(num));                         \
+           crefl_asn1_ber_tag_length(num));                        \
     crefl_buf_destroy(buf);                                        \
 }
 
@@ -92,7 +92,7 @@ void FN(ber_length,X)()                                            \
     u64 num2;                                                      \
     crefl_buf *buf;                                                \
     printf(ber_length_fmt, (size_t)num, (size_t)num);              \
-    assert(buf = crefl_buf_new(1024));                             \
+    assert((buf = crefl_buf_new(1024)));                           \
     assert(!crefl_asn1_ber_length_write(buf, U64(num)));           \
     crefl_buf_dump(buf);                                           \
     crefl_buf_reset(buf);                                          \
@@ -126,7 +126,7 @@ void FN(ber_ident,X)()                                             \
     asn1_id _id2;                                                  \
     crefl_buf *buf;                                                \
     printf(ber_ident_fmt, (size_t)num, (size_t)num);               \
-    assert(buf = crefl_buf_new(1024));                             \
+    assert((buf = crefl_buf_new(1024)));                           \
     assert(!crefl_asn1_ber_ident_write(buf, _id1));                \
     crefl_buf_dump(buf);                                           \
     crefl_buf_reset(buf);                                          \
@@ -159,7 +159,7 @@ void FN(ber_bool,X)()                                              \
     bool num1 = (bool)(num), num2;                                 \
     crefl_buf *buf;                                                \
     printf(ber_bool_fmt, num ? "true" : "false", (size_t)num);     \
-    assert(buf = crefl_buf_new(1024));                             \
+    assert((buf = crefl_buf_new(1024)));                           \
     size_t len = crefl_asn1_ber_boolean_length(&num1);             \
     assert(!crefl_asn1_ber_boolean_write(buf, len, &num1));        \
     crefl_buf_dump(buf);                                           \
@@ -178,7 +178,7 @@ void FN(ber_uint,X)()                                              \
     u64 num1 = U64(num), num2;                                     \
     crefl_buf *buf;                                                \
     printf(ber_uint_fmt, (u64)num, (u64)num);                      \
-    assert(buf = crefl_buf_new(1024));                             \
+    assert((buf = crefl_buf_new(1024)));                           \
     size_t len = crefl_asn1_ber_integer_u64_length(&num1);         \
     assert(!crefl_asn1_ber_integer_u64_write(buf, len, &num1));    \
     crefl_buf_dump(buf);                                           \
@@ -209,7 +209,7 @@ void FN(ber_sint,X)()                                              \
     s64 num1 = S64(num), num2;                                     \
     crefl_buf *buf;                                                \
     printf(ber_sint_fmt, (s64)num, (s64)num);                      \
-    assert(buf = crefl_buf_new(1024));                             \
+    assert((buf = crefl_buf_new(1024)));                           \
     size_t len = crefl_asn1_ber_integer_s64_length(&num1);         \
     assert(!crefl_asn1_ber_integer_s64_write(buf, len, &num1));    \
     crefl_buf_dump(buf);                                           \
@@ -260,7 +260,7 @@ void FN(ber_oid,X)()                                               \
     assert(!crefl_asn1_oid_to_string(NULL, &buflen, &oid2));       \
     assert(buflen);                                                \
     buflen = sizeof(str2);                                         \
-    assert(!crefl_asn1_oid_to_string(str2, &buflen, &oid2));       \
+    assert(!crefl_asn1_oid_to_string((char*)str2, &buflen, &oid2)); \
     assert(memcmp(str, str2, strlen(str)) == 0);                   \
     crefl_buf_destroy(buf);                                        \
 }
@@ -275,7 +275,7 @@ void FN(ber_real,X)()                                              \
     double num1 = (double)(num), num2;                             \
     crefl_buf *buf;                                                \
     printf(ber_real_fmt, (double)num);                             \
-    assert(buf = crefl_buf_new(1024));                             \
+    assert((buf = crefl_buf_new(1024)));                           \
     size_t len = crefl_asn1_ber_real_f64_length(&num1);            \
     assert(!crefl_asn1_ber_real_f64_write(buf, len, &num1));       \
     crefl_buf_dump(buf);                                           \
@@ -307,9 +307,9 @@ void FN(ber_octets,X)()                                            \
     u8 str2[256];                                                  \
     size_t count;                                                  \
     crefl_buf *buf;                                                \
-    asn1_string obj1 = { strlen(str), str }, obj2 = { 0, str2 };   \
+    asn1_string obj1 = { strlen(str), (u8*)str }, obj2 = { 0, (u8*)str2 }; \
     printf(ber_octets_fmt, str);                                   \
-    assert(buf = crefl_buf_new(1024));                             \
+    assert((buf = crefl_buf_new(1024)));                           \
     size_t len = crefl_asn1_ber_octets_length(&obj1);              \
     assert(!crefl_asn1_ber_octets_write(buf, len, &obj1));         \
     crefl_buf_dump(buf);                                           \
@@ -334,7 +334,7 @@ void FN(der_bool,X)()                                              \
     bool num1 = (bool)(num), num2;                                 \
     crefl_buf *buf;                                                \
     printf(der_bool_fmt, num ? "true" : "false", (size_t)num);     \
-    assert(buf = crefl_buf_new(1024));                             \
+    assert((buf = crefl_buf_new(1024)));                           \
     assert(!crefl_asn1_der_boolean_write(buf,                      \
         asn1_tag_boolean, &num1));                                 \
     crefl_buf_dump(buf);                                           \
@@ -354,7 +354,7 @@ void FN(der_uint,X)()                                              \
     u64 num1 = U64(num), num2;                                     \
     crefl_buf *buf;                                                \
     printf(der_uint_fmt, (u64)num, (u64)num);                      \
-    assert(buf = crefl_buf_new(1024));                             \
+    assert((buf = crefl_buf_new(1024)));                           \
     assert(!crefl_asn1_der_integer_u64_write(buf,                  \
         asn1_tag_integer, &num1));                                 \
     crefl_buf_dump(buf);                                           \
@@ -386,7 +386,7 @@ void FN(der_sint,X)()                                              \
     s64 num1 = S64(num), num2;                                     \
     crefl_buf *buf;                                                \
     printf(der_uint_fmt, (s64)num, (s64)num);                      \
-    assert(buf = crefl_buf_new(1024));                             \
+    assert((buf = crefl_buf_new(1024)));                           \
     assert(!crefl_asn1_der_integer_s64_write(buf,                  \
         asn1_tag_integer, &num1));                                 \
     crefl_buf_dump(buf);                                           \
@@ -448,7 +448,7 @@ void FN(der_real,X)()                                              \
     double num1 = (double)num, num2;                               \
     crefl_buf *buf;                                                \
     printf(der_real_fmt, (double)num);                             \
-    assert(buf = crefl_buf_new(1024));                             \
+    assert((buf = crefl_buf_new(1024)));                           \
     assert(!crefl_asn1_der_real_f64_write(buf, asn1_tag_real,      \
         &num1));                                                   \
     crefl_buf_dump(buf);                                           \
@@ -478,12 +478,12 @@ T_DER_REAL(15,1e307)
 #define T_DER_OCTETS(X,str)                                        \
 void FN(der_octets,X)()                                            \
 {                                                                  \
-    char str2[256];                                                \
+    u8 str2[256];                                                  \
     size_t count;                                                  \
     crefl_buf *buf;                                                \
-    asn1_string obj1 = { strlen(str), str }, obj2 = { 0, str2 };   \
+    asn1_string obj1 = { strlen(str), (u8*)str }, obj2 = { 0, (u8*)str2 }; \
     printf(der_octets_fmt, str);                                   \
-    assert(buf = crefl_buf_new(1024));                             \
+    assert((buf = crefl_buf_new(1024)));                           \
     assert(!crefl_asn1_der_octets_write(buf, asn1_tag_octet_string,\
         &obj1));                                                   \
     crefl_buf_dump(buf);                                           \

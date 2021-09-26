@@ -18,7 +18,7 @@ void test_oid(const char *s, const char *exp, const asn1_oid *oid, int result)
     slen = 0;
     assert(!crefl_asn1_oid_to_string(NULL, &slen, oid));
     slen = sizeof(buf);
-    assert(!crefl_asn1_oid_to_string(buf, &slen, oid));
+    assert(!crefl_asn1_oid_to_string((char*)buf, &slen, oid));
     assert(slen == strlen(exp));
     assert(memcmp(buf, exp, strlen(exp)) == 0);
 }
