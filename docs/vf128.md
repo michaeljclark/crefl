@@ -174,7 +174,7 @@ To decode, the leading zeros are counted to find a shift to left-justify
 the fraction, and trailing zeros are counted to find the exponent. The
 exponent is encoded as the negated trailing zeros count minus one.
 
-- most float32 values between -0.99999.. to 0.99999 fit in 4 bytes or less
+- many float32 values between -0.99999.. to 0.99999 fit in 4 bytes or less
 - most float64 values between -0.99999.. to 0.99999 fit in 8 bytes or less
 
 The purpose of the normal value encoding rules are to save encoding space
