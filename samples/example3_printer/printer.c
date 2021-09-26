@@ -11,19 +11,19 @@
 #define array_size(a) (sizeof(a)/sizeof(a[0]))
 #define ptr_offset(ptr,offset) ((u8*)ptr + (offset >> 3))
 
-typedef const char* (*print_fn)(char *buf, size_t len, void *ptr);
+typedef void (*print_fn)(char *buf, size_t len, void *ptr);
 
-const char* fmt_void(char *buf, size_t len, void *ptr) { snprintf(buf, len, "%s", ""); }
-const char* fmt_u8(char *buf, size_t len, void *ptr) { snprintf(buf, len, "%hhu", *(u8*)ptr); }
-const char* fmt_u16(char *buf, size_t len, void *ptr) { snprintf(buf, len, "%hu", *(u16*)ptr); }
-const char* fmt_u32(char *buf, size_t len, void *ptr) { snprintf(buf, len, "%u", *(u32*)ptr); }
-const char* fmt_u64(char *buf, size_t len, void *ptr) { snprintf(buf, len, "%llu", *(u64*)ptr); }
-const char* fmt_s8(char *buf, size_t len, void *ptr) { snprintf(buf, len, "%hhd", *(s8*)ptr); }
-const char* fmt_s16(char *buf, size_t len, void *ptr) { snprintf(buf, len, "%hd", *(s16*)ptr); }
-const char* fmt_s32(char *buf, size_t len, void *ptr) { snprintf(buf, len, "%d", *(s32*)ptr); }
-const char* fmt_s64(char *buf, size_t len, void *ptr) { snprintf(buf, len, "%lld", *(s64*)ptr); }
-const char* fmt_f32(char *buf, size_t len, void *ptr) { snprintf(buf, len, "%f", *(f32*)ptr); }
-const char* fmt_f64(char *buf, size_t len, void *ptr) { snprintf(buf, len, "%f", *(f64*)ptr); }
+void fmt_void(char *buf, size_t len, void *ptr) { snprintf(buf, len, "%s", ""); }
+void fmt_u8(char *buf, size_t len, void *ptr) { snprintf(buf, len, "%hhu", *(u8*)ptr); }
+void fmt_u16(char *buf, size_t len, void *ptr) { snprintf(buf, len, "%hu", *(u16*)ptr); }
+void fmt_u32(char *buf, size_t len, void *ptr) { snprintf(buf, len, "%u", *(u32*)ptr); }
+void fmt_u64(char *buf, size_t len, void *ptr) { snprintf(buf, len, "%llu", *(u64*)ptr); }
+void fmt_s8(char *buf, size_t len, void *ptr) { snprintf(buf, len, "%hhd", *(s8*)ptr); }
+void fmt_s16(char *buf, size_t len, void *ptr) { snprintf(buf, len, "%hd", *(s16*)ptr); }
+void fmt_s32(char *buf, size_t len, void *ptr) { snprintf(buf, len, "%d", *(s32*)ptr); }
+void fmt_s64(char *buf, size_t len, void *ptr) { snprintf(buf, len, "%lld", *(s64*)ptr); }
+void fmt_f32(char *buf, size_t len, void *ptr) { snprintf(buf, len, "%f", *(f32*)ptr); }
+void fmt_f64(char *buf, size_t len, void *ptr) { snprintf(buf, len, "%f", *(f64*)ptr); }
 
 typedef struct { decl_set props; size_t width; print_fn fn; } _type_fmt;
 
