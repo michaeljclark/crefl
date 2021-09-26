@@ -1095,7 +1095,7 @@ const char* crefl_asn1_oid_desc(const char *oid, size_t len)
 
 	if (map.size() == 0) {
 		auto o = oid_map;
-		while (o->oid && o->name) {
+		while (o->name) {
 			map[std::string((const char*)o->oid,o->len)] = o->name;
 			o++;
 		}
