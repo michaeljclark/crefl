@@ -62,7 +62,7 @@ void do_emit(const char *output, const char *input, const char *name)
         exit(1);
     }
     fprintf(f, "#include <stdlib.h>\n");
-    fprintf(f, "const char __crefl_%s_data[] = {\n", name);
+    fprintf(f, "const unsigned char __crefl_%s_data[] = {\n", name);
     for (size_t i = 0; i < sz; i++) {
         fprintf(f, "0x%02hhx", buf[i]);
         if (i != sz -1) fprintf(f, ",");

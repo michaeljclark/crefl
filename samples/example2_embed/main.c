@@ -7,7 +7,7 @@
 #include "cmodel.h"
 #include "cfileio.h"
 
-extern const char __crefl_main_data[];
+extern const unsigned char __crefl_main_data[];
 extern const size_t __crefl_main_size;
 
 static const char* _pad_depth(size_t depth)

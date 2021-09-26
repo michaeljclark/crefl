@@ -198,7 +198,7 @@ decl_ref crefl_type_by_name(decl_db *db, const char *name)
     return t;
 }
 
-extern const char __crefl_main_data[];
+extern const unsigned char __crefl_main_data[];
 extern const size_t __crefl_main_size;
 
 decl_db* crefl_db_internal()
