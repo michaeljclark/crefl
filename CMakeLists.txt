@@ -66,11 +66,6 @@ add_executable(example3_printer samples/example3_printer/main.c samples/example3
 crefl_target_reflect(example3_printer example3_printer_refl)
 target_link_libraries(example3_printer example3_printer_refl cmodel)
 
-# example using the crefl asn1
-add_executable(example4_asn1 samples/example4_asn1/main.c samples/example4_asn1/printer.c)
-crefl_target_reflect(example4_asn1 example4_asn1_refl)
-target_link_libraries(example4_asn1 example4_asn1_refl cmodel)
-
 add_executable(bench_asn1 test/bench_asn1.cc)
 target_link_libraries(bench_asn1 cmodel)
 
