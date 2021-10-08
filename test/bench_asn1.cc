@@ -865,7 +865,7 @@ int main(int argc, char **argv)
         char *save, *comp = strtok_r(argv[1], ",", &save);
         while (comp) {
             bench_num = atoll(comp);
-            if (bench_num > 0 && bench_num < array_size(benchmarks)) {
+            if (bench_num >= 0 && bench_num < array_size(benchmarks)) {
                 run_benchmark(bench_num, repeat, count, pause_ms);
             }
             comp = strtok_r(nullptr, ",", &save);
