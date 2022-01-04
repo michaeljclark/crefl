@@ -475,7 +475,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         const EnumDecl *ed = context.getParents(*d)[0].get<EnumDecl>();
         const QualType q = const_cast<EnumDecl*>(ed)->getIntegerType();
 
-        uint64_t value = d->getInitVal().getExtValue();
+        uint64_t value = d->getInitVal().extOrTrunc(64).getZExtValue();
         debugf("\tname:\"%s\" type:%s value:%" PRIu64 "\n",
             d->clang::NamedDecl::getNameAsString().c_str(),
             q.getAsString().c_str(), value);
