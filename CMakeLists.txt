@@ -37,7 +37,7 @@ add_library(cmodel STATIC
 add_library(crefl SHARED src/creflect.cc)
 target_compile_options(crefl PRIVATE ${LLVM_CXXFLAGS})
 target_link_options(crefl PRIVATE ${LLVM_LDFLAGS})
-target_link_libraries(crefl -lclang cmodel ${LLVM_LIBS})
+target_link_libraries(crefl clang-cpp cmodel ${LLVM_LIBS})
 
 add_executable(crefltool tool/crefltool.cc)
 target_link_libraries(crefltool cmodel)
