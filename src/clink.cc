@@ -18,6 +18,7 @@
 
 #include <cstdio>
 #include <cstring>
+#include <cerrno>
 #include <cassert>
 #include <cstdlib>
 
