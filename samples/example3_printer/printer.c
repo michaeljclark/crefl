@@ -6,7 +6,7 @@
 
 #include "cmodel.h"
 #include "cfileio.h"
-#include "cprinter.h"
+#include "printer.h"
 
 #define array_size(a) (sizeof(a)/sizeof(a[0]))
 #define ptr_offset(ptr,offset) ((u8*)ptr + (offset >> 3))
