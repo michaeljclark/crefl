@@ -103,9 +103,9 @@ static const crefl_field * fields_all[] = {
 };
 
 static const crefl_field fx_name =   { "name",   28, _FIELD(name),   _field_str };
-static const crefl_field fx_props =  { "props",  15, _FIELD(props),  _field_str };
-static const crefl_field fx_detail = { "detail", 35, _FIELD(detail), _field_str };
-static const crefl_field fx_fqn =    { "fqn",    35, _FIELD(fqn),    _field_str };
+static const crefl_field fx_props =  { "props",  25, _FIELD(props),  _field_str };
+static const crefl_field fx_detail = { "detail", 30, _FIELD(detail), _field_str };
+static const crefl_field fx_fqn =    { "fqn",    30, _FIELD(fqn),    _field_str };
 
 static const crefl_field * fields_fqn[] = {
     &f_id, &f_attr, &f_next, &f_link, &f_type, &fx_name, &fx_props, &fx_detail,
