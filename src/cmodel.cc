@@ -41,7 +41,7 @@ int crefl_is_type(decl_ref d)
     return t == _decl_typedef || t == _decl_intrinsic ||
            t == _decl_set     || t == _decl_enum      ||
            t == _decl_struct  || t == _decl_union     ||
-           t == _decl_array   || t == _decl_pointer;
+           t == _decl_array   || t == _decl_pointer   || t == _decl_qualifier;
 }
 
 int crefl_is_none      (decl_ref d) { return crefl_decl_tag(d) == _decl_none;      }
@@ -57,6 +57,7 @@ int crefl_is_pointer   (decl_ref d) { return crefl_decl_tag(d) == _decl_pointer;
 int crefl_is_constant  (decl_ref d) { return crefl_decl_tag(d) == _decl_constant;  }
 int crefl_is_function  (decl_ref d) { return crefl_decl_tag(d) == _decl_function;  }
 int crefl_is_param     (decl_ref d) { return crefl_decl_tag(d) == _decl_param;     }
+int crefl_is_qualifier (decl_ref d) { return crefl_decl_tag(d) == _decl_qualifier; }
 int crefl_is_attribute (decl_ref d) { return crefl_decl_tag(d) == _decl_attribute; }
 int crefl_is_value     (decl_ref d) { return crefl_decl_tag(d) == _decl_value;     }
 int crefl_is_archive   (decl_ref d) { return crefl_decl_tag(d) == _decl_archive;   }
@@ -96,6 +97,7 @@ static const char * crefl_tag_names_arr[] = {
     "constant",
     "function",
     "param",
+    "qualifier",
     "attribute",
     "value",
     "archive",

@@ -212,8 +212,6 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
     {
         decl_ref tr = crefl_intrinsic(db, _decl_void, 0);
 
-        if (q->isIncompleteType()) return tr;
-
         bool _is_scalar = q->isScalarType();
         bool _is_pointer = q->isPointerType();
         bool _is_complex = q->isComplexType();
@@ -226,13 +224,15 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         bool _is_restrict = (q.getLocalFastQualifiers() & Qualifiers::Restrict);
         bool _is_volatile = (q.getLocalFastQualifiers() & Qualifiers::Volatile);
 
+        if (!_is_array && q->isIncompleteType()) return tr;
+
         TypeInfo t = context.getTypeInfo(q);
 
         if (_is_pointer) {
             const QualType pq = q->getPointeeType();
             decl_ref ti = get_intrinsic_type(pq);
 
-            std::string name = string_printf("%s*", crefl_decl_name(ti));
+            std::string name = string_printf("*%s", crefl_decl_name(ti));
 
             tr = crefl_decl_new(db, _decl_pointer);
             crefl_decl_ptr(tr)->_link = crefl_decl_idx(ti);
@@ -297,6 +297,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         else if (_is_array) {
             /* also {Incomplete,DependentSized,Variable}ArrayType */
             const ConstantArrayType * cat = context.getAsConstantArrayType(q);
+            const VariableArrayType * vat = context.getAsVariableArrayType(q);
             const ArrayType *at = context.getAsArrayType(q);
             const QualType q = at->getElementType();
             bool is_static = at->getSizeModifier() == clang::ArrayType::ArraySizeModifier::Static;
@@ -306,12 +307,16 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
 
             tr = crefl_decl_new(db, _decl_array);
             crefl_decl_ptr(tr)->_link = crefl_decl_idx(ti);
-            if (cat) {
+            const char *decl_name = crefl_decl_name(ti);
+            if (vat) {
+                name = string_printf("[*]%s", decl_name);
+                crefl_decl_ptr(tr)->_props |= _decl_vla;
+            } else if (cat) {
                 u64 _count = cat->getSize().getLimitedValue();
                 crefl_decl_ptr(tr)->_count = _count;
-                name = string_printf("%s[%llu]", crefl_decl_name(ti), _count);
+                name = string_printf("[%llu]%s", _count, decl_name);
             } else {
-                name = string_printf("%s[]", crefl_decl_name(ti));
+                name = string_printf("[]%s", decl_name);
             }
             crefl_decl_ptr(tr)->_name = crefl_name_new(db, name.c_str());
             crefl_decl_ptr(tr)->_props |= -(int)is_static & _decl_static;
@@ -328,6 +333,24 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
                " union:%d const:%d volatile:%d restrict:%d\n",
             _is_scalar, _is_complex, _is_vector, _is_array, _is_struct,
             _is_union, _is_const, _is_volatile, _is_restrict);
+
+        int cvr_props = 0;
+        cvr_props |= _decl_const & -(int)_is_const;
+        cvr_props |= _decl_volatile & -(int)_is_volatile;
+        cvr_props |= _decl_restrict & -(int)_is_restrict;
+
+        if (cvr_props) {
+            decl_ref ti = tr;
+            tr = crefl_decl_new(db, _decl_qualifier);
+            std::string name = string_printf("%s%s%s%s",
+                _is_const ? "const_" : "",
+                _is_volatile ? "volatile_" : "",
+                _is_restrict ? "restrict_" : "",
+                crefl_decl_name(ti));
+            crefl_decl_ptr(tr)->_name = crefl_name_new(db, name.c_str());
+            crefl_decl_ptr(tr)->_link = crefl_decl_idx(ti);
+            crefl_decl_ptr(tr)->_props |= cvr_props;
+        }
 
         return tr;
     }
@@ -429,7 +452,6 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         /* create typedef */
         decl_ref r = create_named_node(d, _decl_typedef);
         crefl_decl_ptr(r)->_link = crefl_decl_idx(get_intrinsic_type(q));
-        crefl_decl_ptr(r)->_props |= get_cvr_props(q);
         crefl_decl_ptr(r)->_attr = create_attributes(d, r);
 
         last = r;
@@ -553,8 +575,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         decl_ref r = create_named_node(d, _decl_field);
         crefl_decl_ptr(r)->_link = crefl_decl_idx(get_intrinsic_type(q));
         crefl_decl_ptr(r)->_width = width;
-        crefl_decl_ptr(r)->_props |= get_cvr_props(q)
-            | (-(int)d->isBitField() & _decl_bitfield);
+        crefl_decl_ptr(r)->_props |= (-(int)d->isBitField() & _decl_bitfield);
         crefl_decl_ptr(r)->_attr = create_attributes(d, r);
 
         last = r;
@@ -590,7 +611,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         decl_ref pr = crefl_decl_new(db, _decl_param);
         crefl_decl_ptr(last)->_link = crefl_decl_idx(pr);
         crefl_decl_ptr(pr)->_link = crefl_decl_idx(get_intrinsic_type(qr));
-        crefl_decl_ptr(pr)->_props |= get_cvr_props(qr) | _decl_out;
+        crefl_decl_ptr(pr)->_props |= _decl_out;
 
         /* create argument params */
         const ArrayRef<ParmVarDecl*> parms = d->parameters();
@@ -603,7 +624,6 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
                 parm->clang::NamedDecl::getNameAsString().c_str());
             crefl_decl_ptr(pr)->_next = crefl_decl_idx(ar);
             crefl_decl_ptr(ar)->_link = crefl_decl_idx(get_intrinsic_type(q));
-            crefl_decl_ptr(ar)->_props |= get_cvr_props(q);
             pr = ar;
         }
 
@@ -628,7 +648,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         const QualType q = d->getTypeSourceInfo()->getType();
         bool is_static = d->getStorageDuration() == clang::StorageDuration::SD_Static;
         crefl_decl_ptr(r)->_link = crefl_decl_idx(get_intrinsic_type(q));
-        crefl_decl_ptr(r)->_props |= get_cvr_props(q) |
+        crefl_decl_ptr(r)->_props |=
             (-(int)d->isExternC() & _decl_extern_c) |
             (-(int)is_static & _decl_static);
         crefl_decl_ptr(r)->_attr = create_attributes(d, r);

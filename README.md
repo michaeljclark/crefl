@@ -149,6 +149,7 @@ This table table lists the properties used by each subtype:
 | `constant`  | ✓    | `sz value` | named constant                                 |
 | `function`  | ✓    | `sz addr`  | function with input and output parameter list  |
 | `param`     | ✓    |            | named parameter with link to next              |
+| `qualifier` | ✓    |            | qualifiers for intrinsic types                 |
 | `attribute` | ✓    |            | custom attribute name                          |
 | `value`     |      |            | custom attribute value                         |
 | `archive`   | ✓    |            | collection of source objects                   |

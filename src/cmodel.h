@@ -105,6 +105,7 @@ typedef u64 decl_sz;
  * - constant       - named constant
  * - function       - function with parameter list
  * - param          - named parameter with link to next
+ * - qualifier      - qualifiers for intrinsic types
  * - attribute      - custom attribute name
  * - value          - custom attribute value
  * - archive        - collection of source objects
@@ -191,6 +192,7 @@ enum decl_tags
     _decl_constant,
     _decl_function,
     _decl_param,
+    _decl_qualifier,
     _decl_attribute,
     _decl_value,
     _decl_archive,
@@ -251,6 +253,9 @@ enum decl_props
     /* param */
     _decl_in       = 1 << 22,
     _decl_out      = 1 << 23,
+
+    /* variable length array */
+    _decl_vla      = 1 << 24,
 };
 
 /*

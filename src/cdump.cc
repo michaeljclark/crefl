@@ -76,7 +76,9 @@ static crefl_prop prop_names[] = {
     { _decl_hidden,    "hidden"     },
     /* param */
     { _decl_in,        "in"         },
-    { _decl_out,       "out"        }
+    { _decl_out,       "out"        },
+    /* variable-length-array */
+    { _decl_vla,       "vla"        }
 };
 
 #define _FIELD(x) offsetof(crefl_db_row,x)
@@ -215,6 +217,7 @@ crefl_db_row crefl_db_get_row(decl_db *db, decl_ref r)
     case _decl_struct:
     case _decl_union:
     case _decl_param:
+    case _decl_qualifier:
     case _decl_attribute: props = _props(r, ""); break;
     case _decl_set:
     case _decl_enum:
