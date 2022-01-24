@@ -25,6 +25,8 @@
 #include "clink.h"
 #include "cfileio.h"
 
+#define array_size(arr) ((sizeof(arr)/sizeof(arr[0])))
+
 void do_merge(const char *output, const char **input, size_t n)
 {
     decl_db *db_out = crefl_db_new();
@@ -94,21 +96,49 @@ void do_stats(const char *input)
     crefl_db_destroy(db);
 }
 
+typedef enum {
+    _dump_std,
+    _dump_fqn,
+    _dump_sum,
+    _dump_all,
+    _dump_ext,
+    _dump_ext_fqn,
+    _dump_ext_sum,
+    _dump_ext_all,
+    _merge,
+    _emit,
+    _stats
+} mode_enum;
+
+struct {
+    mode_enum val;
+    const char *arg;
+} mode_args[] = {
+    { _dump_std,      "--dump"         },
+    { _dump_fqn,      "--dump-fqn"     },
+    { _dump_sum,      "--dump-sum"     },
+    { _dump_all,      "--dump-all"     },
+    { _dump_ext,      "--dump-ext"     },
+    { _dump_ext_fqn,  "--dump-ext-fqn" },
+    { _dump_ext_sum,  "--dump-ext-sum" },
+    { _dump_ext_all,  "--dump-ext-all" },
+    { _merge,         "--merge"        },
+    { _emit,          "--emit"         },
+    { _stats,         "--stats"        },
+};
+
 int main(int argc, const char **argv)
 {
-    enum {
-        _dump_std, _dump_fqn, _dump_all, _dump_ext, _merge, _emit, _stats
-    } mode;
+    size_t i;
+    mode_enum mode;
 
     if (argc < 3) goto help_exit;
-    else if (strcmp(argv[1], "--dump") == 0) mode = _dump_std;
-    else if (strcmp(argv[1], "--dump-fqn") == 0) mode = _dump_fqn;
-    else if (strcmp(argv[1], "--dump-all") == 0) mode = _dump_all;
-    else if (strcmp(argv[1], "--dump-ext") == 0) mode = _dump_ext;
-    else if (strcmp(argv[1], "--merge") == 0) mode = _merge;
-    else if (strcmp(argv[1], "--emit") == 0) mode = _emit;
-    else if (strcmp(argv[1], "--stats") == 0) mode = _stats;
-    else goto help_exit;
+    for (i = 0; i < array_size(mode_args); i++) {
+        if (strcmp(argv[1], mode_args[i].arg) == 0) {
+            mode = mode_args[i].val; break;
+        }
+    }
+    if (i == array_size(mode_args)) goto help_exit;
 
     if ( (mode == _merge && argc < 4) ||
          (mode == _emit && argc != 4) ||
@@ -121,8 +151,12 @@ int main(int argc, const char **argv)
     switch (mode) {
         case _dump_std: do_dump(crefl_db_dump_std, argv[2]); break;
         case _dump_fqn: do_dump(crefl_db_dump_fqn, argv[2]); break;
-        case _dump_ext: do_dump(crefl_db_dump_ext, argv[2]); break;
+        case _dump_sum: do_dump(crefl_db_dump_sum, argv[2]); break;
         case _dump_all: do_dump(crefl_db_dump_all, argv[2]); break;
+        case _dump_ext: do_dump(crefl_db_dump_ext, argv[2]); break;
+        case _dump_ext_fqn: do_dump(crefl_db_dump_ext_fqn, argv[2]); break;
+        case _dump_ext_sum: do_dump(crefl_db_dump_ext_sum, argv[2]); break;
+        case _dump_ext_all: do_dump(crefl_db_dump_ext_all, argv[2]); break;
         case _stats: do_stats(argv[2]); break;
         case _merge: do_merge(argv[2], argv + 3, argc - 3); break;
         case _emit: do_emit(argv[2], argv[3], "main"); break;
@@ -134,10 +168,14 @@ help_exit:
     "Commands:\n\n"
     "--merge <output> [<input>]+  merge reflection metadata\n"
     "--emit <output> [<input>]    emit reflection metadata\n"
-    "--dump <input>               dump main fields in 80-col format\n"
-    "--dump-fqn <input>           dump main fields plus fqn in 143-col format\n"
-    "--dump-all <input>           dump all fields in 160-col format\n"
-    "--dump-ext <input>           dump all fields in 200-col format\n"
+    "--dump <input>               dump main fields in standard 80-col format\n"
+    "--dump-fqn <input>           dump main fields plus fqn in standard 103-col format\n"
+    "--dump-sum <input>           dump main fields plus sum in standard 137-col format\n"
+    "--dump-all <input>           dump main fields plus sum and fqn in standard 160-col format\n"
+    "--dump-ext <input>           dump main fields in extended 113-col format\n"
+    "--dump-ext-fqn <input>       dump main fields plus fqn in extended 143-col format\n"
+    "--dump-ext-sum <input>       dump main fields plus sum in extended 170-col format\n"
+    "--dump-ext-all <input>       dump main fields plus sum and fqn in extended 200-col format\n"
     "--stats                      print reflection db statistics\n\n", argv[0]);
     exit(1);
 }

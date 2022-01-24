@@ -94,9 +94,24 @@ static const crefl_field f_detail = { "detail", 20, _FIELD(detail), _field_str }
 static const crefl_field f_hash =   { "hash",   57, _FIELD(hash),   _field_str };
 static const crefl_field f_fqn =    { "fqn",    23, _FIELD(fqn),    _field_str };
 
+static const crefl_field fx_name =   { "name",   28, _FIELD(name),   _field_str };
+static const crefl_field fx_props =  { "props",  25, _FIELD(props),  _field_str };
+static const crefl_field fx_detail = { "detail", 30, _FIELD(detail), _field_str };
+static const crefl_field fx_fqn =    { "fqn",    30, _FIELD(fqn),    _field_str };
+
 static const crefl_field * fields_std[] = {
     &f_id, &f_attr, &f_next, &f_link, &f_type, &f_name, &f_props, &f_detail,
     0
+};
+
+static const crefl_field * fields_fqn[] = {
+    &f_id, &f_attr, &f_next, &f_link, &f_type, &f_name, &f_props, &f_detail,
+    &f_fqn, 0
+};
+
+static const crefl_field * fields_sum[] = {
+    &f_id, &f_attr, &f_next, &f_link, &f_type, &f_name, &f_props, &f_detail,
+    &f_hash, 0
 };
 
 static const crefl_field * fields_all[] = {
@@ -104,17 +119,22 @@ static const crefl_field * fields_all[] = {
     &f_hash, &f_fqn, 0
 };
 
-static const crefl_field fx_name =   { "name",   28, _FIELD(name),   _field_str };
-static const crefl_field fx_props =  { "props",  25, _FIELD(props),  _field_str };
-static const crefl_field fx_detail = { "detail", 30, _FIELD(detail), _field_str };
-static const crefl_field fx_fqn =    { "fqn",    30, _FIELD(fqn),    _field_str };
+static const crefl_field * fields_ext[] = {
+    &f_id, &f_attr, &f_next, &f_link, &f_type, &fx_name, &fx_props, &fx_detail,
+    0
+};
 
-static const crefl_field * fields_fqn[] = {
+static const crefl_field * fields_ext_fqn[] = {
     &f_id, &f_attr, &f_next, &f_link, &f_type, &fx_name, &fx_props, &fx_detail,
     &fx_fqn, 0
 };
 
-static const crefl_field * fields_ext[] = {
+static const crefl_field * fields_ext_sum[] = {
+    &f_id, &f_attr, &f_next, &f_link, &f_type, &fx_name, &fx_props, &fx_detail,
+    &f_hash, 0
+};
+
+static const crefl_field * fields_ext_all[] = {
     &f_id, &f_attr, &f_next, &f_link, &f_type, &fx_name, &fx_props, &fx_detail,
     &f_hash, &fx_fqn, 0
 };
@@ -290,8 +310,12 @@ void crefl_db_set_dump_fmt(enum crefl_db_dump_fmt fmt)
     switch (fmt) {
     case crefl_db_dump_std: fields = fields_std; break;
     case crefl_db_dump_fqn: fields = fields_fqn; break;
+    case crefl_db_dump_sum: fields = fields_sum; break;
     case crefl_db_dump_all: fields = fields_all; break;
     case crefl_db_dump_ext: fields = fields_ext; break;
+    case crefl_db_dump_ext_fqn: fields = fields_ext_fqn; break;
+    case crefl_db_dump_ext_sum: fields = fields_ext_sum; break;
+    case crefl_db_dump_ext_all: fields = fields_ext_all; break;
     }
 }
 

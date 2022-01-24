@@ -81,24 +81,8 @@ def crefl_meta(hdr, includes, is_cpp, is_debug, no_exec, plugin):
     else:
         return subprocess.run(cmd, check=True)
 
-def crefl_dump(hdr):
-    cmd = [ './build/crefltool', "--dump", crefl_file(hdr)]
-    out = subprocess.run(cmd)
-
-def crefl_dump_fqn(hdr):
-    cmd = [ './build/crefltool', "--dump-fqn", crefl_file(hdr)]
-    out = subprocess.run(cmd)
-
-def crefl_dump_all(hdr):
-    cmd = [ './build/crefltool', "--dump-all", crefl_file(hdr)]
-    out = subprocess.run(cmd)
-
-def crefl_dump_ext(hdr):
-    cmd = [ './build/crefltool', "--dump-ext", crefl_file(hdr)]
-    out = subprocess.run(cmd)
-
-def crefl_stats(hdr):
-    cmd = [ './build/crefltool', "--stats", crefl_file(hdr)]
+def crefl_tool(hdr, arg):
+    cmd = [ './build/crefltool', arg, crefl_file(hdr)]
     out = subprocess.run(cmd)
 
 def crefl_header(lab, hdr):
@@ -114,13 +98,21 @@ parser.add_argument('-I', '--include', action='append',
 parser.add_argument('-p', '--plugin', action='store', default='build',
                     help='directory containing plugin')
 parser.add_argument('--dump', default=True, action='store_true',
-                    help='include standard fields in dump')
+                    help='standard width dump')
 parser.add_argument('--dump-fqn', default=False, action='store_true',
-                    help='include fqn field in dump')
+                    help='standard width dump with fqn field')
+parser.add_argument('--dump-sum', default=False, action='store_true',
+                    help='standard width dump with sum field')
 parser.add_argument('--dump-all', default=False, action='store_true',
-                    help='include all fields in dump')
+                    help='standard width dump with all fields')
 parser.add_argument('--dump-ext', default=False, action='store_true',
-                    help='include all fields in dump')
+                    help='extended width dump')
+parser.add_argument('--dump-ext-fqn', default=False, action='store_true',
+                    help='extended width dump with fqn field')
+parser.add_argument('--dump-ext-sum', default=False, action='store_true',
+                    help='extended width dump with sum field')
+parser.add_argument('--dump-ext-all', default=False, action='store_true',
+                    help='extended width dump with all fields')
 parser.add_argument('-d', '--debug', default=False, action='store_true',
                     help='enable crefl debug output')
 parser.add_argument('--stats', default=False, action='store_true',
@@ -142,15 +134,23 @@ for f in args.files:
         crefl_meta(hdr, args.include, args.cpp, args.debug, args.no_exec, args.plugin)
         if args.no_exec:
             exit(0)
-        if args.dump_ext:
-            crefl_dump_ext(hdr)
-        elif args.dump_fqn:
-            crefl_dump_fqn(hdr)
+        if args.dump_fqn:
+            crefl_tool(hdr, '--dump-fqn')
+        elif args.dump_sum:
+            crefl_tool(hdr, '--dump-sum')
         elif args.dump_all:
-            crefl_dump_all(hdr)
+            crefl_tool(hdr, '--dump-all')
+        elif args.dump_ext:
+            crefl_tool(hdr, '--dump-ext')
+        elif args.dump_ext_fqn:
+            crefl_tool(hdr, '--dump-ext-fqn')
+        elif args.dump_ext_sum:
+            crefl_tool(hdr, '--dump-ext-sum')
+        elif args.dump_ext_all:
+            crefl_tool(hdr, '--dump-ext-all')
         elif args.dump:
-            crefl_dump(hdr)
+            crefl_tool(hdr, '--dump')
         if args.stats:
             crefl_header('STATS', hdr)
-            crefl_stats(hdr)
+            crefl_tool(hdr, '--stats')
 print()

@@ -24,10 +24,14 @@ extern "C" {
 
 enum crefl_db_dump_fmt
 {
-	crefl_db_dump_std,
-	crefl_db_dump_fqn,
-	crefl_db_dump_all,
-	crefl_db_dump_ext
+    crefl_db_dump_std,
+    crefl_db_dump_fqn,
+    crefl_db_dump_sum,
+    crefl_db_dump_all,
+    crefl_db_dump_ext,
+    crefl_db_dump_ext_fqn,
+    crefl_db_dump_ext_sum,
+    crefl_db_dump_ext_all
 };
 
 void crefl_db_header_names();
