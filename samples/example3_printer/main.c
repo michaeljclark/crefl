@@ -5,7 +5,6 @@
 struct point { float x; float y; };
 struct index { unsigned a, b, c; };
 struct moon { struct point p; struct index s; };
-
 struct dune { int order[10]; struct moon *m; };
 
 int main(int argc, const char **argv)
