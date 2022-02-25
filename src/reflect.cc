@@ -23,20 +23,45 @@
 #include <string>
 #include <vector>
 
-#include "clang/AST/AST.h"
-#include "clang/AST/RecursiveASTVisitor.h"
-#include "clang/AST/ParentMapContext.h"
+#include <clang/AST/AST.h>
+#include <clang/AST/ASTConsumer.h>
+#include <clang/AST/RecursiveASTVisitor.h>
+#include <clang/AST/ParentMapContext.h>
 #include <clang/Frontend/FrontendPluginRegistry.h>
+#include <clang/Frontend/CompilerInstance.h>
 
 #include <crefl/util.h>
 #include <crefl/model.h>
 #include <crefl/dump.h>
 #include <crefl/db.h>
-#include "reflect.h"
 
 using namespace clang;
 
-static clang::FrontendPluginRegistry::Add<crefl::CReflectAction>
+class ReflectAction : public PluginASTAction
+{
+public:
+    std::string outputFile;
+    bool debug, dump;
+
+    ReflectAction() : outputFile(), debug(false), dump(false) {}
+
+    std::unique_ptr<ASTConsumer> CreateASTConsumer
+        (CompilerInstance &ci, llvm::StringRef) override {
+        ci.getDiagnostics().setClient(new IgnoringDiagConsumer());
+        return std::make_unique<ASTConsumer>();
+    }
+
+    bool ParseArgs(const CompilerInstance &ci,
+                 const std::vector<std::string>& argv) override;
+
+protected:
+    void EndSourceFileAction() override;
+    PluginASTAction::ActionType getActionType() override {
+      return ReplaceAction;
+    }
+};
+
+static FrontendPluginRegistry::Add<ReflectAction>
     X("crefl", "emit reflection metadata.");
 
 static void log_debug(const char* fmt, ...)
@@ -61,7 +86,7 @@ static const char* tagKindString(TagTypeKind k) {
     }
 }
 
-struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
+struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
 {
     ASTContext &context;
     decl_db *db;
@@ -71,7 +96,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
     std::string inputFile;
     bool debug;
 
-    CReflectVisitor(ASTContext &context, decl_db *db, std::string inputFile, bool debug = false)
+    ReflectVisitor(ASTContext &context, decl_db *db, std::string inputFile, bool debug = false)
         : context(context), db(db), last(), inputFile(inputFile), debug(debug) {}
 
     std::string crefl_path(const Decl *d)
@@ -260,21 +285,21 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         else if (_is_scalar) {
             auto stk = q->getScalarTypeKind();
             switch (stk) {
-            case clang::Type::ScalarTypeKind::STK_CPointer: {
+            case Type::ScalarTypeKind::STK_CPointer: {
                  tr = crefl_intrinsic(db, _decl_void, t.Width);
                  break;
             }
-            case clang::Type::ScalarTypeKind::STK_BlockPointer:
+            case Type::ScalarTypeKind::STK_BlockPointer:
                 break;
-            case clang::Type::ScalarTypeKind::STK_ObjCObjectPointer:
+            case Type::ScalarTypeKind::STK_ObjCObjectPointer:
                 break;
-            case clang::Type::ScalarTypeKind::STK_MemberPointer:
+            case Type::ScalarTypeKind::STK_MemberPointer:
                 break;
-            case clang::Type::ScalarTypeKind::STK_Bool: {
+            case Type::ScalarTypeKind::STK_Bool: {
                 tr = crefl_intrinsic(db, _decl_sint, 1);
                 break;
             }
-            case clang::Type::ScalarTypeKind::STK_Integral: {
+            case Type::ScalarTypeKind::STK_Integral: {
                 if (q->isUnsignedIntegerType()) {
                     tr = crefl_intrinsic(db, _decl_uint, t.Width);
                 } else {
@@ -282,15 +307,15 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
                 }
                 break;
             }
-            case clang::Type::ScalarTypeKind::STK_Floating: {
+            case Type::ScalarTypeKind::STK_Floating: {
                 tr = crefl_intrinsic(db, _decl_float, t.Width);
                 break;
             }
-            case clang::Type::ScalarTypeKind::STK_IntegralComplex:
+            case Type::ScalarTypeKind::STK_IntegralComplex:
                 break;
-            case clang::Type::ScalarTypeKind::STK_FloatingComplex:
+            case Type::ScalarTypeKind::STK_FloatingComplex:
                 break;
-            case clang::Type::ScalarTypeKind::STK_FixedPoint:
+            case Type::ScalarTypeKind::STK_FixedPoint:
                 break;
             }
         }
@@ -300,7 +325,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             const VariableArrayType * vat = context.getAsVariableArrayType(q);
             const ArrayType *at = context.getAsArrayType(q);
             const QualType q = at->getElementType();
-            bool is_static = at->getSizeModifier() == clang::ArrayType::ArraySizeModifier::Static;
+            bool is_static = at->getSizeModifier() == ArrayType::ArraySizeModifier::Static;
             std::string name;
 
             decl_ref ti = get_intrinsic_type(q);
@@ -360,10 +385,10 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         /* create node */
         decl_ref r = crefl_decl_new(db, tag);
         crefl_decl_ptr(r)->_name = crefl_name_new(db,
-            d->clang::NamedDecl::getNameAsString().c_str());
+            d->NamedDecl::getNameAsString().c_str());
 
         /* record clang -> crefl id */
-        idmap[d->clang::Decl::getID()] = crefl_decl_idx(r);
+        idmap[d->Decl::getID()] = crefl_decl_idx(r);
 
         /* find parent id */
         const auto& parents = context.getParents(*d);
@@ -427,7 +452,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
             crefl_basename(inputFile).c_str());
 
         /* record clang -> crefl id */
-        idmap[d->clang::Decl::getID()] = crefl_decl_idx(r);
+        idmap[d->Decl::getID()] = crefl_decl_idx(r);
 
         /* set root element */
         if (db->root_element == 0) {
@@ -446,7 +471,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
 
         const QualType q = d->getUnderlyingType();
         debugf("\tname:\"%s\" type:%s\n",
-            d->clang::NamedDecl::getNameAsString().c_str(),
+            d->NamedDecl::getNameAsString().c_str(),
             q.getAsString().c_str());
 
         /* create typedef */
@@ -466,9 +491,9 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         if (d->isInvalidDecl()) return true;
         if (debug) print_decl(d);
 
-        TagTypeKind k = d->clang::TagDecl::getTagKind();
+        TagTypeKind k = d->TagDecl::getTagKind();
         debugf("\tname:\"%s\" kind:%s neg_bits:%u pos_bits:%u\n",
-            d->clang::NamedDecl::getNameAsString().c_str(),
+            d->NamedDecl::getNameAsString().c_str(),
             tagKindString(k),
             d->getNumNegativeBits(),
             d->getNumPositiveBits());
@@ -499,7 +524,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
 
         uint64_t value = d->getInitVal().extOrTrunc(64).getZExtValue();
         debugf("\tname:\"%s\" type:%s value:%" PRIu64 "\n",
-            d->clang::NamedDecl::getNameAsString().c_str(),
+            d->NamedDecl::getNameAsString().c_str(),
             q.getAsString().c_str(), value);
 
         /* create constant */
@@ -520,9 +545,9 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         if (d->isInvalidDecl()) return true;
         if (debug) print_decl(d);
 
-        TagTypeKind k = d->clang::TagDecl::getTagKind();
+        TagTypeKind k = d->TagDecl::getTagKind();
         debugf("\tname:\"%s\" kind:%s\n",
-            d->clang::NamedDecl::getNameAsString().c_str(), tagKindString(k));
+            d->NamedDecl::getNameAsString().c_str(), tagKindString(k));
 
         decl_tag tag;
         decl_ref r;
@@ -566,7 +591,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         TypeInfo t = context.getTypeInfo(q);
 
         debugf("\tname:\"%s\" type:%s width:%" PRIu64 " align:%d index:%d\n",
-            d->clang::NamedDecl::getNameAsString().c_str(),
+            d->NamedDecl::getNameAsString().c_str(),
             q.getAsString().c_str(), t.Width, t.Align, d->getFieldIndex());
 
         decl_sz width = d->isBitField() ? d->getBitWidthValue(context) : 0;
@@ -621,7 +646,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
 
             decl_ref ar = crefl_decl_new(db, _decl_param);
             crefl_decl_ptr(ar)->_name = crefl_name_new(db,
-                parm->clang::NamedDecl::getNameAsString().c_str());
+                parm->NamedDecl::getNameAsString().c_str());
             crefl_decl_ptr(pr)->_next = crefl_decl_idx(ar);
             crefl_decl_ptr(ar)->_link = crefl_decl_idx(get_intrinsic_type(q));
             pr = ar;
@@ -638,7 +663,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         if (debug) print_decl(d);
 
         debugf("\tname:\"%s\"\n",
-            d->clang::NamedDecl::getNameAsString().c_str());
+            d->NamedDecl::getNameAsString().c_str());
 
         /* FunctionDecl handles params */
         if (d->isLocalVarDeclOrParm()) return true;
@@ -646,7 +671,7 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
         /* create field */
         decl_ref r = create_named_node(d, _decl_field);
         const QualType q = d->getTypeSourceInfo()->getType();
-        bool is_static = d->getStorageDuration() == clang::StorageDuration::SD_Static;
+        bool is_static = d->getStorageDuration() == StorageDuration::SD_Static;
         crefl_decl_ptr(r)->_link = crefl_decl_idx(get_intrinsic_type(q));
         crefl_decl_ptr(r)->_props |=
             (-(int)d->isExternC() & _decl_extern_c) |
@@ -659,18 +684,8 @@ struct CReflectVisitor : public RecursiveASTVisitor<CReflectVisitor>
     }
 };
 
-crefl::CReflectAction::CReflectAction()
-    : outputFile(), debug(false), dump(false) {}
-
-std::unique_ptr<clang::ASTConsumer> crefl::CReflectAction::CreateASTConsumer
-    (clang::CompilerInstance &ci, llvm::StringRef)
-{
-    ci.getDiagnostics().setClient(new clang::IgnoringDiagConsumer());
-    return std::make_unique<clang::ASTConsumer>();
-}
-
-bool crefl::CReflectAction::ParseArgs
-    (const clang::CompilerInstance &ci, const std::vector<std::string>& argv)
+bool ReflectAction::ParseArgs(const CompilerInstance &ci,
+             const std::vector<std::string>& argv)
 {
     int i = 0, argc = argv.size();
     while (i < argc) {
@@ -696,7 +711,7 @@ bool crefl::CReflectAction::ParseArgs
     return true;
 }
 
-void crefl::CReflectAction::EndSourceFileAction()
+void ReflectAction::EndSourceFileAction()
 {
     auto &ci      = getCompilerInstance();
     auto &context = ci.getASTContext();
@@ -704,7 +719,7 @@ void crefl::CReflectAction::EndSourceFileAction()
 
     decl_db *db = crefl_db_new();
     crefl_db_defaults(db);
-    CReflectVisitor v(context, db, input.getFile().str(), debug);
+    ReflectVisitor v(context, db, input.getFile().str(), debug);
     if (debug) {
         log_debug("Input file  : %s\n", v.inputFile.c_str());
         if (outputFile.size() != 0) {
@@ -721,5 +736,5 @@ void crefl::CReflectAction::EndSourceFileAction()
     }
     crefl_db_destroy(db);
 
-    clang::ASTFrontendAction::EndSourceFileAction();
+    ASTFrontendAction::EndSourceFileAction();
 }
