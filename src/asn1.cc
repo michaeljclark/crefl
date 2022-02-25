@@ -2513,12 +2513,13 @@ int crefl_asn1_oid_to_string(char *str, size_t *buflen, const asn1_oid *obj)
     size_t count = obj->count > asn1_oid_comp_max ?
         asn1_oid_comp_max : obj->count;
     for (size_t i = 0; i < count; i ++) {
-        offset += snprintf(
+        int ret = snprintf(
             (limit ? str + offset : NULL),
             (limit ? limit - offset : 0),
             (i == 0 ? "%lld" : ".%lld"),
             obj->oid[i]
         );
+        offset += ret > 0 ? ret : 0;
     }
     *buflen = offset;
     return 0;
