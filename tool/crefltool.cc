@@ -1,7 +1,7 @@
 /*
  * crefltool - tool to dump crefl reflection metadata.
  *
- * Copyright (c) 2020 Michael Clark <michaeljclark@mac.com>
+ * Copyright (c) 2020-2022 Michael Clark <michaeljclark@mac.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -20,10 +20,10 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "cmodel.h"
-#include "cdump.h"
-#include "clink.h"
-#include "cfileio.h"
+#include <crefl/model.h>
+#include <crefl/dump.h>
+#include <crefl/link.h>
+#include <crefl/db.h>
 
 #define array_size(arr) ((sizeof(arr)/sizeof(arr[0])))
 

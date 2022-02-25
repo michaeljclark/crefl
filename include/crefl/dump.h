@@ -1,7 +1,9 @@
 /*
+ * <crefl/dump.h>
+ *
  * crefl runtime library and compiler plug-in to support reflection in C.
  *
- * Copyright (c) 2020 Michael Clark <michaeljclark@mac.com>
+ * Copyright (c) 2020-2022 Michael Clark <michaeljclark@mac.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -18,39 +20,30 @@
 
 #pragma once
 
-#include <stddef.h>
-#include <stdint.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct decl_db_hdr;
-typedef struct decl_db_hdr decl_db_hdr;
-
-/* decl db magic constant */
-static const u8 decl_db_magic[8] = { 'c', 'r', 'e', 'f', 'l', '0', '0', '0' };
-
-/* decl db header */
-struct decl_db_hdr
+enum crefl_db_dump_fmt
 {
-    u8 magic[8];
-    u32 decl_entry_count;
-    u32 name_table_size;
-    u32 root_element;
+    crefl_db_dump_std,
+    crefl_db_dump_fqn,
+    crefl_db_dump_sum,
+    crefl_db_dump_all,
+    crefl_db_dump_ext,
+    crefl_db_dump_ext_fqn,
+    crefl_db_dump_ext_sum,
+    crefl_db_dump_ext_all
 };
 
-/* decl db magic and size */
-int crefl_db_magic(const void *addr);
-size_t crefl_db_size(decl_db *db);
+void crefl_db_header_names();
+void crefl_db_header_lines();
 
-/* decl db memory io */
-int crefl_db_read_mem(decl_db *db, const uint8_t *buf, size_t input_sz);
-int crefl_db_write_mem(decl_db *db, uint8_t *buf, size_t output_sz);
+void crefl_db_set_dump_fmt(enum crefl_db_dump_fmt fmt);
 
-/* decl db file io */
-int crefl_db_read_file(decl_db *db, const char *input_filename);
-int crefl_db_write_file(decl_db *db, const char *output_filename);
+void crefl_db_dump(decl_db *db);
+void crefl_db_dump_row(decl_db *db, decl_ref r);
+void crefl_db_dump_stats(decl_db *db);
 
 #ifdef __cplusplus
 }

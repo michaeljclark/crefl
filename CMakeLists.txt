@@ -20,21 +20,21 @@ separate_arguments(LLVM_CXXFLAGS UNIX_COMMAND "${LLVM_CXXFLAGS}")
 separate_arguments(LLVM_LDFLAGS UNIX_COMMAND "${LLVM_LDFLAGS}")
 separate_arguments(LLVM_LIBS UNIX_COMMAND "${LLVM_LIBS}")
 
-include_directories(src)
+include_directories(include)
 
 add_library(cmodel STATIC
-	src/casn1.cc
-	src/cbuf.cc
-	src/cdump.cc
-	src/cfileio.cc
-	src/clink.cc
-	src/cmodel.cc
-	src/coid.cc
-	src/ctypes.cc
-	src/sha256.c
+	src/asn1.cc
+	src/buf.cc
+	src/dump.cc
+	src/db.cc
+	src/link.cc
+	src/model.cc
+	src/oid.cc
+	src/types.cc
+	src/sha256.cc
 )
 
-add_library(crefl SHARED src/creflect.cc)
+add_library(crefl SHARED src/reflect.cc)
 target_compile_options(crefl PRIVATE ${LLVM_CXXFLAGS})
 target_link_options(crefl PRIVATE ${LLVM_LDFLAGS})
 target_link_libraries(crefl clang-cpp cmodel ${LLVM_LIBS})

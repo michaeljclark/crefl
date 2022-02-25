@@ -1,7 +1,7 @@
 /*
  * crefl runtime library and compiler plug-in to support reflection in C.
  *
- * Copyright (c) 2020 Michael Clark <michaeljclark@mac.com>
+ * Copyright (c) 2020-2022 Michael Clark <michaeljclark@mac.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -28,11 +28,11 @@
 #include "clang/AST/ParentMapContext.h"
 #include <clang/Frontend/FrontendPluginRegistry.h>
 
-#include "cutil.h"
-#include "cmodel.h"
-#include "cdump.h"
-#include "cfileio.h"
-#include "creflect.h"
+#include <crefl/util.h>
+#include <crefl/model.h>
+#include <crefl/dump.h>
+#include <crefl/db.h>
+#include "reflect.h"
 
 using namespace clang;
 

@@ -4,8 +4,8 @@
 #include <string.h>
 #include <assert.h>
 
-#include "cmodel.h"
-#include "cfileio.h"
+#include <crefl/model.h>
+#include <crefl/db.h>
 
 extern const unsigned char __crefl_main_data[];
 extern const size_t __crefl_main_size;

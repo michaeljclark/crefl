@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cmodel.h"
+#include <crefl/model.h>
 
 decl_db* crefl_db_internal();
 void crefl_print(decl_ref r, void *ptr);

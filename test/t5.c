@@ -6,8 +6,8 @@
 #include <assert.h>
 #include <math.h>
 
-#include "cbuf.h"
-#include "casn1.h"
+#include <crefl/buf.h>
+#include <crefl/asn1.h>
 
 const char* ber_tag_fmt = "\nASN.1 X.690 ber_tag(%zu)[0x%zx]\n";
 const char* ber_length_fmt = "\nASN.1 X.690 ber_length(%zu)[0x%zx]\n";

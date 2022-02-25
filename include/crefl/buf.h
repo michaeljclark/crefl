@@ -1,7 +1,9 @@
 /*
+ * <crefl/buf.h>
+ *
  * crefl runtime library and compiler plug-in to support reflection in C.
  *
- * Copyright (c) 2020 Michael Clark <michaeljclark@mac.com>
+ * Copyright (c) 2020-2022 Michael Clark <michaeljclark@mac.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -21,7 +23,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "stdendian.h"
+#include <crefl/endian.h>
 
 #ifdef __cplusplus
 extern "C" {

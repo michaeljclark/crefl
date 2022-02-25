@@ -6,8 +6,8 @@
 
 #include <string.h>
 
-#include "stdendian.h"
-#include "sha256.h"
+#include <crefl/endian.h>
+#include <crefl/sha256.h>
 
 static const uint32_t sha224_init_state[8] = {
 	0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939,

@@ -3,7 +3,7 @@
 #include <map>
 #include <string>
 
-#include "coid.h"
+#include <crefl/oid.h>
 
 static const struct asn1_oid_record {
 	const unsigned char oid[16];

@@ -1,7 +1,7 @@
 /*
  * crefl runtime library and compiler plug-in to support reflection in C.
  *
- * Copyright (c) 2020 Michael Clark <michaeljclark@mac.com>
+ * Copyright (c) 2020-2022 Michael Clark <michaeljclark@mac.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -22,10 +22,9 @@
 
 #include <string>
 
-#include "stdbits.h"
-
-#include "cmodel.h"
-#include "ctypes.h"
+#include <crefl/bits.h>
+#include <crefl/model.h>
+#include <crefl/types.h>
 
 #define array_size(arr) ((sizeof(arr)/sizeof(arr[0])))
 

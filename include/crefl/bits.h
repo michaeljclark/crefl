@@ -1,7 +1,5 @@
-#pragma once
-
 /*
- * stdbits.h
+ * <crefl/bits.h>
  *
  * This header defines the following functions:
  *
@@ -19,6 +17,8 @@
  *   GCC -O2 -x c -std=c11
  *   MSVC /O2 /TC /std:c11
  */
+
+#pragma once
 
 typedef unsigned int       __bits_u32;
 typedef signed int         __bits_s32;

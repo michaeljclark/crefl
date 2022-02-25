@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "cmodel.h"
-#include "cfileio.h"
+#include <crefl/model.h>
+#include <crefl/db.h>
 
 int main(int argc, const char **argv)
 {

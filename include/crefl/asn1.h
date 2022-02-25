@@ -1,7 +1,9 @@
 /*
+ * <crefl/asn1.h>
+ *
  * crefl runtime library and compiler plug-in to support reflection in C.
  *
- * Copyright (c) 2020 Michael Clark <michaeljclark@mac.com>
+ * Copyright (c) 2020-2022 Michael Clark <michaeljclark@mac.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -22,8 +24,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "cmodel.h"
-#include "cbuf.h"
+#include <crefl/model.h>
+#include <crefl/buf.h>
 
 #ifdef __cplusplus
 extern "C" {

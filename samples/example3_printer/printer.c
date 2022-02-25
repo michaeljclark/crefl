@@ -4,8 +4,8 @@
 #include <string.h>
 #include <assert.h>
 
-#include "cmodel.h"
-#include "cfileio.h"
+#include <crefl/model.h>
+#include <crefl/db.h>
 #include "printer.h"
 
 #define array_size(a) (sizeof(a)/sizeof(a[0]))

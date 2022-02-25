@@ -4,7 +4,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include "cmodel.h"
+#include <crefl/model.h>
 
 /* crefl_db_new, crefl_decl_new, crefl_name_new, crefl_db_destroy */
 

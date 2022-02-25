@@ -1,7 +1,7 @@
 /*
  * crefl runtime library and compiler plug-in to support reflection in C.
  *
- * Copyright (c) 2020 Michael Clark <michaeljclark@mac.com>
+ * Copyright (c) 2020-2022 Michael Clark <michaeljclark@mac.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -16,8 +16,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include "cmodel.h"
-#include "ctypes.h"
+#include <crefl/model.h>
+#include <crefl/types.h>
 
 const _ctype _cvoid =     { _decl_intrinsic,  0,  _decl_void   | _decl_pad_bit,  "void"    };
 const _ctype _cbool =     { _decl_intrinsic,  1,  _decl_sint   | _decl_pad_byte, "bool"    };

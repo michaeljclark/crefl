@@ -5,9 +5,9 @@
 #include <string.h>
 #include <assert.h>
 
-#include "cmodel.h"
-#include "cdump.h"
-#include "cfileio.h"
+#include <crefl/model.h>
+#include <crefl/dump.h>
+#include <crefl/db.h>
 
 #define DB_DIR "build/tmp/" /* adjacent-decls-1.h.refl */
 

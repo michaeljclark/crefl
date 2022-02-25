@@ -1,7 +1,7 @@
 /*
  * crefl runtime library and compiler plug-in to support reflection in C.
  *
- * Copyright (c) 2020 Michael Clark <michaeljclark@mac.com>
+ * Copyright (c) 2020-2022 Michael Clark <michaeljclark@mac.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -23,12 +23,11 @@
 #include <cassert>
 #include <limits>
 
-#include "stdendian.h"
-#include "stdbits.h"
-
-#include "cmodel.h"
-#include "cbuf.h"
-#include "casn1.h"
+#include <crefl/endian.h>
+#include <crefl/bits.h>
+#include <crefl/model.h>
+#include <crefl/buf.h>
+#include <crefl/asn1.h>
 
 /*
  * ASN.1 tag names

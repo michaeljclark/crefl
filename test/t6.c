@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <string.h>
 
-#include "casn1.h"
+#include <crefl/asn1.h>
 
 void test_oid(const char *s, const char *exp, const asn1_oid *oid, int result)
 {

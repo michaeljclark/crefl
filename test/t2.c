@@ -4,7 +4,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include "cmodel.h"
+#include <crefl/model.h>
 
 /* crefl_list_{decls,types,fields,functions} */
 

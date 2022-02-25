@@ -1,7 +1,5 @@
-#pragma once
-
 /*
- * stdendian.h
+ * <crefl/endian.h>
  *
  * This header defines the following endian macros as defined here:
  *
@@ -54,6 +52,8 @@
  *   uint64_t be64toh(uint64_t x) { return be64(x); }
  *   uint64_t le64toh(uint64_t x) { return le64(x); }
  */
+
+#pragma once
 
 #include <stdint.h>
 
