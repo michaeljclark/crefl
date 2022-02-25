@@ -22,6 +22,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 
 #include <crefl/endian.h>
 
@@ -51,6 +52,7 @@ struct crefl_buf
 crefl_buf* crefl_buf_new(size_t size);
 void crefl_buf_destroy(crefl_buf* buf);
 void crefl_buf_dump(crefl_buf *buf);
+int crefl_format_byte(char *buf, size_t buflen, uint8_t c);
 
 static size_t crefl_buf_write_i8(crefl_buf* buf, int8_t num);
 static size_t crefl_buf_write_i16(crefl_buf* buf, int16_t num);
