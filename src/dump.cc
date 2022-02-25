@@ -19,9 +19,9 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <cerrno>
 
 #include <string>
-#include <sstream>
 #include <functional>
 
 #include <crefl/util.h>
@@ -207,9 +207,11 @@ static std::string _pad_str(std::string s, const size_t w, char pad = ' ')
 
 static std::string _fqn(decl_ref r, decl_entry_ref er)
 {
-    std::stringstream s;
-    s << crefl_tag_name(crefl_decl_tag(r)) << " " << crefl_entry_fqn(er);
-    return s.str();
+    std::string s;
+    s.append(crefl_tag_name(crefl_decl_tag(r)));
+    s.append(" ");
+    s.append(crefl_entry_fqn(er));
+    return s;
 }
 
 crefl_db_row crefl_db_get_row(decl_db *db, decl_ref r)
