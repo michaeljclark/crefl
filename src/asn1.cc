@@ -1918,10 +1918,10 @@ f32_result crefl_vf_f32_read_byval(crefl_buf *buf)
         return f32_result { 0, -1 };
     }
 
-    vf_inl = (pre >> 7) & 1;
-    vf_sgn = (pre >> 6) & 1;
-    vf_exp = (pre >> 4) & 3;
-    vf_man = pre & 15;
+    vf_inl = ! ((pre >> 7) & 1);
+    vf_sgn =    (pre >> 6) & 1;
+    vf_exp =    (pre >> 4) & 3;
+    vf_man =    pre & 15;
 
     if (!vf_inl) {
         if (vf_exp) {
