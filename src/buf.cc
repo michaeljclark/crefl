@@ -57,7 +57,7 @@ void crefl_buf_dump(crefl_buf *buf)
                 if (j < buf->data_offset) {
                     printf("%s", arr[(buf->data[j]>>i) & 3]);
                 } else {
-                    printf("░");
+                    printf("▢");
                 }
             }
         }
