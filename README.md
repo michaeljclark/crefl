@@ -78,14 +78,17 @@ int main(int argc, const char **argv)
 _Crefl_ implements a data model based on the description of the C data types
 in ISO/IEC 9899:9999 with minor changes. The following sections describe:
 
-- primary types to model the type system
-- decl node type to model the metadata graph
-- decl node subtypes to model C structures and interfaces
+- primary types to model the type system.
+- decl node type to model the metadata graph.
+- decl node subtypes to model C structures and interfaces:
   - _intrinsic, typedef, set, enum, struct, union, field, array, pointer,
-    constant, function, param, attribute, value_
+    constant, function, param, attribute, value_.
 
-One variation from the C normative terminology is the use of _field_
-instead of _member_ for structure elements.
+_Crefl_ variations from the C standard:
+
+- uses _field_ instead of _member_ for the name of structure elements.
+- functions with empty parameter lists are interpreted as functions with
+  no arguments. functions without prototypes are not supported.
 
 ### primary types
 
