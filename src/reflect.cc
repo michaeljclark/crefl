@@ -248,6 +248,7 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
         bool _is_const = (q.getLocalFastQualifiers() & Qualifiers::Const);
         bool _is_restrict = (q.getLocalFastQualifiers() & Qualifiers::Restrict);
         bool _is_volatile = (q.getLocalFastQualifiers() & Qualifiers::Volatile);
+        bool _is_typedef = q->isTypedefNameType();
 
         if (!_is_array && q->isIncompleteType()) return tr;
 
@@ -273,6 +274,11 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
             const RecordType *rt = q->getAsStructureType();
             const RecordDecl *rd = rt->getDecl();
             tr = decl_ref { db, idmap[rd->getID()] };
+            if (rd->NamedDecl::getNameAsString().empty()) {
+                // Anonymous struct, let's use the typedef here
+                const TypedefNameDecl * td = rd->getTypedefNameForAnonDecl();
+                if (td) tr = decl_ref { db, idmap[td->getID()]};
+            }
         }
         else if (_is_union) {
             const RecordType *rt = q->getAsUnionType();

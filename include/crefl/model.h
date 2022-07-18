@@ -91,6 +91,7 @@ typedef u64 decl_sz;
  * - decl_id next   - link to next item
  * - decl_id link   - link to child item
  * - decl_id attr   - link to attribute list
+ * - decl_id source - link to source unit
  *
  * ## tags
  *
@@ -132,6 +133,7 @@ struct decl_node
     decl_id _next;
     decl_id _link;
     decl_id _attr;
+    decl_id _source;
 
     /* quantifier used by intrinsic, set, enum, field, array, constant, etc */
     union {
