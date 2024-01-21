@@ -288,6 +288,112 @@ static inline uint64_t be64toh(uint64_t x) { return be64(x); }
 static inline uint64_t le64toh(uint64_t x) { return le64(x); }
 #endif
 
+#if __SIZE_WIDTH__ == 64
+#define _htobel htobe64
+#define _beltoh be64toh
+#define _htolel htole64
+#define _leltoh le64toh
+#else
+#define _htobel htobe32
+#define _beltoh be32toh
+#define _htolel htole32
+#define _leltoh le32toh
+#endif
+
 #ifdef __cplusplus
 }
+#endif
+
+#if __STDC_VERSION__ >= 201112L
+
+#define htobe(X) _Generic((X),                \
+                 short: htobe16,              \
+                 unsigned short: htobe16,     \
+                 int: htobe32,                \
+                 unsigned int: htobe32,       \
+                 long: _htobel,               \
+                 unsigned long: _htobel,      \
+                 long long: htobe64,          \
+                 unsigned long long: htobe64  \
+                 )(X)
+
+#define betoh(X) _Generic((X),                \
+                 short: be16toh,              \
+                 unsigned short: be16toh,     \
+                 int: be32toh,                \
+                 unsigned int: be32toh,       \
+                 long: _beltoh,               \
+                 unsigned long: _beltoh,      \
+                 long long: be64toh,          \
+                 unsigned long long: be64toh  \
+                 )(X)
+
+#define htole(X) _Generic((X),                \
+                 short: htole16,              \
+                 unsigned short: htole16,     \
+                 int: htole32,                \
+                 unsigned int: htole32,       \
+                 long: _htolel,               \
+                 unsigned long: _htolel,      \
+                 long long: htole64,          \
+                 unsigned long long: htole64  \
+                 )(X)
+
+#define letoh(X) _Generic((X),                \
+                 short: le16toh,              \
+                 unsigned short: le16toh,     \
+                 int: le32toh,                \
+                 unsigned int: le32toh,       \
+                 long: _leltoh,               \
+                 unsigned long: _leltoh,      \
+                 long long: le64toh,          \
+                 unsigned long long: le64toh  \
+                 )(X)
+
+#else
+
+template <typename T> static inline T htobe(T x);
+
+template<> short htobe<short>(short x) { return htobe16(x); }
+template<> unsigned short htobe<unsigned short>(unsigned short x) { return htobe16(x); }
+template<> int htobe<int>(int x) { return htobe32(x); }
+template<> unsigned int htobe<unsigned int>(unsigned int x) { return htobe32(x); }
+template<> long htobe<long>(long x) { return _htobel(x); }
+template<> unsigned long htobe<unsigned long>(unsigned long x) { return _htobel(x); }
+template<> long long htobe<long long>(long long x) { return htobe64(x); }
+template<> unsigned long long htobe<unsigned long long>(unsigned long long x) { return htobe64(x); }
+
+template <typename T> static inline T htole(T x);
+
+template<> short htole<short>(short x) { return htole16(x); }
+template<> unsigned short htole<unsigned short>(unsigned short x) { return htole16(x); }
+template<> int htole<int>(int x) { return htole32(x); }
+template<> unsigned int htole<unsigned int>(unsigned int x) { return htole32(x); }
+template<> long htole<long>(long x) { return _htolel(x); }
+template<> unsigned long htole<unsigned long>(unsigned long x) { return _htolel(x); }
+template<> long long htole<long long>(long long x) { return htole64(x); }
+template<> unsigned long long htole<unsigned long long>(unsigned long long x) { return htole64(x); }
+
+template <typename T> static inline T betoh(T x);
+
+template<> short betoh<short>(short x) { return be16toh(x); }
+template<> unsigned short betoh<unsigned short>(unsigned short x) { return be16toh(x); }
+template<> int betoh<int>(int x) { return be32toh(x); }
+template<> unsigned int betoh<unsigned int>(unsigned int x) { return be32toh(x); }
+template<> long betoh<long>(long x) { return _beltoh(x); }
+template<> unsigned long betoh<unsigned long>(unsigned long x) { return _beltoh(x); }
+template<> long long betoh<long long>(long long x) { return be64toh(x); }
+template<> unsigned long long betoh<unsigned long long>(unsigned long long x) { return be64toh(x); }
+
+template <typename T> static inline T letoh(T x);
+
+template<> short letoh<short>(short x) { return le16toh(x); }
+template<> unsigned short letoh<unsigned short>(unsigned short x) { return le16toh(x); }
+template<> int letoh<int>(int x) { return le32toh(x); }
+template<> unsigned int letoh<unsigned int>(unsigned int x) { return le32toh(x); }
+template<> long letoh<long>(long x) { return _leltoh(x); }
+template<> unsigned long letoh<unsigned long>(unsigned long x) { return _leltoh(x); }
+template<> long long letoh<long long>(long long x) { return le64toh(x); }
+template<> unsigned long long letoh<unsigned long long>(unsigned long long x) { return le64toh(x); }
+
 #endif
