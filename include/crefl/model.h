@@ -91,6 +91,7 @@ typedef u64 decl_sz;
  * - decl_id next   - link to next item
  * - decl_id link   - link to child item
  * - decl_id attr   - link to attribute list
+ * - decl_id source - link to source unit
  *
  * ## tags
  *
@@ -132,6 +133,7 @@ struct decl_node
     decl_id _next;
     decl_id _link;
     decl_id _attr;
+    decl_id _source;
 
     /* quantifier used by intrinsic, set, enum, field, array, constant, etc */
     union {
@@ -304,6 +306,7 @@ int crefl_is_pointer(decl_ref d);
 int crefl_is_constant(decl_ref d);
 int crefl_is_function(decl_ref d);
 int crefl_is_param(decl_ref d);
+int crefl_is_qualifier(decl_ref d);
 int crefl_is_attribute(decl_ref d);
 int crefl_is_value(decl_ref d);
 int crefl_is_archive(decl_ref d);
@@ -357,6 +360,7 @@ decl_ref crefl_array_type(decl_ref d);
 decl_ref crefl_pointer_type(decl_ref d);
 decl_ref crefl_constant_type(decl_ref d);
 decl_ref crefl_param_type(decl_ref d);
+decl_ref crefl_qualifier_type(decl_ref d);
 int crefl_enum_constants(decl_ref d, decl_ref *r, size_t *s);
 int crefl_set_constants(decl_ref d, decl_ref *r, size_t *s);
 int crefl_struct_fields(decl_ref d, decl_ref *r, size_t *s);
