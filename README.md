@@ -211,9 +211,12 @@ The _Crefl_ implementation is currently _alpha software_.
     - _bool_
   - [ ] vector types.
     - _vec2, vec3, vec4, ..._
+  - [ ] matrix types.
+    - _mat2x2, mat3x3, mat4x4, ..._
 - [x] nested struct, union, field and intrinsic types.
 - [x] bitfield widths.
 - [x] arrays and pointers.
+- [ ] VLA size expressions.
 - [x] typedef type aliases.
 - [x] enum and enum constants.
 - [x] functions and function parameters.
