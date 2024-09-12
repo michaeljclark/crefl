@@ -440,6 +440,12 @@ decl_ref crefl_param_type(decl_ref d)
     return crefl_is_param(d) ? crefl_decl_link(d) : crefl_decl_void(d);
 }
 
+decl_ref crefl_qualifier_type(decl_ref d)
+{
+    return crefl_is_qualifier(d) ? crefl_decl_link(d) : crefl_decl_void(d);
+}
+
+
 int crefl_enum_constants(decl_ref d, decl_ref *r, size_t *s)
 {
     if (!crefl_is_enum(d)) return -1;
