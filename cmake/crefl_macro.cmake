@@ -8,7 +8,7 @@
 
 macro(crefl_target_reflect target target_lib)
 
-	# transform includes for this target
+    # transform includes for this target
     get_target_property(${target}_includes ${target} INCLUDE_DIRECTORIES)
     list(TRANSFORM ${target}_includes PREPEND "-I")
     list(JOIN ${target}_includes " " ${target}_include_args)
@@ -24,7 +24,7 @@ macro(crefl_target_reflect target target_lib)
                 -o ${CMAKE_BINARY_DIR}/${_source}.refl ${${target}_include_args}
                    ${CMAKE_CURRENT_SOURCE_DIR}/${_source}
             DEPENDS ${_source} crefl VERBATIM)
-	endforeach()
+    endforeach()
     list(TRANSFORM _source_refl PREPEND "${CMAKE_BINARY_DIR}/")
 
     # merge reflection metadata into an archive
