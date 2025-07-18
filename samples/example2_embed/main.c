@@ -127,21 +127,21 @@ static void _print_union(decl_ref r, size_t depth)
 static void _print_function(decl_ref r, size_t depth)
 {
     size_t nparams = 0;
-    crefl_function_params(r, NULL, &nparams);
+    crefl_function_parameters(r, NULL, &nparams);
 
     decl_ref *_params = calloc(nparams, sizeof(decl_ref));
     assert(_params);
-    crefl_function_params(r, _params, &nparams);
+    crefl_function_parameters(r, _params, &nparams);
 
     if (nparams > 0) {
-        decl_ref pt = crefl_param_type(_params[0]);
+        decl_ref pt = crefl_parameter_type(_params[0]);
         printf("%s%s ", _pad_depth(depth), _decl_name(pt));
     } else {
         printf("%s", _pad_depth(depth));
     }
     printf("%s(", _decl_name(r));
     for (size_t j = 1; j < nparams; j++) {
-        decl_ref pt = crefl_param_type(_params[j]);
+        decl_ref pt = crefl_parameter_type(_params[j]);
         if (j > 1) printf(", ");
         printf("%s %s", crefl_decl_name(pt), crefl_decl_name(_params[j]));
     }

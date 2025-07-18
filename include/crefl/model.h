@@ -106,7 +106,7 @@ typedef u64 decl_sz;
  * - pointer        - pointer type
  * - constant       - named constant
  * - function       - function with parameter list
- * - param          - named parameter with link to next
+ * - parameter      - named parameter with link to next
  * - qualifier      - qualifiers for intrinsic types
  * - attribute      - custom attribute name
  * - value          - custom attribute value
@@ -193,7 +193,7 @@ enum decl_tags
     _decl_pointer,
     _decl_constant,
     _decl_function,
-    _decl_param,
+    _decl_parameter,
     _decl_qualifier,
     _decl_attribute,
     _decl_value,
@@ -252,7 +252,7 @@ enum decl_props
     _decl_default  = 1 << 20,
     _decl_hidden   = 1 << 21,
 
-    /* param */
+    /* parameter */
     _decl_in       = 1 << 22,
     _decl_out      = 1 << 23,
 
@@ -303,7 +303,7 @@ int crefl_is_array(decl_ref d);
 int crefl_is_pointer(decl_ref d);
 int crefl_is_constant(decl_ref d);
 int crefl_is_function(decl_ref d);
-int crefl_is_param(decl_ref d);
+int crefl_is_parameter(decl_ref d);
 int crefl_is_attribute(decl_ref d);
 int crefl_is_value(decl_ref d);
 int crefl_is_archive(decl_ref d);
@@ -356,13 +356,13 @@ decl_ref crefl_field_type(decl_ref d);
 decl_ref crefl_array_type(decl_ref d);
 decl_ref crefl_pointer_type(decl_ref d);
 decl_ref crefl_constant_type(decl_ref d);
-decl_ref crefl_param_type(decl_ref d);
+decl_ref crefl_parameter_type(decl_ref d);
 int crefl_enum_constants(decl_ref d, decl_ref *r, size_t *s);
 int crefl_set_constants(decl_ref d, decl_ref *r, size_t *s);
 int crefl_struct_fields(decl_ref d, decl_ref *r, size_t *s);
 int crefl_struct_fields_offsets(decl_ref d, decl_ref *r, size_t *o, size_t *s);
 int crefl_union_fields(decl_ref d, decl_ref *r, size_t *s);
-int crefl_function_params(decl_ref d, decl_ref *r, size_t *s);
+int crefl_function_parameters(decl_ref d, decl_ref *r, size_t *s);
 int crefl_source_decls(decl_ref d, decl_ref *r, size_t *s);
 int crefl_source_types(decl_ref f, decl_ref *r, size_t *s);
 int crefl_source_fields(decl_ref f, decl_ref *r, size_t *s);

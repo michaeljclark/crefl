@@ -56,7 +56,7 @@ int crefl_is_array     (decl_ref d) { return crefl_decl_tag(d) == _decl_array;  
 int crefl_is_pointer   (decl_ref d) { return crefl_decl_tag(d) == _decl_pointer;   }
 int crefl_is_constant  (decl_ref d) { return crefl_decl_tag(d) == _decl_constant;  }
 int crefl_is_function  (decl_ref d) { return crefl_decl_tag(d) == _decl_function;  }
-int crefl_is_param     (decl_ref d) { return crefl_decl_tag(d) == _decl_param;     }
+int crefl_is_parameter (decl_ref d) { return crefl_decl_tag(d) == _decl_parameter; }
 int crefl_is_qualifier (decl_ref d) { return crefl_decl_tag(d) == _decl_qualifier; }
 int crefl_is_attribute (decl_ref d) { return crefl_decl_tag(d) == _decl_attribute; }
 int crefl_is_value     (decl_ref d) { return crefl_decl_tag(d) == _decl_value;     }
@@ -96,7 +96,7 @@ static const char * crefl_tag_names_arr[] = {
     "pointer",
     "constant",
     "function",
-    "param",
+    "parameter",
     "qualifier",
     "attribute",
     "value",
@@ -436,9 +436,9 @@ decl_ref crefl_constant_type(decl_ref d)
     return crefl_is_constant(d) ? crefl_decl_link(d) : crefl_decl_void(d);
 }
 
-decl_ref crefl_param_type(decl_ref d)
+decl_ref crefl_parameter_type(decl_ref d)
 {
-    return crefl_is_param(d) ? crefl_decl_link(d) : crefl_decl_void(d);
+    return crefl_is_parameter(d) ? crefl_decl_link(d) : crefl_decl_void(d);
 }
 
 int crefl_enum_constants(decl_ref d, decl_ref *r, size_t *s)
@@ -465,10 +465,10 @@ int crefl_union_fields(decl_ref d, decl_ref *r, size_t *s)
     return _decl_array_fetch(d.db, r, s, crefl_decl_link(d), crefl_is_field);
 }
 
-int crefl_function_params(decl_ref d, decl_ref *r, size_t *s)
+int crefl_function_parameters(decl_ref d, decl_ref *r, size_t *s)
 {
     if (!crefl_is_function(d)) return -1;
-    return _decl_array_fetch(d.db, r, s, crefl_decl_link(d), crefl_is_param);
+    return _decl_array_fetch(d.db, r, s, crefl_decl_link(d), crefl_is_parameter);
 }
 
 int crefl_source_decls(decl_ref d, decl_ref *r, size_t *s)

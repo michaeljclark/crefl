@@ -633,7 +633,7 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
         QualType qr = d->getReturnType();
 
         /* create return param */
-        decl_ref pr = crefl_decl_new(db, _decl_param);
+        decl_ref pr = crefl_decl_new(db, _decl_parameter);
         crefl_decl_ptr(last)->_link = crefl_decl_idx(pr);
         crefl_decl_ptr(pr)->_link = crefl_decl_idx(get_intrinsic_type(qr));
         crefl_decl_ptr(pr)->_props |= _decl_out;
@@ -644,7 +644,7 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
             const ParmVarDecl* parm = parms[i];
             const QualType q = parm->getOriginalType();
 
-            decl_ref ar = crefl_decl_new(db, _decl_param);
+            decl_ref ar = crefl_decl_new(db, _decl_parameter);
             crefl_decl_ptr(ar)->_name = crefl_name_new(db,
                 parm->NamedDecl::getNameAsString().c_str());
             crefl_decl_ptr(pr)->_next = crefl_decl_idx(ar);

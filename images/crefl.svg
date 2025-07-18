@@ -185,7 +185,7 @@
          x="183.38782"
          y="27.216885"
          style="stroke-width:0.264583"
-         id="tspan1265">int crefl_is_param(decl_ref d);</tspan><tspan
+         id="tspan1265">int crefl_is_parameter(decl_ref d);</tspan><tspan
          sodipodi:role="line"
          x="183.38782"
          y="30.744673"
@@ -370,7 +370,7 @@
          x="183.38782"
          y="157.74503"
          style="stroke-width:0.264583"
-         id="tspan1339">decl_ref crefl_param_type(decl_ref d);</tspan><tspan
+         id="tspan1339">decl_ref crefl_parameter_type(decl_ref d);</tspan><tspan
          sodipodi:role="line"
          x="183.38782"
          y="161.27281"
@@ -395,7 +395,7 @@
          x="183.38782"
          y="175.38397"
          style="stroke-width:0.264583"
-         id="tspan1349">int crefl_function_params(decl_ref d, decl_ref *r, size_t *s);</tspan><tspan
+         id="tspan1349">int crefl_function_parameters(decl_ref d, decl_ref *r, size_t *s);</tspan><tspan
          sodipodi:role="line"
          x="183.38782"
          y="178.91176"
@@ -711,7 +711,7 @@
          x="86.187149"
          y="177.17543"
          style="stroke-width:0.264583"
-         id="tspan1475">    /* param */</tspan><tspan
+         id="tspan1475">    /* parameter */</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
          y="180.70322"
@@ -882,7 +882,7 @@
          x="18.858128"
          y="88.980728"
          style="stroke-width:0.264583"
-         id="tspan3195">    _decl_param,</tspan><tspan
+         id="tspan3195">    _decl_parameter,</tspan><tspan
          sodipodi:role="line"
          x="18.858128"
          y="92.508514"
@@ -1258,7 +1258,7 @@
          x="-115.67435"
          y="147.20232"
          style="stroke-width:0.264583"
-         id="tspan3345">- param          - named parameter with link to next</tspan><tspan
+         id="tspan3345">- parameter      - named parameter with link to next</tspan><tspan
          sodipodi:role="line"
          x="-115.67435"
          y="150.73012"

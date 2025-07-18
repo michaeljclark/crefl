@@ -239,7 +239,7 @@ crefl_db_row crefl_db_get_row(decl_db *db, decl_ref r)
     case _decl_typedef:
     case _decl_struct:
     case _decl_union:
-    case _decl_param:
+    case _decl_parameter:
     case _decl_qualifier:
     case _decl_attribute: props = _props(r, ""); break;
     case _decl_set:
