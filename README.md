@@ -82,7 +82,7 @@ in ISO/IEC 9899:9999 with minor changes. The following sections describe:
 - decl node type to model the metadata graph.
 - decl node subtypes to model C structures and interfaces:
   - _intrinsic, typedef, set, enum, struct, union, field, array, pointer,
-    constant, function, param, attribute, value_.
+    constant, function, parameter, attribute, value_.
 
 _Crefl_ variations from the C standard:
 
@@ -151,7 +151,7 @@ This table table lists the properties used by each subtype:
 | `pointer`   | ✓    | `sz width` | pointer type                                   |
 | `constant`  | ✓    | `sz value` | named constant                                 |
 | `function`  | ✓    | `sz addr`  | function with input and output parameter list  |
-| `param`     | ✓    |            | named parameter with link to next              |
+| `parameter` | ✓    |            | named parameter with link to next              |
 | `qualifier` | ✓    |            | qualifiers for intrinsic types                 |
 | `attribute` | ✓    |            | custom attribute name                          |
 | `value`     |      |            | custom attribute value                         |
