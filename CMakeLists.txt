@@ -8,19 +8,12 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-include(CheckCXXCompilerFlag)
-
-# llvm-config --cxxflags --ldflags --libs
-find_program(LLVM_CONFIG NAMES llvm-config REQUIRED PATHS /usr/bin /opt/llvm/bin)
-exec_program(${LLVM_CONFIG} ARGS --cxxflags OUTPUT_VARIABLE LLVM_CXXFLAGS)
-exec_program(${LLVM_CONFIG} ARGS --ldflags OUTPUT_VARIABLE LLVM_LDFLAGS)
-exec_program(${LLVM_CONFIG} ARGS --libs OUTPUT_VARIABLE LLVM_LIBS)
-
-separate_arguments(LLVM_CXXFLAGS UNIX_COMMAND "${LLVM_CXXFLAGS}")
-separate_arguments(LLVM_LDFLAGS UNIX_COMMAND "${LLVM_LDFLAGS}")
-separate_arguments(LLVM_LIBS UNIX_COMMAND "${LLVM_LIBS}")
+find_package(Clang REQUIRED CONFIG)
 
 include_directories(include)
+include_directories(${CLANG_INCLUDE_DIRS})
+
+set(LLVM_LINK_COMPONENTS upport)
 
 add_library(cmodel STATIC
 	src/asn1.cc
@@ -35,9 +28,7 @@ add_library(cmodel STATIC
 )
 
 add_library(crefl SHARED src/reflect.cc)
-target_compile_options(crefl PRIVATE ${LLVM_CXXFLAGS})
-target_link_options(crefl PRIVATE ${LLVM_LDFLAGS})
-target_link_libraries(crefl clang-cpp cmodel ${LLVM_LIBS})
+target_link_libraries(crefl PRIVATE cmodel clangAST clangFrontend)
 if(APPLE)
 target_link_libraries(crefl curses)
 endif()
