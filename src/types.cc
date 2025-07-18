@@ -20,19 +20,19 @@
 #include <crefl/types.h>
 
 const _ctype _cvoid =     { _decl_intrinsic,  0,  _decl_void   | _decl_pad_bit,  "void"    };
-const _ctype _cbool =     { _decl_intrinsic,  1,  _decl_sint   | _decl_pad_byte, "bool"    };
+const _ctype _cbool =     { _decl_intrinsic,  1,  _decl_int    | _decl_pad_byte, "bool"    };
 const _ctype _uint1 =     { _decl_intrinsic,  1,  _decl_uint   | _decl_pad_pow2, "bit"     };
-const _ctype _sint1 =     { _decl_intrinsic,  1,  _decl_sint   | _decl_pad_pow2, "sign"    };
+const _ctype _int1 =      { _decl_intrinsic,  1,  _decl_int    | _decl_pad_pow2, "sign"    };
 const _ctype _uint8 =     { _decl_intrinsic,  8,  _decl_uint   | _decl_pad_pow2, "ubyte"   };
-const _ctype _sint8 =     { _decl_intrinsic,  8,  _decl_sint   | _decl_pad_pow2, "byte"    };
+const _ctype _int8 =      { _decl_intrinsic,  8,  _decl_int    | _decl_pad_pow2, "byte"    };
 const _ctype _uint16 =    { _decl_intrinsic, 16,  _decl_uint   | _decl_pad_pow2, "ushort"  };
-const _ctype _sint16 =    { _decl_intrinsic, 16,  _decl_sint   | _decl_pad_pow2, "short"   };
+const _ctype _int16 =     { _decl_intrinsic, 16,  _decl_int    | _decl_pad_pow2, "short"   };
 const _ctype _uint32 =    { _decl_intrinsic, 32,  _decl_uint   | _decl_pad_pow2, "uint"    };
-const _ctype _sint32 =    { _decl_intrinsic, 32,  _decl_sint   | _decl_pad_pow2, "int"     };
+const _ctype _int32 =     { _decl_intrinsic, 32,  _decl_int    | _decl_pad_pow2, "int"     };
 const _ctype _uint64 =    { _decl_intrinsic, 64,  _decl_uint   | _decl_pad_pow2, "ulong"   };
-const _ctype _sint64 =    { _decl_intrinsic, 64,  _decl_sint   | _decl_pad_pow2, "long"    };
+const _ctype _int64 =     { _decl_intrinsic, 64,  _decl_int    | _decl_pad_pow2, "long"    };
 const _ctype _uint128 =   { _decl_intrinsic, 128, _decl_uint   | _decl_pad_pow2, "ucent"   };
-const _ctype _sint128 =   { _decl_intrinsic, 128, _decl_sint   | _decl_pad_pow2, "cent"    };
+const _ctype _int128 =    { _decl_intrinsic, 128, _decl_int    | _decl_pad_pow2, "cent"    };
 const _ctype _float16 =   { _decl_intrinsic, 16,  _decl_float  | _decl_pad_pow2, "half"    };
 const _ctype _float32 =   { _decl_intrinsic, 32,  _decl_float  | _decl_pad_pow2, "float"   };
 const _ctype _float64 =   { _decl_intrinsic, 64,  _decl_float  | _decl_pad_pow2, "double"  };
@@ -68,18 +68,18 @@ const _ctype _vec4f = { _decl_struct, 128, _decl_pad_pow2, "vec4f", _vec4f_el };
 const _ctype _vec4d = { _decl_struct, 256, _decl_pad_pow2, "vec4d", _vec4d_el };
 const _ctype _vec4t = { _decl_struct, 512, _decl_pad_pow2, "vec4t", _vec4t_el };
 
-const _ctype* _vec2b_el[] = { &_sint8,  &_sint8,  0 };
-const _ctype* _vec2s_el[] = { &_sint16, &_sint16, 0 };
-const _ctype* _vec2i_el[] = { &_sint32, &_sint32, 0 };
-const _ctype* _vec2l_el[] = { &_sint64, &_sint64, 0 };
-const _ctype* _vec3b_el[] = { &_sint8,  &_sint8,  &_sint8,  0 };
-const _ctype* _vec3s_el[] = { &_sint16, &_sint16, &_sint16, 0 };
-const _ctype* _vec3i_el[] = { &_sint32, &_sint32, &_sint32, 0 };
-const _ctype* _vec3l_el[] = { &_sint64, &_sint64, &_sint64, 0 };
-const _ctype* _vec4b_el[] = { &_sint8,  &_sint8,  &_sint8,  &_sint8,  0 };
-const _ctype* _vec4s_el[] = { &_sint16, &_sint16, &_sint16, &_sint16, 0 };
-const _ctype* _vec4i_el[] = { &_sint32, &_sint32, &_sint32, &_sint32, 0 };
-const _ctype* _vec4l_el[] = { &_sint64, &_sint64, &_sint64, &_sint64, 0 };
+const _ctype* _vec2b_el[] = { &_int8,  &_int8,  0 };
+const _ctype* _vec2s_el[] = { &_int16, &_int16, 0 };
+const _ctype* _vec2i_el[] = { &_int32, &_int32, 0 };
+const _ctype* _vec2l_el[] = { &_int64, &_int64, 0 };
+const _ctype* _vec3b_el[] = { &_int8,  &_int8,  &_int8,  0 };
+const _ctype* _vec3s_el[] = { &_int16, &_int16, &_int16, 0 };
+const _ctype* _vec3i_el[] = { &_int32, &_int32, &_int32, 0 };
+const _ctype* _vec3l_el[] = { &_int64, &_int64, &_int64, 0 };
+const _ctype* _vec4b_el[] = { &_int8,  &_int8,  &_int8,  &_int8,  0 };
+const _ctype* _vec4s_el[] = { &_int16, &_int16, &_int16, &_int16, 0 };
+const _ctype* _vec4i_el[] = { &_int32, &_int32, &_int32, &_int32, 0 };
+const _ctype* _vec4l_el[] = { &_int64, &_int64, &_int64, &_int64, 0 };
 
 const _ctype _vec2b = { _decl_struct, 16,  _decl_pad_pow2, "vec2b", _vec2b_el };
 const _ctype _vec2s = { _decl_struct, 32,  _decl_pad_pow2, "vec2s", _vec2s_el };
@@ -122,9 +122,9 @@ const _ctype _vec4ul = { _decl_struct, 256, _decl_pad_pow2, "vec4ul", _vec4ul_el
 
 const _ctype *all_types[] = {
     &_cvoid,        &_cbool,
-    &_uint1,        &_sint1,        &_uint8,        &_sint8,
-    &_uint16,       &_sint16,       &_uint32,       &_sint32,
-    &_uint64,       &_sint64,       &_uint128,      &_sint128,
+    &_uint1,        &_int1,         &_uint8,        &_int8,
+    &_uint16,       &_int16,        &_uint32,       &_int32,
+    &_uint64,       &_int64,        &_uint128,      &_int128,
     &_float16,      &_float32,      &_float64,      &_float128,
     &_cfloat16,     &_cfloat32,     &_cfloat64,     &_cfloat128,
 #if 0

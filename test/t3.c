@@ -39,7 +39,7 @@ void t3()
     assert(crefl_decl_tag(_fields[0]) == _decl_field);
     assert(strcmp(crefl_decl_name(_fields[0]), "a") == 0);
     assert(crefl_type_width(crefl_field_type(_fields[0])) == 32);
-    assert((crefl_decl_props(crefl_field_type(_fields[0])) & _decl_sint) == _decl_sint);
+    assert((crefl_decl_props(crefl_field_type(_fields[0])) & _decl_int) == _decl_int);
     free(_fields);
 
     crefl_struct_fields(_types[1], NULL, &nfields);
@@ -51,7 +51,7 @@ void t3()
     assert(crefl_decl_tag(_fields[0]) == _decl_field);
     assert(strcmp(crefl_decl_name(_fields[0]), "b") == 0);
     assert(crefl_type_width(crefl_field_type(_fields[0])) == 32);
-    assert((crefl_decl_props(crefl_field_type(_fields[0])) & _decl_sint) == _decl_sint);
+    assert((crefl_decl_props(crefl_field_type(_fields[0])) & _decl_int) == _decl_int);
     free(_fields);
 
     free(_types);

@@ -18,7 +18,7 @@ int main(int argc, const char **argv)
     crefl_print(crefl_type(db, struct dune), &d);
 
     int x = 7;
-    crefl_print(crefl_intrinsic(db, _decl_sint, 32), &x);
+    crefl_print(crefl_intrinsic(db, _decl_int, 32), &x);
 
     crefl_db_destroy(db);
 }

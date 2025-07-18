@@ -296,14 +296,14 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
             case Type::ScalarTypeKind::STK_MemberPointer:
                 break;
             case Type::ScalarTypeKind::STK_Bool: {
-                tr = crefl_intrinsic(db, _decl_sint, 1);
+                tr = crefl_intrinsic(db, _decl_int, 1);
                 break;
             }
             case Type::ScalarTypeKind::STK_Integral: {
                 if (q->isUnsignedIntegerType()) {
                     tr = crefl_intrinsic(db, _decl_uint, t.Width);
                 } else {
-                    tr = crefl_intrinsic(db, _decl_sint, t.Width);
+                    tr = crefl_intrinsic(db, _decl_int, t.Width);
                 }
                 break;
             }

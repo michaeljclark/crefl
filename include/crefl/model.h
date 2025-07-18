@@ -219,7 +219,7 @@ enum decl_props
     _decl_unsigned = 1 << 4,
     _decl_ieee754  = 1 << 5,
 
-    _decl_sint     = _decl_integral | _decl_signed,
+    _decl_int      = _decl_integral | _decl_signed,
     _decl_uint     = _decl_integral | _decl_unsigned,
     _decl_float    = _decl_real     | _decl_ieee754,
     _decl_cfloat   = _decl_complex  | _decl_ieee754,

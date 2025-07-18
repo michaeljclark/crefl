@@ -576,7 +576,7 @@
          x="86.187149"
          y="81.925156"
          style="stroke-width:0.264583"
-         id="tspan1421">    _decl_sint     = _decl_integral | _decl_signed,</tspan><tspan
+         id="tspan1421">    _decl_int     = _decl_integral | _decl_signed,</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
          y="85.452942"

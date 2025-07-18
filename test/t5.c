@@ -13,13 +13,13 @@ const char* ber_tag_fmt = "\nASN.1 X.690 ber_tag(%zu)[0x%zx]\n";
 const char* ber_length_fmt = "\nASN.1 X.690 ber_length(%zu)[0x%zx]\n";
 const char* ber_ident_fmt = "\nASN.1 X.690 ber_ident(%zu)[0x%zx]\n";
 const char* ber_uint_fmt = "\nASN.1 X.690 ber_uint(%zu)[0x%zx]\n";
-const char* ber_sint_fmt = "\nASN.1 X.690 ber_sint(%zd)[0x%zx]\n";
+const char* ber_int_fmt = "\nASN.1 X.690 ber_int(%zd)[0x%zx]\n";
 const char* ber_bool_fmt = "\nASN.1 X.690 ber_bool(%s)[0x%zx]\n";
 const char* ber_oid_fmt = "\nASN.1 X.690 ber_oid(%s)\n";
 const char* ber_real_fmt = "\nASN.1 X.690 ber_real(%.16g)\n";
 const char* ber_octets_fmt = "\nASN.1 X.690 ber_octets(\"%s\")\n";
 const char* der_uint_fmt = "\nASN.1 X.690 der_uint(%zu)[0x%zx]\n";
-const char* der_sint_fmt = "\nASN.1 X.690 der_sint(%zd)[0x%zx]\n";
+const char* der_int_fmt = "\nASN.1 X.690 der_int(%zd)[0x%zx]\n";
 const char* der_bool_fmt = "\nASN.1 X.690 der_bool(%s)[0x%zx]\n";
 const char* der_oid_fmt = "\nASN.1 X.690 der_oid(%s)\n";
 const char* der_real_fmt = "\nASN.1 X.690 der_real(%.16g)\n";
@@ -204,11 +204,11 @@ T_BER_UINT(13,1099511627776)
 T_BER_UINT(14,72057594037927935)
 
 #define T_BER_SINT(X,num)                                          \
-void FN(ber_sint,X)()                                              \
+void FN(ber_int,X)()                                              \
 {                                                                  \
     s64 num1 = S64(num), num2;                                     \
     crefl_buf *buf;                                                \
-    printf(ber_sint_fmt, (s64)num, (s64)num);                      \
+    printf(ber_int_fmt, (s64)num, (s64)num);                      \
     assert((buf = crefl_buf_new(1024)));                           \
     size_t len = crefl_asn1_ber_integer_s64_length(&num1);         \
     assert(!crefl_asn1_ber_integer_s64_write(buf, len, &num1));    \
@@ -381,7 +381,7 @@ T_DER_UINT(13,1099511627776)
 T_DER_UINT(14,72057594037927935)
 
 #define T_DER_SINT(X,num)                                          \
-void FN(der_sint,X)()                                              \
+void FN(der_int,X)()                                              \
 {                                                                  \
     s64 num1 = S64(num), num2;                                     \
     crefl_buf *buf;                                                \
@@ -566,20 +566,20 @@ int main()
     test_ber_uint_13();
     test_ber_uint_14();
 
-    test_ber_sint_1();
-    test_ber_sint_2();
-    test_ber_sint_3();
-    test_ber_sint_4();
-    test_ber_sint_5();
-    test_ber_sint_6();
-    test_ber_sint_7();
-    test_ber_sint_8();
-    test_ber_sint_9();
-    test_ber_sint_10();
-    test_ber_sint_11();
-    test_ber_sint_12();
-    test_ber_sint_13();
-    test_ber_sint_14();
+    test_ber_int_1();
+    test_ber_int_2();
+    test_ber_int_3();
+    test_ber_int_4();
+    test_ber_int_5();
+    test_ber_int_6();
+    test_ber_int_7();
+    test_ber_int_8();
+    test_ber_int_9();
+    test_ber_int_10();
+    test_ber_int_11();
+    test_ber_int_12();
+    test_ber_int_13();
+    test_ber_int_14();
 
     test_ber_oid_0();
     test_ber_oid_1();
@@ -622,20 +622,20 @@ int main()
     test_der_uint_13();
     test_der_uint_14();
 
-    test_der_sint_1();
-    test_der_sint_2();
-    test_der_sint_3();
-    test_der_sint_4();
-    test_der_sint_5();
-    test_der_sint_6();
-    test_der_sint_7();
-    test_der_sint_8();
-    test_der_sint_9();
-    test_der_sint_10();
-    test_der_sint_11();
-    test_der_sint_12();
-    test_der_sint_13();
-    test_der_sint_14();
+    test_der_int_1();
+    test_der_int_2();
+    test_der_int_3();
+    test_der_int_4();
+    test_der_int_5();
+    test_der_int_6();
+    test_der_int_7();
+    test_der_int_8();
+    test_der_int_9();
+    test_der_int_10();
+    test_der_int_11();
+    test_der_int_12();
+    test_der_int_13();
+    test_der_int_14();
 
     test_der_oid_0();
     test_der_oid_1();
