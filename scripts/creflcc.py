@@ -7,14 +7,14 @@ import subprocess
 import itertools
 
 bin_path = '/usr/bin'
-search_prefixes = [ '/opt/llvm']
+search_prefixes = [ '/usr' ]
 _platform_lib_prefix = { 'Linux': 'lib', 'Darwin': 'lib', 'Windows': '' }
 _platform_lib_ext = { 'Linux': '.so', 'Darwin': '.dylib', 'Windows': '.dll' }
 
 for prefix in search_prefixes:
     if os.path.isfile(prefix + '/bin/clang'):
         bin_path = prefix + '/bin'
-        os.environ['LD_LIBRARY_PATH'] = prefix + '/lib'
+        break
 
 def xclang_c():
     return '%s/clang' % (bin_path)
