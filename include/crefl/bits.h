@@ -158,8 +158,8 @@ static inline unsigned ctz_u64(__bits_u64 v)
 	unsigned int: ctz_u32, signed int: ctz_u32, \
 	unsigned long long: ctz_u64, signed long long: ctz_u64)(X)
 #define popcnt(X) _Generic((X), \
-	unsigned int: ctz_u32, signed int: popcnt_u32, \
-	unsigned long long: ctz_u64, signed long long: popcnt_u64)(X)
+	unsigned int: popcnt_u32, signed int: popcnt_u32, \
+	unsigned long long: popcnt_u64, signed long long: popcnt_u64)(X)
 #endif
 
 /*
