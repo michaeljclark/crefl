@@ -77,11 +77,11 @@ static void log_debug(const char* fmt, ...)
 
 static const char* tagKindString(TagTypeKind k) {
     switch (k) {
-    case TTK_Struct: return "struct";
-    case TTK_Interface: return "interface";
-    case TTK_Union: return "union";
-    case TTK_Class: return "class";
-    case TTK_Enum: return "enum";
+    case TagTypeKind::Struct: return "struct";
+    case TagTypeKind::Interface: return "interface";
+    case TagTypeKind::Union: return "union";
+    case TagTypeKind::Class: return "class";
+    case TagTypeKind::Enum: return "enum";
     default: return "unknown";
     }
 }
@@ -325,7 +325,7 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
             const VariableArrayType * vat = context.getAsVariableArrayType(q);
             const ArrayType *at = context.getAsArrayType(q);
             const QualType q = at->getElementType();
-            bool is_static = at->getSizeModifier() == ArrayType::ArraySizeModifier::Static;
+            bool is_static = at->getSizeModifier() == ArraySizeModifier::Static;
             std::string name;
 
             decl_ref ti = get_intrinsic_type(q);
@@ -553,18 +553,18 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
         decl_ref r;
 
         switch (k) {
-        case TagTypeKind::TTK_Enum:
-        case TagTypeKind::TTK_Class:
-        case TagTypeKind::TTK_Interface:
+        case TagTypeKind::Enum:
+        case TagTypeKind::Class:
+        case TagTypeKind::Interface:
             break;
 
-        case TagTypeKind::TTK_Struct:
-        case TagTypeKind::TTK_Union:
+        case TagTypeKind::Struct:
+        case TagTypeKind::Union:
 
             switch (k) {
-            case TagTypeKind::TTK_Struct: tag = _decl_struct; break;
-            case TagTypeKind::TTK_Union:  tag = _decl_union;  break;
-            default:                      tag = _decl_none;   break;
+            case TagTypeKind::Struct: tag = _decl_struct; break;
+            case TagTypeKind::Union:  tag = _decl_union;  break;
+            default:                  tag = _decl_none;   break;
             }
 
             /* create struct */
