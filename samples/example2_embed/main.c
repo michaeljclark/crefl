@@ -10,7 +10,7 @@
 extern const unsigned char __cinf_main_data[];
 extern const size_t __cinf_main_size;
 
-static const char* _pad_depth(size_t depth)
+static const char* pad_depth(size_t depth)
 {
     static char buf[256];
     memset(buf, ' ', sizeof(buf));
@@ -19,7 +19,7 @@ static const char* _pad_depth(size_t depth)
     return buf;
 }
 
-static char * _decl_name(decl_ref r)
+static char * decl_name(decl_ref r)
 {
     static char buf[256];
     if (cinf_is_none(r)) {
@@ -43,50 +43,50 @@ static char * _decl_name(decl_ref r)
     return buf;
 }
 
-static void _print(decl_ref r, size_t depth);
-static void _print_typedef(decl_ref r, size_t depth);
-static void _print_field(decl_ref r, size_t depth);
-static void _print_struct(decl_ref r, size_t depth);
-static void _print_union(decl_ref r, size_t depth);
+static void print(decl_ref r, size_t depth);
+static void print_typedef(decl_ref r, size_t depth);
+static void print_field(decl_ref r, size_t depth);
+static void print_struct(decl_ref r, size_t depth);
+static void print_union(decl_ref r, size_t depth);
 
-static void _print_typedef(decl_ref r, size_t depth)
+static void print_typedef(decl_ref r, size_t depth)
 {
     decl_ref ft = cinf_typedef_type(r);
 
-    printf("%s%s ", _pad_depth(depth), cinf_tag_name(cinf_decl_tag(r)));
+    printf("%s%s ", pad_depth(depth), cinf_tag_name(cinf_decl_tag(r)));
 
     switch (cinf_decl_tag(ft)) {
-    case _decl_struct: _print_struct(ft, depth); break;
-    case _decl_union: _print_union(ft, depth); break;
+    case decl_struct: print_struct(ft, depth); break;
+    case decl_union: print_union(ft, depth); break;
     default:
-        printf("%s%s", _pad_depth(depth), _decl_name(ft));
+        printf("%s%s", pad_depth(depth), decl_name(ft));
         break;
     }
 
     printf(" /* size=%zu */ %s", cinf_type_width(ft), cinf_decl_name(r));
 }
 
-static void _print_field(decl_ref r, size_t depth)
+static void print_field(decl_ref r, size_t depth)
 {
     decl_ref ft = cinf_field_type(r);
 
     switch (cinf_decl_tag(ft)) {
-    case _decl_struct: _print_struct(ft, depth); break;
-    case _decl_union: _print_union(ft, depth); break;
+    case decl_struct: print_struct(ft, depth); break;
+    case decl_union: print_union(ft, depth); break;
     default:
-        printf("%s%s", _pad_depth(depth), _decl_name(ft));
+        printf("%s%s", pad_depth(depth), decl_name(ft));
         break;
     }
 
     printf(" /* size=%zu */ %s", cinf_type_width(r), cinf_decl_name(r));
 }
 
-static void _print_struct(decl_ref r, size_t depth)
+static void print_struct(decl_ref r, size_t depth)
 {
     size_t nfields = 0;
     cinf_struct_fields(r, NULL, &nfields);
 
-    printf("%s%s /* size=%zu */%s", _pad_depth(depth), _decl_name(r),
+    printf("%s%s /* size=%zu */%s", pad_depth(depth), decl_name(r),
         cinf_type_width(r), nfields > 0 ? " {\n" : "");
 
     if (nfields == 0) return;
@@ -96,19 +96,19 @@ static void _print_struct(decl_ref r, size_t depth)
     cinf_struct_fields(r, _fields, &nfields);
 
     for (size_t j = 0; j < nfields; j++) {
-        _print_field(_fields[j], depth + 1);
+        print_field(_fields[j], depth + 1);
         printf(";\n");
     }
-    printf("%s}", _pad_depth(depth));
+    printf("%s}", pad_depth(depth));
     free(_fields);
 }
 
-static void _print_union(decl_ref r, size_t depth)
+static void print_union(decl_ref r, size_t depth)
 {
     size_t nfields = 0;
     cinf_union_fields(r, NULL, &nfields);
 
-    printf("%s%s /* size=%zu */%s", _pad_depth(depth), _decl_name(r),
+    printf("%s%s /* size=%zu */%s", pad_depth(depth), decl_name(r),
         cinf_type_width(r), nfields > 0 ? " {\n" : "");
     if (nfields == 0) return;
 
@@ -117,14 +117,14 @@ static void _print_union(decl_ref r, size_t depth)
     cinf_union_fields(r, _fields, &nfields);
 
     for (size_t j = 0; j < nfields; j++) {
-        _print_field(_fields[j], depth + 1);
+        print_field(_fields[j], depth + 1);
         printf(";\n");
     }
-    printf("%s}", _pad_depth(depth));
+    printf("%s}", pad_depth(depth));
     free(_fields);
 }
 
-static void _print_function(decl_ref r, size_t depth)
+static void print_function(decl_ref r, size_t depth)
 {
     size_t nparams = 0;
     cinf_function_parameters(r, NULL, &nparams);
@@ -135,11 +135,11 @@ static void _print_function(decl_ref r, size_t depth)
 
     if (nparams > 0) {
         decl_ref pt = cinf_parameter_type(_params[0]);
-        printf("%s%s ", _pad_depth(depth), _decl_name(pt));
+        printf("%s%s ", pad_depth(depth), decl_name(pt));
     } else {
-        printf("%s", _pad_depth(depth));
+        printf("%s", pad_depth(depth));
     }
-    printf("%s(", _decl_name(r));
+    printf("%s(", decl_name(r));
     for (size_t j = 1; j < nparams; j++) {
         decl_ref pt = cinf_parameter_type(_params[j]);
         if (j > 1) printf(", ");
@@ -149,14 +149,14 @@ static void _print_function(decl_ref r, size_t depth)
     free(_params);
 }
 
-static void _print(decl_ref r, size_t depth)
+static void print(decl_ref r, size_t depth)
 {
     if (!cinf_decl_has_name(r)) return;
-    if (cinf_is_struct(r)) _print_struct(r, depth);
-    else if (cinf_is_union(r)) _print_union(r, depth);
-    else if (cinf_is_function(r)) _print_function(r, depth);
-    else if (cinf_is_typedef(r)) _print_typedef(r, depth);
-    else if (cinf_is_field(r)) _print_field(r, depth);
+    if (cinf_is_struct(r)) print_struct(r, depth);
+    else if (cinf_is_union(r)) print_union(r, depth);
+    else if (cinf_is_function(r)) print_function(r, depth);
+    else if (cinf_is_typedef(r)) print_typedef(r, depth);
+    else if (cinf_is_field(r)) print_field(r, depth);
     else return;
     printf(";\n");
 }
@@ -180,7 +180,7 @@ int main(int argc, const char **argv)
     cinf_source_decls(_sources[0], _types, &ntypes);
 
     for (size_t i = 0; i < ntypes; i++) {
-        _print(_types[i], 0);
+        print(_types[i], 0);
     }
     free(_types);
     free(_sources);

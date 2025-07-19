@@ -24,38 +24,38 @@
 extern "C" {
 #endif
 
-typedef struct _ctype _ctype;
-struct _ctype
+typedef struct decl_type decl_type;
+struct decl_type
 {
-    int _tag;
-    int _width;
-    int _props;
-    const char* _name;
-    const struct _ctype **_elements;
+    int tag;
+    int width;
+    int props;
+    const char* name;
+    const struct decl_type **elements;
 };
 
-extern const _ctype _cvoid;
-extern const _ctype _cptr32;
-extern const _ctype _cptr64;
-extern const _ctype _cbool;
-extern const _ctype _uint1;
-extern const _ctype _int1;
-extern const _ctype _uint8;
-extern const _ctype _int8;
-extern const _ctype _uint16;
-extern const _ctype _int16;
-extern const _ctype _uint32;
-extern const _ctype _int32;
-extern const _ctype _uint64;
-extern const _ctype _int64;
-extern const _ctype _uint128;
-extern const _ctype _int128;
-extern const _ctype _float16;
-extern const _ctype _float32;
-extern const _ctype _float64;
-extern const _ctype _float128;
+extern const decl_type type_cvoid;
+extern const decl_type type_cptr32;
+extern const decl_type type_cptr64;
+extern const decl_type type_cbool;
+extern const decl_type type_uint1;
+extern const decl_type type_int1;
+extern const decl_type type_uint8;
+extern const decl_type type_int8;
+extern const decl_type type_uint16;
+extern const decl_type type_int16;
+extern const decl_type type_uint32;
+extern const decl_type type_int32;
+extern const decl_type type_uint64;
+extern const decl_type type_int64;
+extern const decl_type type_uint128;
+extern const decl_type type_int128;
+extern const decl_type type_float16;
+extern const decl_type type_float32;
+extern const decl_type type_float64;
+extern const decl_type type_float128;
 
-extern const _ctype *all_types[];
+extern const decl_type *all_types[];
 
 #ifdef __cplusplus
 }

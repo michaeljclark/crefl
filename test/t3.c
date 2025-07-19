@@ -14,7 +14,7 @@
 void t3()
 {
     decl_db *db;
-    decl_ref *_types, *_fields;
+    decl_ref *types, *fields;
     size_t ntypes = 0, nfields = 0;
 
     db = cinf_db_new();
@@ -23,38 +23,38 @@ void t3()
     cinf_db_read_file(db, DB_DIR "adjacent-decls-1.h.refl");
 
     cinf_source_decls(cinf_root(db), NULL, &ntypes);
-    _types = calloc(ntypes, sizeof(decl_ref));
-    assert(_types);
-    cinf_source_decls(cinf_root(db), _types, &ntypes);
+    types = calloc(ntypes, sizeof(decl_ref));
+    assert(types);
+    cinf_source_decls(cinf_root(db), types, &ntypes);
     assert(ntypes == 2);
-    assert(cinf_is_struct(_types[0]));
-    assert(cinf_is_struct(_types[1]));
+    assert(cinf_is_struct(types[0]));
+    assert(cinf_is_struct(types[1]));
 
-    cinf_struct_fields(_types[0], NULL, &nfields);
-    _fields = calloc(nfields, sizeof(decl_ref));
-    assert(_fields);
-    cinf_struct_fields(_types[0], _fields, &nfields);
+    cinf_struct_fields(types[0], NULL, &nfields);
+    fields = calloc(nfields, sizeof(decl_ref));
+    assert(fields);
+    cinf_struct_fields(types[0], fields, &nfields);
     assert(nfields == 1);
-    assert(cinf_is_field(_fields[0]));
-    assert(cinf_decl_tag(_fields[0]) == _decl_field);
-    assert(strcmp(cinf_decl_name(_fields[0]), "a") == 0);
-    assert(cinf_type_width(cinf_field_type(_fields[0])) == 32);
-    assert((cinf_decl_props(cinf_field_type(_fields[0])) & _decl_int) == _decl_int);
-    free(_fields);
+    assert(cinf_is_field(fields[0]));
+    assert(cinf_decl_tag(fields[0]) == decl_field);
+    assert(strcmp(cinf_decl_name(fields[0]), "a") == 0);
+    assert(cinf_type_width(cinf_field_type(fields[0])) == 32);
+    assert((cinf_decl_props(cinf_field_type(fields[0])) & decl_int) == decl_int);
+    free(fields);
 
-    cinf_struct_fields(_types[1], NULL, &nfields);
-    _fields = calloc(nfields, sizeof(decl_ref));
-    assert(_fields);
-    cinf_struct_fields(_types[1], _fields, &nfields);
+    cinf_struct_fields(types[1], NULL, &nfields);
+    fields = calloc(nfields, sizeof(decl_ref));
+    assert(fields);
+    cinf_struct_fields(types[1], fields, &nfields);
     assert(nfields == 1);
-    assert(cinf_is_field(_fields[0]));
-    assert(cinf_decl_tag(_fields[0]) == _decl_field);
-    assert(strcmp(cinf_decl_name(_fields[0]), "b") == 0);
-    assert(cinf_type_width(cinf_field_type(_fields[0])) == 32);
-    assert((cinf_decl_props(cinf_field_type(_fields[0])) & _decl_int) == _decl_int);
-    free(_fields);
+    assert(cinf_is_field(fields[0]));
+    assert(cinf_decl_tag(fields[0]) == decl_field);
+    assert(strcmp(cinf_decl_name(fields[0]), "b") == 0);
+    assert(cinf_type_width(cinf_field_type(fields[0])) == 32);
+    assert((cinf_decl_props(cinf_field_type(fields[0])) & decl_int) == decl_int);
+    free(fields);
 
-    free(_types);
+    free(types);
     cinf_db_destroy(db);
 }
 

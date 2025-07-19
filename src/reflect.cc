@@ -136,12 +136,12 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
     decl_ref create_attribute(decl_ref last, const char *name)
     {
         /* create attribute */
-        decl_ref r = cinf_decl_new(db, _decl_attribute);
-        cinf_decl_ptr(r)->_name = cinf_name_new(db, name);
+        decl_ref r = cinf_decl_new(db, decl_attribute);
+        cinf_decl_ptr(r)->name = cinf_name_new(db, name);
 
         /* create prev next link */
-        if (cinf_decl_idx(last) && !cinf_decl_ptr(last)->_next) {
-            cinf_decl_ptr(last)->_next = cinf_decl_idx(r);
+        if (cinf_decl_idx(last) && !cinf_decl_ptr(last)->next) {
+            cinf_decl_ptr(last)->next = cinf_decl_idx(r);
         }
 
         return r;
@@ -150,17 +150,17 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
     decl_ref create_attribute_string(decl_ref last, const char *name, const char *val)
     {
         /* create attribute */
-        decl_ref r = cinf_decl_new(db, _decl_attribute);
-        cinf_decl_ptr(r)->_name = cinf_name_new(db, name);
+        decl_ref r = cinf_decl_new(db, decl_attribute);
+        cinf_decl_ptr(r)->name = cinf_name_new(db, name);
 
         /* create value */
-        decl_ref v = cinf_decl_new(db, _decl_value);
-        cinf_decl_ptr(v)->_name = cinf_name_new(db, val);
-        cinf_decl_ptr(r)->_link = cinf_decl_idx(v);
+        decl_ref v = cinf_decl_new(db, decl_value);
+        cinf_decl_ptr(v)->name = cinf_name_new(db, val);
+        cinf_decl_ptr(r)->link = cinf_decl_idx(v);
 
         /* create prev next link */
-        if (cinf_decl_idx(last) && !cinf_decl_ptr(last)->_next) {
-            cinf_decl_ptr(last)->_next = cinf_decl_idx(r);
+        if (cinf_decl_idx(last) && !cinf_decl_ptr(last)->next) {
+            cinf_decl_ptr(last)->next = cinf_decl_idx(r);
         }
 
         return r;
@@ -169,17 +169,17 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
     decl_ref create_attribute_value(decl_ref last, const char *name, decl_sz val)
     {
         /* create attribute */
-        decl_ref r = cinf_decl_new(db, _decl_attribute);
-        cinf_decl_ptr(r)->_name = cinf_name_new(db, name);
+        decl_ref r = cinf_decl_new(db, decl_attribute);
+        cinf_decl_ptr(r)->name = cinf_name_new(db, name);
 
         /* create value */
-        decl_ref v = cinf_decl_new(db, _decl_value);
-        cinf_decl_ptr(v)->_value = val;
-        cinf_decl_ptr(r)->_link = cinf_decl_idx(v);
+        decl_ref v = cinf_decl_new(db, decl_value);
+        cinf_decl_ptr(v)->value = val;
+        cinf_decl_ptr(r)->link = cinf_decl_idx(v);
 
         /* create prev next link */
-        if (cinf_decl_idx(last) && !cinf_decl_ptr(last)->_next) {
-            cinf_decl_ptr(last)->_next = cinf_decl_idx(r);
+        if (cinf_decl_idx(last) && !cinf_decl_ptr(last)->next) {
+            cinf_decl_ptr(last)->next = cinf_decl_idx(r);
         }
 
         return r;
@@ -235,7 +235,7 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
 
     decl_ref get_intrinsic_type(const QualType q)
     {
-        decl_ref tr = cinf_intrinsic(db, _decl_void, 0);
+        decl_ref tr = cinf_intrinsic(db, decl_void, 0);
 
         bool _is_scalar = q->isScalarType();
         bool _is_pointer = q->isPointerType();
@@ -259,10 +259,10 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
 
             std::string name = string_printf("*%s", cinf_decl_name(ti));
 
-            tr = cinf_decl_new(db, _decl_pointer);
-            cinf_decl_ptr(tr)->_link = cinf_decl_idx(ti);
-            cinf_decl_ptr(tr)->_name = cinf_name_new(db, name.c_str());
-            cinf_decl_ptr(tr)->_width = t.Width;
+            tr = cinf_decl_new(db, decl_pointer);
+            cinf_decl_ptr(tr)->link = cinf_decl_idx(ti);
+            cinf_decl_ptr(tr)->name = cinf_name_new(db, name.c_str());
+            cinf_decl_ptr(tr)->width = t.Width;
         }
         else if (_is_enum) {
             const EnumType *et = q->getAs<EnumType>();
@@ -280,13 +280,13 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
             tr = decl_ref { db, idmap[rd->getID()] };
         }
         else if (_is_complex) {
-            tr = cinf_intrinsic(db, _decl_cfloat, t.Width);
+            tr = cinf_intrinsic(db, decl_cfloat, t.Width);
         }
         else if (_is_scalar) {
             auto stk = q->getScalarTypeKind();
             switch (stk) {
             case Type::ScalarTypeKind::STK_CPointer: {
-                 tr = cinf_intrinsic(db, _decl_void, t.Width);
+                 tr = cinf_intrinsic(db, decl_void, t.Width);
                  break;
             }
             case Type::ScalarTypeKind::STK_BlockPointer:
@@ -296,19 +296,19 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
             case Type::ScalarTypeKind::STK_MemberPointer:
                 break;
             case Type::ScalarTypeKind::STK_Bool: {
-                tr = cinf_intrinsic(db, _decl_int, 1);
+                tr = cinf_intrinsic(db, decl_int, 1);
                 break;
             }
             case Type::ScalarTypeKind::STK_Integral: {
                 if (q->isUnsignedIntegerType()) {
-                    tr = cinf_intrinsic(db, _decl_uint, t.Width);
+                    tr = cinf_intrinsic(db, decl_uint, t.Width);
                 } else {
-                    tr = cinf_intrinsic(db, _decl_int, t.Width);
+                    tr = cinf_intrinsic(db, decl_int, t.Width);
                 }
                 break;
             }
             case Type::ScalarTypeKind::STK_Floating: {
-                tr = cinf_intrinsic(db, _decl_float, t.Width);
+                tr = cinf_intrinsic(db, decl_float, t.Width);
                 break;
             }
             case Type::ScalarTypeKind::STK_IntegralComplex:
@@ -330,28 +330,28 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
 
             decl_ref ti = get_intrinsic_type(q);
 
-            tr = cinf_decl_new(db, _decl_array);
-            cinf_decl_ptr(tr)->_link = cinf_decl_idx(ti);
+            tr = cinf_decl_new(db, decl_array);
+            cinf_decl_ptr(tr)->link = cinf_decl_idx(ti);
             const char *decl_name = cinf_decl_name(ti);
             if (vat) {
                 name = string_printf("[*]%s", decl_name);
-                cinf_decl_ptr(tr)->_props |= _decl_vla;
+                cinf_decl_ptr(tr)->props |= decl_vla;
             } else if (cat) {
                 u64 _count = cat->getSize().getLimitedValue();
-                cinf_decl_ptr(tr)->_count = _count;
+                cinf_decl_ptr(tr)->count = _count;
                 name = string_printf("[%llu]%s", _count, decl_name);
             } else {
                 name = string_printf("[]%s", decl_name);
             }
-            cinf_decl_ptr(tr)->_name = cinf_name_new(db, name.c_str());
-            cinf_decl_ptr(tr)->_props |= -(int)is_static & _decl_static;
+            cinf_decl_ptr(tr)->name = cinf_name_new(db, name.c_str());
+            cinf_decl_ptr(tr)->props |= -(int)is_static & decl_static;
         }
         else if (_is_vector) {
             const VectorType *vt = q->getAs<VectorType>();
             // TODO
         }
         else {
-            tr = cinf_intrinsic(db, _decl_void, t.Width);
+            tr = cinf_intrinsic(db, decl_void, t.Width);
         }
 
         debugf("\tscalar:%d complex:%d vector:%d array:%d struct:%d"
@@ -360,21 +360,21 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
             _is_union, _is_const, _is_volatile, _is_restrict);
 
         int cvr_props = 0;
-        cvr_props |= _decl_const & -(int)_is_const;
-        cvr_props |= _decl_volatile & -(int)_is_volatile;
-        cvr_props |= _decl_restrict & -(int)_is_restrict;
+        cvr_props |= decl_const & -(int)_is_const;
+        cvr_props |= decl_volatile & -(int)_is_volatile;
+        cvr_props |= decl_restrict & -(int)_is_restrict;
 
         if (cvr_props) {
             decl_ref ti = tr;
-            tr = cinf_decl_new(db, _decl_qualifier);
+            tr = cinf_decl_new(db, decl_qualifier);
             std::string name = string_printf("%s%s%s%s",
                 _is_const ? "const_" : "",
                 _is_volatile ? "volatile_" : "",
                 _is_restrict ? "restrict_" : "",
                 cinf_decl_name(ti));
-            cinf_decl_ptr(tr)->_name = cinf_name_new(db, name.c_str());
-            cinf_decl_ptr(tr)->_link = cinf_decl_idx(ti);
-            cinf_decl_ptr(tr)->_props |= cvr_props;
+            cinf_decl_ptr(tr)->name = cinf_name_new(db, name.c_str());
+            cinf_decl_ptr(tr)->link = cinf_decl_idx(ti);
+            cinf_decl_ptr(tr)->props |= cvr_props;
         }
 
         return tr;
@@ -384,7 +384,7 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
     {
         /* create node */
         decl_ref r = cinf_decl_new(db, tag);
-        cinf_decl_ptr(r)->_name = cinf_name_new(db,
+        cinf_decl_ptr(r)->name = cinf_name_new(db,
             d->NamedDecl::getNameAsString().c_str());
 
         /* record clang -> cinf id */
@@ -403,13 +403,13 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
         }
 
         /* create next last links */
-        if (cinf_decl_idx(last) && !cinf_decl_ptr(last)->_next) {
-            cinf_decl_ptr(last)->_next = cinf_decl_idx(r);
+        if (cinf_decl_idx(last) && !cinf_decl_ptr(last)->next) {
+            cinf_decl_ptr(last)->next = cinf_decl_idx(r);
         }
 
         /* create parent link */
-        if (cinf_decl_idx(p) && !cinf_decl_ptr(p)->_link) {
-            cinf_decl_ptr(p)->_link = cinf_decl_idx(r);
+        if (cinf_decl_idx(p) && !cinf_decl_ptr(p)->link) {
+            cinf_decl_ptr(p)->link = cinf_decl_idx(r);
         }
 
         /* set root element */
@@ -423,9 +423,9 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
     decl_set get_cvr_props(QualType q)
     {
         int props = 0;
-        props |= _decl_const & -(int)(q.getLocalFastQualifiers() & Qualifiers::Const);
-        props |= _decl_volatile & -(int)(q.getLocalFastQualifiers() & Qualifiers::Volatile);
-        props |= _decl_restrict & -(int)(q.getLocalFastQualifiers() & Qualifiers::Restrict);
+        props |= decl_const & -(int)(q.getLocalFastQualifiers() & Qualifiers::Const);
+        props |= decl_volatile & -(int)(q.getLocalFastQualifiers() & Qualifiers::Volatile);
+        props |= decl_restrict & -(int)(q.getLocalFastQualifiers() & Qualifiers::Restrict);
         return props;
     }
 
@@ -447,8 +447,8 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
         if (debug) print_decl(d);
 
         /* create node */
-        decl_ref r = cinf_decl_new(db, _decl_source);
-        cinf_decl_ptr(r)->_name = cinf_name_new(db,
+        decl_ref r = cinf_decl_new(db, decl_source);
+        cinf_decl_ptr(r)->name = cinf_name_new(db,
             cinf_basename(inputFile).c_str());
 
         /* record clang -> cinf id */
@@ -475,9 +475,9 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
             q.getAsString().c_str());
 
         /* create typedef */
-        decl_ref r = create_named_node(d, _decl_typedef);
-        cinf_decl_ptr(r)->_link = cinf_decl_idx(get_intrinsic_type(q));
-        cinf_decl_ptr(r)->_attr = create_attributes(d, r);
+        decl_ref r = create_named_node(d, decl_typedef);
+        cinf_decl_ptr(r)->link = cinf_decl_idx(get_intrinsic_type(q));
+        cinf_decl_ptr(r)->attr = create_attributes(d, r);
 
         last = r;
 
@@ -502,9 +502,9 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
         TypeInfo t = context.getTypeInfo(q);
 
         /* create enum */
-        decl_ref r = create_named_node(d, _decl_enum);
-        cinf_decl_ptr(r)->_attr = create_attributes(d, r);
-        cinf_decl_ptr(r)->_width = t.Width;
+        decl_ref r = create_named_node(d, decl_enum);
+        cinf_decl_ptr(r)->attr = create_attributes(d, r);
+        cinf_decl_ptr(r)->width = t.Width;
 
         stack.push_back(r);
         last = decl_ref { db, 0 };
@@ -528,10 +528,10 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
             q.getAsString().c_str(), value);
 
         /* create constant */
-        decl_ref r = create_named_node(d, _decl_constant);
-        cinf_decl_ptr(r)->_link = cinf_decl_idx(get_intrinsic_type(q));
-        cinf_decl_ptr(r)->_value = value;
-        cinf_decl_ptr(r)->_attr = create_attributes(d, r);
+        decl_ref r = create_named_node(d, decl_constant);
+        cinf_decl_ptr(r)->link = cinf_decl_idx(get_intrinsic_type(q));
+        cinf_decl_ptr(r)->value = value;
+        cinf_decl_ptr(r)->attr = create_attributes(d, r);
 
         last = r;
 
@@ -562,14 +562,14 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
         case TagTypeKind::Union:
 
             switch (k) {
-            case TagTypeKind::Struct: tag = _decl_struct; break;
-            case TagTypeKind::Union:  tag = _decl_union;  break;
-            default:                  tag = _decl_none;   break;
+            case TagTypeKind::Struct: tag = decl_struct; break;
+            case TagTypeKind::Union:  tag = decl_union;  break;
+            default:                  tag = decl_none;   break;
             }
 
             /* create struct */
             decl_ref r = create_named_node(d, tag);
-            cinf_decl_ptr(r)->_attr = create_attributes(d, r);
+            cinf_decl_ptr(r)->attr = create_attributes(d, r);
 
             stack.push_back(r);
             last = decl_ref { db, 0 };
@@ -597,11 +597,11 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
         decl_sz width = d->isBitField() ? d->getBitWidthValue(context) : 0;
 
         /* create field */
-        decl_ref r = create_named_node(d, _decl_field);
-        cinf_decl_ptr(r)->_link = cinf_decl_idx(get_intrinsic_type(q));
-        cinf_decl_ptr(r)->_width = width;
-        cinf_decl_ptr(r)->_props |= (-(int)d->isBitField() & _decl_bitfield);
-        cinf_decl_ptr(r)->_attr = create_attributes(d, r);
+        decl_ref r = create_named_node(d, decl_field);
+        cinf_decl_ptr(r)->link = cinf_decl_idx(get_intrinsic_type(q));
+        cinf_decl_ptr(r)->width = width;
+        cinf_decl_ptr(r)->props |= (-(int)d->isBitField() & decl_bitfield);
+        cinf_decl_ptr(r)->attr = create_attributes(d, r);
 
         last = r;
 
@@ -619,24 +619,24 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
             d->getNameInfo().getName().getAsString().c_str(), d->hasBody());
 
         /* create function */
-        decl_ref r = create_named_node(d, _decl_function);
-        cinf_decl_ptr(r)->_attr = create_attributes(d, r);
-        cinf_decl_ptr(r)->_props |=
-            (-(int)d->isGlobal() & _decl_global) |
-            (-(int)d->isExternC() & _decl_extern_c) |
-            (-(int)d->isStatic() & _decl_static) |
-            (-(int)d->isInlined() & _decl_inline) |
-            (-(int)d->isNoReturn() & _decl_noreturn);
+        decl_ref r = create_named_node(d, decl_function);
+        cinf_decl_ptr(r)->attr = create_attributes(d, r);
+        cinf_decl_ptr(r)->props |=
+            (-(int)d->isGlobal() & decl_global) |
+            (-(int)d->isExternC() & decl_extern_c) |
+            (-(int)d->isStatic() & decl_static) |
+            (-(int)d->isInlined() & decl_inline) |
+            (-(int)d->isNoReturn() & decl_noreturn);
 
         last = r;
 
         QualType qr = d->getReturnType();
 
         /* create return param */
-        decl_ref pr = cinf_decl_new(db, _decl_parameter);
-        cinf_decl_ptr(last)->_link = cinf_decl_idx(pr);
-        cinf_decl_ptr(pr)->_link = cinf_decl_idx(get_intrinsic_type(qr));
-        cinf_decl_ptr(pr)->_props |= _decl_out;
+        decl_ref pr = cinf_decl_new(db, decl_parameter);
+        cinf_decl_ptr(last)->link = cinf_decl_idx(pr);
+        cinf_decl_ptr(pr)->link = cinf_decl_idx(get_intrinsic_type(qr));
+        cinf_decl_ptr(pr)->props |= decl_out;
 
         /* create argument params */
         const ArrayRef<ParmVarDecl*> parms = d->parameters();
@@ -644,11 +644,11 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
             const ParmVarDecl* parm = parms[i];
             const QualType q = parm->getOriginalType();
 
-            decl_ref ar = cinf_decl_new(db, _decl_parameter);
-            cinf_decl_ptr(ar)->_name = cinf_name_new(db,
+            decl_ref ar = cinf_decl_new(db, decl_parameter);
+            cinf_decl_ptr(ar)->name = cinf_name_new(db,
                 parm->NamedDecl::getNameAsString().c_str());
-            cinf_decl_ptr(pr)->_next = cinf_decl_idx(ar);
-            cinf_decl_ptr(ar)->_link = cinf_decl_idx(get_intrinsic_type(q));
+            cinf_decl_ptr(pr)->next = cinf_decl_idx(ar);
+            cinf_decl_ptr(ar)->link = cinf_decl_idx(get_intrinsic_type(q));
             pr = ar;
         }
 
@@ -669,14 +669,14 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
         if (d->isLocalVarDeclOrParm()) return true;
 
         /* create field */
-        decl_ref r = create_named_node(d, _decl_field);
+        decl_ref r = create_named_node(d, decl_field);
         const QualType q = d->getTypeSourceInfo()->getType();
         bool is_static = d->getStorageDuration() == StorageDuration::SD_Static;
-        cinf_decl_ptr(r)->_link = cinf_decl_idx(get_intrinsic_type(q));
-        cinf_decl_ptr(r)->_props |=
-            (-(int)d->isExternC() & _decl_extern_c) |
-            (-(int)is_static & _decl_static);
-        cinf_decl_ptr(r)->_attr = create_attributes(d, r);
+        cinf_decl_ptr(r)->link = cinf_decl_idx(get_intrinsic_type(q));
+        cinf_decl_ptr(r)->props |=
+            (-(int)d->isExternC() & decl_extern_c) |
+            (-(int)is_static & decl_static);
+        cinf_decl_ptr(r)->attr = create_attributes(d, r);
 
         last = r;
 

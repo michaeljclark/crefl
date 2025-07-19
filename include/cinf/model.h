@@ -125,20 +125,20 @@ typedef u64 decl_sz;
  */
 struct decl_node
 {
-    decl_tag _tag;
-    decl_set _props;
-    decl_id _name;
-    decl_id _next;
-    decl_id _link;
-    decl_id _attr;
+    decl_tag tag;
+    decl_set props;
+    decl_id name;
+    decl_id next;
+    decl_id link;
+    decl_id attr;
 
     /* quantifier used by intrinsic, set, enum, field, array, constant, etc */
     union {
-        decl_sz _quantity;
-        decl_sz _width;
-        decl_sz _count;
-        decl_sz _value;
-        decl_sz _addr;
+        decl_sz quantity;
+        decl_sz width;
+        decl_sz count;
+        decl_sz value;
+        decl_sz addr;
     };
 };
 
@@ -180,24 +180,24 @@ struct decl_ref
  */
 enum decl_tags
 {
-    _decl_none,
-    _decl_intrinsic,
-    _decl_typedef,
-    _decl_enum,
-    _decl_struct,
-    _decl_union,
-    _decl_field,
-    _decl_array,
-    _decl_pointer,
-    _decl_constant,
-    _decl_function,
-    _decl_parameter,
-    _decl_qualifier,
-    _decl_attribute,
-    _decl_value,
-    _decl_archive,
-    _decl_source,
-    _decl_alias,
+    decl_none,
+    decl_intrinsic,
+    decl_typedef,
+    decl_enum,
+    decl_struct,
+    decl_union,
+    decl_field,
+    decl_array,
+    decl_pointer,
+    decl_constant,
+    decl_function,
+    decl_parameter,
+    decl_qualifier,
+    decl_attribute,
+    decl_value,
+    decl_archive,
+    decl_source,
+    decl_alias,
 };
 
 /*
@@ -209,53 +209,53 @@ enum decl_tags
 enum decl_props
 {
     /* intrinsic type */
-    _decl_void     = 0,
-    _decl_integral = 1 << 0,
-    _decl_real     = 1 << 1,
-    _decl_complex  = 1 << 2,
-    _decl_signed   = 1 << 3,
-    _decl_unsigned = 1 << 4,
-    _decl_ieee754  = 1 << 5,
+    decl_void     = 0,
+    decl_integral = 1 << 0,
+    decl_real     = 1 << 1,
+    decl_complex  = 1 << 2,
+    decl_signed   = 1 << 3,
+    decl_unsigned = 1 << 4,
+    decl_ieee754  = 1 << 5,
 
-    _decl_int      = _decl_integral | _decl_signed,
-    _decl_uint     = _decl_integral | _decl_unsigned,
-    _decl_float    = _decl_real     | _decl_ieee754,
-    _decl_cfloat   = _decl_complex  | _decl_ieee754,
+    decl_int      = decl_integral | decl_signed,
+    decl_uint     = decl_integral | decl_unsigned,
+    decl_float    = decl_real     | decl_ieee754,
+    decl_cfloat   = decl_complex  | decl_ieee754,
 
     /* padding */
-    _decl_pad_pow2 = 1 << 6,
-    _decl_pad_bit  = 1 << 7,
-    _decl_pad_byte = 1 << 8,
+    decl_pad_pow2 = 1 << 6,
+    decl_pad_bit  = 1 << 7,
+    decl_pad_byte = 1 << 8,
 
     /* field */
-    _decl_bitfield = 1 << 9,
+    decl_bitfield = 1 << 9,
 
     /* cvr-qualifiers */
-    _decl_const    = 1 << 10,
-    _decl_volatile = 1 << 11,
-    _decl_restrict = 1 << 12,
+    decl_const    = 1 << 10,
+    decl_volatile = 1 << 11,
+    decl_restrict = 1 << 12,
 
     /* interface qualifiers */
-    _decl_static   = 1 << 13,
-    _decl_extern_c = 1 << 14,
-    _decl_inline   = 1 << 15,
-    _decl_noreturn = 1 << 16,
+    decl_static   = 1 << 13,
+    decl_extern_c = 1 << 14,
+    decl_inline   = 1 << 15,
+    decl_noreturn = 1 << 16,
 
     /* binding */
-    _decl_local    = 1 << 17,
-    _decl_global   = 1 << 18,
-    _decl_weak     = 1 << 19,
+    decl_local    = 1 << 17,
+    decl_global   = 1 << 18,
+    decl_weak     = 1 << 19,
 
     /* visibility */
-    _decl_default  = 1 << 20,
-    _decl_hidden   = 1 << 21,
+    decl_default  = 1 << 20,
+    decl_hidden   = 1 << 21,
 
     /* parameter */
-    _decl_in       = 1 << 22,
-    _decl_out      = 1 << 23,
+    decl_in       = 1 << 22,
+    decl_out      = 1 << 23,
 
     /* variable length array */
-    _decl_vla      = 1 << 24,
+    decl_vla      = 1 << 24,
 };
 
 /*

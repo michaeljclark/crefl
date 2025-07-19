@@ -42,27 +42,27 @@ int main(int argc, const char **argv)
 
     size_t ntypes = 0;
     cinf_source_decls(cinf_root(db), NULL, &ntypes);
-    decl_ref *_types = calloc(ntypes, sizeof(decl_ref));
-    assert(_types);
-    cinf_source_decls(cinf_root(db), _types, &ntypes);
+    decl_ref *types = calloc(ntypes, sizeof(decl_ref));
+    assert(types);
+    cinf_source_decls(cinf_root(db), types, &ntypes);
 
     for (size_t i = 0; i < ntypes; i++) {
         size_t nfields = 0;
-        if (cinf_is_struct(_types[i])) {
+        if (cinf_is_struct(types[i])) {
             printf("%s %s : %zu\n",
-                cinf_tag_name(cinf_decl_tag(_types[i])),
-                cinf_decl_name(_types[i]),
-                cinf_type_width(_types[i]));
+                cinf_tag_name(cinf_decl_tag(types[i])),
+                cinf_decl_name(types[i]),
+                cinf_type_width(types[i]));
 
-            cinf_struct_fields(_types[i], NULL, &nfields);
-            decl_ref *_fields = calloc(nfields, sizeof(decl_ref));
-            assert(_fields);
-            cinf_struct_fields(_types[i], _fields, &nfields);
+            cinf_struct_fields(types[i], NULL, &nfields);
+            decl_ref *fields = calloc(nfields, sizeof(decl_ref));
+            assert(fields);
+            cinf_struct_fields(types[i], fields, &nfields);
             for (size_t j = 0; j < nfields; j++) {
                 printf("\t%s %s : %zu\n",
-                    cinf_tag_name(cinf_decl_tag(_fields[j])),
-                    cinf_decl_name(_fields[j]),
-                    cinf_type_width(_fields[j]));
+                    cinf_tag_name(cinf_decl_tag(fields[j])),
+                    cinf_decl_name(fields[j]),
+                    cinf_type_width(fields[j]));
             }
         }
     }

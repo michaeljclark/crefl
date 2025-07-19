@@ -110,24 +110,24 @@ int cinf_db_read_mem(decl_db *db, const uint8_t *buf, size_t input_sz)
     /* verify that node and name links are within bounds. */
     for (decl_id i = 0; i < db->decl_offset; i++) {
         decl_node *d = db->decl + i;
-        if (d->_link >= db->decl_offset) {
+        if (d->link >= db->decl_offset) {
             fprintf(stderr, "cinf: *** error: decl " fmt_ID
-                " link " fmt_ID " out of bounds\n", i, d->_link);
+                " link " fmt_ID " out of bounds\n", i, d->link);
             return -1;
         }
-        if (d->_next >= db->decl_offset) {
+        if (d->next >= db->decl_offset) {
             fprintf(stderr, "cinf: *** error: decl " fmt_ID
-                " next " fmt_ID " out of bounds\n", i, d->_next);
+                " next " fmt_ID " out of bounds\n", i, d->next);
             return -1;
         }
-        if (d->_attr >= db->decl_offset) {
+        if (d->attr >= db->decl_offset) {
             fprintf(stderr, "cinf: *** error: decl " fmt_ID
-                " attr " fmt_ID " out of bounds\n", i, d->_attr);
+                " attr " fmt_ID " out of bounds\n", i, d->attr);
             return -1;
         }
-        if (d->_name >= db->name_offset) {
+        if (d->name >= db->name_offset) {
             fprintf(stderr, "cinf: *** error: decl " fmt_ID
-                " name " fmt_ID " out of bounds\n", i, d->_name);
+                " name " fmt_ID " out of bounds\n", i, d->name);
             return -1;
         }
     }

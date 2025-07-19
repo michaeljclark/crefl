@@ -25,33 +25,33 @@ void fmt_s64(char *buf, size_t len, void *ptr) { snprintf(buf, len, "%lld", *(s6
 void fmt_f32(char *buf, size_t len, void *ptr) { snprintf(buf, len, "%f", *(f32*)ptr); }
 void fmt_f64(char *buf, size_t len, void *ptr) { snprintf(buf, len, "%f", *(f64*)ptr); }
 
-typedef struct { decl_set props; size_t width; print_fn fn; } _type_fmt;
+typedef struct { decl_set props; size_t width; print_fn fn; } type_fmt;
 
-static _type_fmt _formats[] = {
-    { _decl_void, 0, fmt_void },
-    { _decl_uint, 8, fmt_u8 },
-    { _decl_uint, 16, fmt_u16 },
-    { _decl_uint, 32, fmt_u32 },
-    { _decl_uint, 64, fmt_u64 },
-    { _decl_int, 8, fmt_s8 },
-    { _decl_int, 16, fmt_s16 },
-    { _decl_int, 32, fmt_s32 },
-    { _decl_int, 64, fmt_s64 },
-    { _decl_float, 32, fmt_f32 },
-    { _decl_float, 64, fmt_f64 },
+static type_fmt formats[] = {
+    { decl_void, 0, fmt_void },
+    { decl_uint, 8, fmt_u8 },
+    { decl_uint, 16, fmt_u16 },
+    { decl_uint, 32, fmt_u32 },
+    { decl_uint, 64, fmt_u64 },
+    { decl_int, 8, fmt_s8 },
+    { decl_int, 16, fmt_s16 },
+    { decl_int, 32, fmt_s32 },
+    { decl_int, 64, fmt_s64 },
+    { decl_float, 32, fmt_f32 },
+    { decl_float, 64, fmt_f64 },
 };
 
-static _type_fmt _find_intrinsic_format(decl_ref r)
+static type_fmt find_intrinsic_format(decl_ref r)
 {
     size_t width = cinf_intrinsic_width(r);
     decl_set props = cinf_decl_props(r);
-    for (size_t i = 0; i < array_size(_formats); i++)
-        if ((_formats[i].props & props) == _formats[i].props &&
-            _formats[i].width == width) return _formats[i];
-    return _formats[0];
+    for (size_t i = 0; i < array_size(formats); i++)
+        if ((formats[i].props & props) == formats[i].props &&
+            formats[i].width == width) return formats[i];
+    return formats[0];
 }
 
-static const char* _pad_depth(size_t depth)
+static const char* pad_depth(size_t depth)
 {
     static char buf[256];
     memset(buf, ' ', sizeof(buf));
@@ -63,9 +63,9 @@ static const char* _pad_depth(size_t depth)
     return buf;
 }
 
-static void _print_type(decl_ref r, void *ptr, size_t offset, size_t depth);
+static void print_type(decl_ref r, void *ptr, size_t offset, size_t depth);
 
-static void _print_array(decl_ref r, void *ptr, size_t offset, size_t depth)
+static void print_array(decl_ref r, void *ptr, size_t offset, size_t depth)
 {
     size_t qty = 1, width;
     do  {
@@ -77,12 +77,12 @@ static void _print_array(decl_ref r, void *ptr, size_t offset, size_t depth)
     printf("[ ");
     for (size_t i = 0; i < qty; i++) {
         if (i > 0) printf(", ");
-        _print_type(r, ptr, offset + width * i, depth + 1);
+        print_type(r, ptr, offset + width * i, depth + 1);
     }
     printf(" ]");
 }
 
-static void _print_pointer(decl_ref r, void *ptr, size_t offset, size_t depth)
+static void print_pointer(decl_ref r, void *ptr, size_t offset, size_t depth)
 {
     char buf[128];
     snprintf(buf, sizeof(buf), "(%s) 0x%016llx", cinf_decl_name(r),
@@ -90,24 +90,24 @@ static void _print_pointer(decl_ref r, void *ptr, size_t offset, size_t depth)
     printf("%s", buf);
 }
 
-static void _print_intrinsic(decl_ref r, void *ptr, size_t offset, size_t depth)
+static void print_intrinsic(decl_ref r, void *ptr, size_t offset, size_t depth)
 {
     char buf[128];
-    _type_fmt fmt = _find_intrinsic_format(r);
+    type_fmt fmt = find_intrinsic_format(r);
     fmt.fn(buf, sizeof(buf), ptr_offset(ptr, offset));
     printf("%s", buf);
 }
 
-static void _print_field(decl_ref r, void *ptr, size_t offset, size_t depth)
+static void print_field(decl_ref r, void *ptr, size_t offset, size_t depth)
 {
     decl_ref ft = cinf_field_type(r);
 
     printf("%s : ", cinf_decl_name(r));
-    _print_type(ft, ptr, offset, depth);
+    print_type(ft, ptr, offset, depth);
     printf("; ");
 }
 
-void _print_struct(decl_ref r, void *ptr, size_t offset, size_t depth)
+void print_struct(decl_ref r, void *ptr, size_t offset, size_t depth)
 {
     size_t nfields = 0;
     cinf_struct_fields_offsets(r, NULL, NULL, &nfields);
@@ -123,14 +123,14 @@ void _print_struct(decl_ref r, void *ptr, size_t offset, size_t depth)
     cinf_struct_fields_offsets(r, _fields, _offsets, &nfields);
 
     for (size_t j = 0; j < nfields - 1; j++) {
-        _print_field(_fields[j], ptr, _offsets[j] + offset, depth + 1);
+        print_field(_fields[j], ptr, _offsets[j] + offset, depth + 1);
     }
     printf("}");
     free(_fields);
     free(_offsets);
 }
 
-void _print_union(decl_ref r, void *ptr, size_t offset, size_t depth)
+void print_union(decl_ref r, void *ptr, size_t offset, size_t depth)
 {
     size_t nfields = 0;
     cinf_union_fields(r, NULL, &nfields);
@@ -145,20 +145,20 @@ void _print_union(decl_ref r, void *ptr, size_t offset, size_t depth)
     cinf_union_fields(r, _fields, &nfields);
 
     for (size_t j = 0; j < nfields; j++) {
-        _print_field(_fields[j], ptr, offset, depth + 1);
+        print_field(_fields[j], ptr, offset, depth + 1);
     }
     printf("}");
     free(_fields);
 }
 
-static void _print_type(decl_ref r, void *ptr, size_t offset, size_t depth)
+static void print_type(decl_ref r, void *ptr, size_t offset, size_t depth)
 {
     switch (cinf_decl_tag(r)) {
-    case _decl_struct: _print_struct(r, ptr, offset, depth); break;
-    case _decl_union: _print_union(r, ptr, offset, depth); break;
-    case _decl_array: _print_array(r, ptr, offset, depth); break;
-    case _decl_pointer: _print_pointer(r, ptr, offset, depth); break;
-    case _decl_intrinsic: _print_intrinsic(r, ptr, offset, depth); break;
+    case decl_struct: print_struct(r, ptr, offset, depth); break;
+    case decl_union: print_union(r, ptr, offset, depth); break;
+    case decl_array: print_array(r, ptr, offset, depth); break;
+    case decl_pointer: print_pointer(r, ptr, offset, depth); break;
+    case decl_intrinsic: print_intrinsic(r, ptr, offset, depth); break;
     default: break;
     }
 }
@@ -210,6 +210,6 @@ decl_db* cinf_db_internal()
 
 void cinf_print(decl_ref r, void *ptr)
 {
-    _print_type(r, ptr, 0, 0);
+    print_type(r, ptr, 0, 0);
     puts("");
 }

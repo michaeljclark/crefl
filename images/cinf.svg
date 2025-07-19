@@ -26,9 +26,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.98994949"
-     inkscape:cx="946.51293"
-     inkscape:cy="452.04326"
+     inkscape:zoom="1.4"
+     inkscape:cx="629.28571"
+     inkscape:cy="453.21429"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -442,27 +442,27 @@
          style="stroke-width:0.264583">struct decl_db</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
-         y="-6.269536"
+         y="-6.2695355"
          style="stroke-width:0.264583"
          id="tspan1371">{</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
-         y="-2.7417483"
+         y="-2.7417479"
          style="stroke-width:0.264583"
          id="tspan1373">    char* name;</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
-         y="0.78603917"
+         y="0.78603965"
          style="stroke-width:0.264583"
          id="tspan1375">    size_t name_builtin;</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
-         y="4.313827"
+         y="4.3138275"
          style="stroke-width:0.264583"
          id="tspan1377">    size_t name_offset;</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
-         y="7.8416142"
+         y="7.8416147"
          style="stroke-width:0.264583"
          id="tspan1379">    size_t name_size;</tspan><tspan
          sodipodi:role="line"
@@ -477,7 +477,7 @@
          id="tspan1383">    decl_node * decl;</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
-         y="18.424976"
+         y="18.424978"
          style="stroke-width:0.264583"
          id="tspan1385">    size_t decl_builtin;</tspan><tspan
          sodipodi:role="line"
@@ -492,7 +492,7 @@
          id="tspan1389">    size_t decl_size;</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
-         y="29.008339"
+         y="29.008341"
          style="stroke-width:0.264583"
          id="tspan1391" /><tspan
          sodipodi:role="line"
@@ -507,7 +507,7 @@
          id="tspan1395">};</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
-         y="39.591702"
+         y="39.591705"
          style="stroke-width:0.264583"
          id="tspan1397" /><tspan
          sodipodi:role="line"
@@ -522,44 +522,44 @@
          id="tspan1401">{</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
-         y="50.175064"
+         y="50.175068"
          style="stroke-width:0.264583"
          id="tspan1403">    /* intrinsic type */</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
          y="53.702854"
          style="stroke-width:0.264583"
-         id="tspan1405">    _decl_void     = 0,</tspan><tspan
+         id="tspan1405">    decl_void     = 0,</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
          y="57.23064"
          style="stroke-width:0.264583"
-         id="tspan1407">    _decl_integral = 1 &lt;&lt; 0,</tspan><tspan
+         id="tspan1407">    decl_integral = 1 &lt;&lt; 0,</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
-         y="60.758427"
+         y="60.75843"
          style="stroke-width:0.264583"
-         id="tspan1409">    _decl_real     = 1 &lt;&lt; 1,</tspan><tspan
+         id="tspan1409">    decl_real     = 1 &lt;&lt; 1,</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
          y="64.286217"
          style="stroke-width:0.264583"
-         id="tspan1411">    _decl_complex  = 1 &lt;&lt; 2,</tspan><tspan
+         id="tspan1411">    decl_complex  = 1 &lt;&lt; 2,</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
          y="67.814003"
          style="stroke-width:0.264583"
-         id="tspan1413">    _decl_signed   = 1 &lt;&lt; 3,</tspan><tspan
+         id="tspan1413">    decl_signed   = 1 &lt;&lt; 3,</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
          y="71.341789"
          style="stroke-width:0.264583"
-         id="tspan1415">    _decl_unsigned = 1 &lt;&lt; 4,</tspan><tspan
+         id="tspan1415">    decl_unsigned = 1 &lt;&lt; 4,</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
-         y="74.869576"
+         y="74.869583"
          style="stroke-width:0.264583"
-         id="tspan1417">    _decl_ieee754  = 1 &lt;&lt; 5,</tspan><tspan
+         id="tspan1417">    decl_ieee754  = 1 &lt;&lt; 5,</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
          y="78.397369"
@@ -569,22 +569,22 @@
          x="86.187149"
          y="81.925156"
          style="stroke-width:0.264583"
-         id="tspan1421">    _decl_int     = _decl_integral | _decl_signed,</tspan><tspan
+         id="tspan1421">    decl_int      = decl_integral | decl_signed,</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
          y="85.452942"
          style="stroke-width:0.264583"
-         id="tspan1423">    _decl_uint     = _decl_integral | _decl_unsigned,</tspan><tspan
+         id="tspan1423">    decl_uint     = decl_integral | decl_unsigned,</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
          y="88.980728"
          style="stroke-width:0.264583"
-         id="tspan1425">    _decl_float    = _decl_real     | _decl_ieee754,</tspan><tspan
+         id="tspan1425">    decl_float    = decl_real     | decl_ieee754,</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
          y="92.508514"
          style="stroke-width:0.264583"
-         id="tspan1427">    _decl_cfloat   = _decl_complex  | _decl_ieee754,</tspan><tspan
+         id="tspan1427">    decl_cfloat   = decl_complex  | decl_ieee754,</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
          y="96.036308"
@@ -599,20 +599,20 @@
          x="86.187149"
          y="103.09188"
          style="stroke-width:0.264583"
-         id="tspan1433">    _decl_pad_pow2 = 1 &lt;&lt; 6,</tspan><tspan
+         id="tspan1433">    decl_pad_pow2 = 1 &lt;&lt; 6,</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
          y="106.61967"
          style="stroke-width:0.264583"
-         id="tspan1435">    _decl_pad_bit  = 1 &lt;&lt; 7,</tspan><tspan
+         id="tspan1435">    decl_pad_bit  = 1 &lt;&lt; 7,</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
          y="110.14745"
          style="stroke-width:0.264583"
-         id="tspan1437">    _decl_pad_byte = 1 &lt;&lt; 8,</tspan><tspan
+         id="tspan1437">    decl_pad_byte = 1 &lt;&lt; 8,</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
-         y="113.67524"
+         y="113.67525"
          style="stroke-width:0.264583"
          id="tspan1439" /><tspan
          sodipodi:role="line"
@@ -624,7 +624,7 @@
          x="86.187149"
          y="120.73082"
          style="stroke-width:0.264583"
-         id="tspan1443">    _decl_bitfield = 1 &lt;&lt; 9,</tspan><tspan
+         id="tspan1443">    decl_bitfield = 1 &lt;&lt; 9,</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
          y="124.25861"
@@ -632,27 +632,27 @@
          id="tspan1445" /><tspan
          sodipodi:role="line"
          x="86.187149"
-         y="127.7864"
+         y="127.78639"
          style="stroke-width:0.264583"
          id="tspan1447">    /* qualifiers */</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
-         y="131.31419"
+         y="131.31418"
          style="stroke-width:0.264583"
-         id="tspan1449">    _decl_const    = 1 &lt;&lt; 10,</tspan><tspan
+         id="tspan1449">    decl_const    = 1 &lt;&lt; 10,</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
-         y="134.84198"
+         y="134.84196"
          style="stroke-width:0.264583"
-         id="tspan1451">    _decl_volatile = 1 &lt;&lt; 11,</tspan><tspan
+         id="tspan1451">    decl_volatile = 1 &lt;&lt; 11,</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
-         y="138.36977"
+         y="138.36975"
          style="stroke-width:0.264583"
-         id="tspan1453">    _decl_restrict = 1 &lt;&lt; 12,</tspan><tspan
+         id="tspan1453">    decl_restrict = 1 &lt;&lt; 12,</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
-         y="141.89755"
+         y="141.89754"
          style="stroke-width:0.264583"
          id="tspan1455" /><tspan
          sodipodi:role="line"
@@ -664,17 +664,17 @@
          x="86.187149"
          y="148.95312"
          style="stroke-width:0.264583"
-         id="tspan1459">    _decl_local    = 1 &lt;&lt; 13,</tspan><tspan
+         id="tspan1459">    decl_local    = 1 &lt;&lt; 13,</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
          y="152.48091"
          style="stroke-width:0.264583"
-         id="tspan1461">    _decl_global   = 1 &lt;&lt; 14,</tspan><tspan
+         id="tspan1461">    decl_global   = 1 &lt;&lt; 14,</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
          y="156.0087"
          style="stroke-width:0.264583"
-         id="tspan1463">    _decl_weak     = 1 &lt;&lt; 15,</tspan><tspan
+         id="tspan1463">    decl_weak     = 1 &lt;&lt; 15,</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
          y="159.53648"
@@ -687,34 +687,34 @@
          id="tspan1467">    /* visibility */</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
-         y="166.59207"
+         y="166.59206"
          style="stroke-width:0.264583"
-         id="tspan1469">    _decl_default  = 1 &lt;&lt; 16,</tspan><tspan
+         id="tspan1469">    decl_default  = 1 &lt;&lt; 16,</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
-         y="170.11986"
+         y="170.11984"
          style="stroke-width:0.264583"
-         id="tspan1471">    _decl_hidden   = 1 &lt;&lt; 17,</tspan><tspan
+         id="tspan1471">    decl_hidden   = 1 &lt;&lt; 17,</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
-         y="173.64764"
+         y="173.64763"
          style="stroke-width:0.264583"
          id="tspan1473" /><tspan
          sodipodi:role="line"
          x="86.187149"
-         y="177.17543"
+         y="177.17542"
          style="stroke-width:0.264583"
          id="tspan1475">    /* parameter */</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
-         y="180.70322"
+         y="180.7032"
          style="stroke-width:0.264583"
-         id="tspan1477">    _decl_in       = 1 &lt;&lt; 18,</tspan><tspan
+         id="tspan1477">    decl_in       = 1 &lt;&lt; 18,</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
          y="184.231"
          style="stroke-width:0.264583"
-         id="tspan1479">    _decl_out      = 1 &lt;&lt; 19,</tspan><tspan
+         id="tspan1479">    decl_out      = 1 &lt;&lt; 19,</tspan><tspan
          sodipodi:role="line"
          x="86.187149"
          y="187.75879"
@@ -815,72 +815,72 @@
          x="18.858128"
          y="46.647278"
          style="stroke-width:0.264583"
-         id="tspan3171">    _decl_void,</tspan><tspan
+         id="tspan3171">    decl_void,</tspan><tspan
          sodipodi:role="line"
          x="18.858128"
          y="50.175064"
          style="stroke-width:0.264583"
-         id="tspan3173">    _decl_intrinsic,</tspan><tspan
+         id="tspan3173">    decl_intrinsic,</tspan><tspan
          sodipodi:role="line"
          x="18.858128"
          y="53.702854"
          style="stroke-width:0.264583"
-         id="tspan3177">    _decl_typedef,</tspan><tspan
+         id="tspan3177">    decl_typedef,</tspan><tspan
          sodipodi:role="line"
          x="18.858128"
          y="57.23064"
          style="stroke-width:0.264583"
-         id="tspan3179">    _decl_enum,</tspan><tspan
+         id="tspan3179">    decl_enum,</tspan><tspan
          sodipodi:role="line"
          x="18.858128"
          y="60.758427"
          style="stroke-width:0.264583"
-         id="tspan3181">    _decl_struct,</tspan><tspan
+         id="tspan3181">    decl_struct,</tspan><tspan
          sodipodi:role="line"
          x="18.858128"
          y="64.286217"
          style="stroke-width:0.264583"
-         id="tspan3183">    _decl_union,</tspan><tspan
+         id="tspan3183">    decl_union,</tspan><tspan
          sodipodi:role="line"
          x="18.858128"
          y="67.814003"
          style="stroke-width:0.264583"
-         id="tspan3185">    _decl_field,</tspan><tspan
+         id="tspan3185">    decl_field,</tspan><tspan
          sodipodi:role="line"
          x="18.858128"
          y="71.341789"
          style="stroke-width:0.264583"
-         id="tspan3187">    _decl_array,</tspan><tspan
+         id="tspan3187">    decl_array,</tspan><tspan
          sodipodi:role="line"
          x="18.858128"
          y="74.869576"
          style="stroke-width:0.264583"
-         id="tspan3189">    _decl_pointer,</tspan><tspan
+         id="tspan3189">    decl_pointer,</tspan><tspan
          sodipodi:role="line"
          x="18.858128"
          y="78.397369"
          style="stroke-width:0.264583"
-         id="tspan3191">    _decl_constant,</tspan><tspan
+         id="tspan3191">    decl_constant,</tspan><tspan
          sodipodi:role="line"
          x="18.858128"
          y="81.925156"
          style="stroke-width:0.264583"
-         id="tspan3193">    _decl_function,</tspan><tspan
+         id="tspan3193">    decl_function,</tspan><tspan
          sodipodi:role="line"
          x="18.858128"
          y="85.452942"
          style="stroke-width:0.264583"
-         id="tspan3195">    _decl_parameter,</tspan><tspan
+         id="tspan3195">    decl_parameter,</tspan><tspan
          sodipodi:role="line"
          x="18.858128"
          y="88.980728"
          style="stroke-width:0.264583"
-         id="tspan3197">    _decl_attribute,</tspan><tspan
+         id="tspan3197">    decl_attribute,</tspan><tspan
          sodipodi:role="line"
          x="18.858128"
          y="92.508514"
          style="stroke-width:0.264583"
-         id="tspan3199">    _decl_value</tspan><tspan
+         id="tspan3199">    decl_value</tspan><tspan
          sodipodi:role="line"
          x="18.858128"
          y="96.036308"
@@ -905,32 +905,32 @@
          x="18.858128"
          y="110.14745"
          style="stroke-width:0.264583"
-         id="tspan3209">    decl_tag _tag;</tspan><tspan
+         id="tspan3209">    decl_tag tag;</tspan><tspan
          sodipodi:role="line"
          x="18.858128"
          y="113.67524"
          style="stroke-width:0.264583"
-         id="tspan3211">    decl_set _props;</tspan><tspan
+         id="tspan3211">    decl_set props;</tspan><tspan
          sodipodi:role="line"
          x="18.858128"
          y="117.20303"
          style="stroke-width:0.264583"
-         id="tspan3213">    decl_id _name;</tspan><tspan
+         id="tspan3213">    decl_id name;</tspan><tspan
          sodipodi:role="line"
          x="18.858128"
          y="120.73082"
          style="stroke-width:0.264583"
-         id="tspan3215">    decl_id _next;</tspan><tspan
+         id="tspan3215">    decl_id next;</tspan><tspan
          sodipodi:role="line"
          x="18.858128"
          y="124.25861"
          style="stroke-width:0.264583"
-         id="tspan3217">    decl_id _link;</tspan><tspan
+         id="tspan3217">    decl_id link;</tspan><tspan
          sodipodi:role="line"
          x="18.858128"
          y="127.78639"
          style="stroke-width:0.264583"
-         id="tspan3219">    decl_id _attr;</tspan><tspan
+         id="tspan3219">    decl_id attr;</tspan><tspan
          sodipodi:role="line"
          x="18.858128"
          y="131.31418"
@@ -945,27 +945,27 @@
          x="18.858128"
          y="138.36975"
          style="stroke-width:0.264583"
-         id="tspan3225">        decl_sz _quantity;</tspan><tspan
+         id="tspan3225">        decl_sz quantity;</tspan><tspan
          sodipodi:role="line"
          x="18.858128"
          y="141.89754"
          style="stroke-width:0.264583"
-         id="tspan3227">        decl_sz _width;</tspan><tspan
+         id="tspan3227">        decl_sz width;</tspan><tspan
          sodipodi:role="line"
          x="18.858128"
          y="145.42534"
          style="stroke-width:0.264583"
-         id="tspan3229">        decl_sz _count;</tspan><tspan
+         id="tspan3229">        decl_sz count;</tspan><tspan
          sodipodi:role="line"
          x="18.858128"
          y="148.95312"
          style="stroke-width:0.264583"
-         id="tspan3231">        decl_sz _value;</tspan><tspan
+         id="tspan3231">        decl_sz value;</tspan><tspan
          sodipodi:role="line"
          x="18.858128"
          y="152.48091"
          style="stroke-width:0.264583"
-         id="tspan3233">        decl_sz _addr;</tspan><tspan
+         id="tspan3233">        decl_sz addr;</tspan><tspan
          sodipodi:role="line"
          x="18.858128"
          y="156.0087"

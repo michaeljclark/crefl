@@ -116,32 +116,32 @@ static void cinf_hash_node_sum(decl_sum *sum, decl_index *index,
     cinf_hash_absorb(sum, name_delimeter);
     cinf_hash_absorb(sum, cinf_decl_name(d));
     cinf_hash_absorb(sum, props_delimeter);
-    cinf_hash_update(sum, &node->_props, sizeof(node->_props));
+    cinf_hash_update(sum, &node->props, sizeof(node->props));
     cinf_hash_absorb(sum, quantity_delimeter);
-    cinf_hash_update(sum, &node->_quantity, sizeof(node->_quantity));
+    cinf_hash_update(sum, &node->quantity, sizeof(node->quantity));
 
-    if (node->_attr) {
-        next = cinf_lookup(d.db, node->_attr);
+    if (node->attr) {
+        next = cinf_lookup(d.db, node->attr);
         cinf_hash_absorb(sum, attr_delimeter);
         hash = cinf_node_hash(index, next, d, prefix);
         cinf_hash_absorb(sum, hash_delimeter);
         cinf_hash_update(sum, (const char*)hash->sum, sizeof(decl_hash));
     }
-    if (node->_link) {
+    if (node->link) {
         switch (cinf_decl_tag(d)) {
         /*
          * follow `link` to child list for container types: 'object',
          * 'set', 'enum', 'struct', 'union', and 'function' are lists
          * containing: 'typedef', 'field', 'pointer', 'array', etc.
          */
-        case _decl_archive:
-        case _decl_source:
-        case _decl_enum:
-        case _decl_struct:
-        case _decl_union:
-        case _decl_function:
+        case decl_archive:
+        case decl_source:
+        case decl_enum:
+        case decl_struct:
+        case decl_union:
+        case decl_function:
             cinf_hash_absorb(sum, link_delimeter);
-            next = cinf_lookup(d.db, node->_link);
+            next = cinf_lookup(d.db, node->link);
             while (cinf_decl_idx(next))  {
                 cinf_hash_absorb(sum, next_delimeter);
                 decl_hash *hash = cinf_node_hash(index, next, d, prefix);
@@ -157,7 +157,7 @@ static void cinf_hash_node_sum(decl_sum *sum, decl_index *index,
          * cause cycles from type references to adjacent anonymous types.
          */
         default:
-            next = cinf_lookup(d.db, node->_link);
+            next = cinf_lookup(d.db, node->link);
             if (cinf_entry_is_marked(cinf_entry_ref(index, next)) &&
                 !cinf_entry_is_valid(cinf_entry_ref(index, next))) {
                 /* we have a reference to a node that is being hashed */
@@ -195,8 +195,8 @@ std::string cinf_node_name(decl_ref d, decl_ref p, std::string prefix)
     if (cinf_is_archive(p)) return cinf_decl_name(d);
 
     switch (cinf_decl_tag(d)) {
-    case _decl_array:
-    case _decl_pointer:
+    case decl_array:
+    case decl_pointer:
         if (anon_parenthesis) {
             return prefix + osep + std::string("(") + std::string(
                 cinf_tag_name(cinf_decl_tag(d))) + std::string(")");
@@ -306,7 +306,7 @@ void cinf_index_scan(decl_index *index, decl_db *db)
     cinf_node_hash(index, d, cinf_decl_void(d), "");
 }
 
-static std::string _hex_str(const uint8_t *data, size_t sz)
+static std::string hex_str(const uint8_t *data, size_t sz)
 {
     std::string s;
     char hex[3];
@@ -317,7 +317,7 @@ static std::string _hex_str(const uint8_t *data, size_t sz)
     return s;
 }
 
-struct _hash_fn
+struct hash_fn
 {
     size_t operator()(const decl_hash &h) const { return ((size_t*)h.sum)[0]; }
 };
@@ -329,13 +329,13 @@ bool operator==(const decl_hash &a, const decl_hash &b)
 
 struct cinf_link_state
 {
-    hashmap<decl_hash,decl_ref,_hash_fn> *map;
+    hashmap<decl_hash,decl_ref,hash_fn> *map;
     decl_db *db;
     decl_index *ld;
     decl_index *src_ld;
 };
 
-bool _should_copy(decl_ref d)
+bool should_copy(decl_ref d)
 {
     /* copy if not one of: 'set', 'enum', 'struct', 'union' and 'function' */
     decl_ref r = cinf_decl_link(d);
@@ -344,7 +344,7 @@ bool _should_copy(decl_ref d)
 }
 
 decl_ref cinf_copy_node(cinf_link_state *state, decl_ref d, decl_ref p,
-    bool _is_child = false)
+    bool is_child = false)
 {
     decl_db *db = state->db;
     decl_node *node = cinf_decl_ptr(d);
@@ -354,65 +354,65 @@ decl_ref cinf_copy_node(cinf_link_state *state, decl_ref d, decl_ref p,
     decl_ref next, r, c, a, last = { db, 0 };
 
     /* always return direct references to intrinsics */
-    if (cinf_decl_tag(d) == _decl_intrinsic) {
+    if (cinf_decl_tag(d) == decl_intrinsic) {
         return decl_ref {db, cinf_decl_idx(d) };
     }
 
     /* lookup node in our hash table to decide whether to copy or alias */
     auto i = state->map->find(*hash);
-    if (i == state->map->end() || _should_copy(d)) {
+    if (i == state->map->end() || should_copy(d)) {
         /* copy unseen nodes or non-collection nodes */
         r = cinf_decl_new(db, cinf_decl_tag(d));
-        cinf_decl_ptr(r)->_name = cinf_name_new(db, cinf_decl_name(d));
-        cinf_decl_ptr(r)->_props = cinf_decl_props(d);
-        cinf_decl_ptr(r)->_quantity = cinf_decl_qty(d);
+        cinf_decl_ptr(r)->name = cinf_name_new(db, cinf_decl_name(d));
+        cinf_decl_ptr(r)->props = cinf_decl_props(d);
+        cinf_decl_ptr(r)->quantity = cinf_decl_qty(d);
         (*state->map)[*hash] = r;
     } else {
         /* return node directly if it is a child link */
-        if (_is_child) return decl_ref { db, i->second.decl_idx };
+        if (is_child) return decl_ref { db, i->second.decl_idx };
         /* otherwise alias node so we can override its next element */
         a = cinf_lookup(db, i->second.decl_idx);
-        while (cinf_decl_tag(a) == _decl_alias) {
+        while (cinf_decl_tag(a) == decl_alias) {
             a = cinf_decl_link(a);
         }
-        r = cinf_decl_new(db, _decl_alias);
-        cinf_decl_ptr(r)->_name = cinf_name_new(db, cinf_decl_name(d));
-        cinf_decl_ptr(r)->_link = cinf_decl_idx(a);
+        r = cinf_decl_new(db, decl_alias);
+        cinf_decl_ptr(r)->name = cinf_name_new(db, cinf_decl_name(d));
+        cinf_decl_ptr(r)->link = cinf_decl_idx(a);
         (*state->map)[*hash] = r;
         return r;
     }
 
-    if (node->_attr) {
-        next = cinf_lookup(d.db, node->_attr);
+    if (node->attr) {
+        next = cinf_lookup(d.db, node->attr);
         c = cinf_copy_node(state, next, d);
-        cinf_decl_ptr(r)->_attr = cinf_decl_idx(c);
+        cinf_decl_ptr(r)->attr = cinf_decl_idx(c);
     }
-    if (node->_link) {
+    if (node->link) {
         switch (cinf_decl_tag(d)) {
         /*
          * follow `link` to child list for container types: 'object',
          * 'set', 'enum', 'struct', 'union', and 'function' are lists
          * containing: 'typedef', 'field', 'pointer', 'array', etc.
          */
-        case _decl_archive:
-        case _decl_source:
-        case _decl_enum:
-        case _decl_struct:
-        case _decl_union:
-        case _decl_function:
-            next = cinf_lookup(d.db, node->_link);
+        case decl_archive:
+        case decl_source:
+        case decl_enum:
+        case decl_struct:
+        case decl_union:
+        case decl_function:
+            next = cinf_lookup(d.db, node->link);
             while (cinf_decl_idx(next))  {
                 c = cinf_copy_node(state, next, d);
-                if (cinf_decl_idx(last)) cinf_decl_ptr(last)->_next = cinf_decl_idx(c);
-                else cinf_decl_ptr(r)->_link = cinf_decl_idx(c);
+                if (cinf_decl_idx(last)) cinf_decl_ptr(last)->next = cinf_decl_idx(c);
+                else cinf_decl_ptr(r)->link = cinf_decl_idx(c);
                 last = c;
                 next = cinf_decl_next(next);
             }
             break;
         default:
-            next = cinf_lookup(d.db, node->_link);
+            next = cinf_lookup(d.db, node->link);
             c = cinf_copy_node(state, next, d, true);
-            cinf_decl_ptr(r)->_link = cinf_decl_idx(c);
+            cinf_decl_ptr(r)->link = cinf_decl_idx(c);
             break;
         }
     }
@@ -422,14 +422,14 @@ decl_ref cinf_copy_node(cinf_link_state *state, decl_ref d, decl_ref p,
 
 int cinf_link_merge(decl_db *db, const char *name, decl_db **srcn, size_t n)
 {
-    hashmap<decl_hash,decl_ref,_hash_fn> map;
+    hashmap<decl_hash,decl_ref,hash_fn> map;
     decl_index *ld = cinf_index_new();
 
     cinf_db_defaults(db);
     cinf_index_scan(ld, db);
 
-    decl_ref r = cinf_decl_new(db, _decl_archive);
-    cinf_decl_ptr(r)->_name = cinf_name_new(db,
+    decl_ref r = cinf_decl_new(db, decl_archive);
+    cinf_decl_ptr(r)->name = cinf_name_new(db,
         cinf_basename(name).c_str());
     db->root_element = cinf_decl_idx(r);
 
@@ -441,8 +441,8 @@ int cinf_link_merge(decl_db *db, const char *name, decl_db **srcn, size_t n)
         decl_ref d = cinf_lookup(srcn[i], srcn[i]->root_element);
         decl_ref p = cinf_decl_void(d);
         decl_ref o = cinf_copy_node(&state, d, p);
-        if (cinf_decl_idx(l)) cinf_decl_ptr(l)->_next = cinf_decl_idx(o);
-        else cinf_decl_ptr(r)->_link = cinf_decl_idx(o);
+        if (cinf_decl_idx(l)) cinf_decl_ptr(l)->next = cinf_decl_idx(o);
+        else cinf_decl_ptr(r)->link = cinf_decl_idx(o);
         l = o;
         cinf_index_destroy(src_ld);
     }

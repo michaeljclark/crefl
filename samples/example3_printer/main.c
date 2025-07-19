@@ -18,7 +18,7 @@ int main(int argc, const char **argv)
     cinf_print(cinf_type(db, struct dune), &d);
 
     int x = 7;
-    cinf_print(cinf_intrinsic(db, _decl_int, 32), &x);
+    cinf_print(cinf_intrinsic(db, decl_int, 32), &x);
 
     cinf_db_destroy(db);
 }

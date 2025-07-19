@@ -36,8 +36,8 @@ static decl_index *ld;
 #define array_size(arr) ((sizeof(arr)/sizeof(arr[0])))
 
 typedef std::string (*format_fn)(const struct cinf_field*, void *obj);
-static std::string _field_id(const struct cinf_field *f, void *obj);
-static std::string _field_str(const struct cinf_field *f, void *obj);
+static std::string field_id(const struct cinf_field *f, void *obj);
+static std::string field_str(const struct cinf_field *f, void *obj);
 
 struct cinf_field
 {
@@ -60,45 +60,45 @@ struct cinf_prop
 
 static cinf_prop prop_names[] = {
     /* cvr-qualifiers */
-    { _decl_const,     "const"      },
-    { _decl_volatile,  "volatile"   },
-    { _decl_restrict,  "restrict"   },
+    { decl_const,     "const"      },
+    { decl_volatile,  "volatile"   },
+    { decl_restrict,  "restrict"   },
     /* interface qualifiers */
-    { _decl_static,    "static"     },
-    { _decl_extern_c,  "extern_c"   },
-    { _decl_inline,    "inline"     },
-    { _decl_noreturn,  "noreturn"   },
+    { decl_static,    "static"     },
+    { decl_extern_c,  "extern_c"   },
+    { decl_inline,    "inline"     },
+    { decl_noreturn,  "noreturn"   },
     /* binding */
-    { _decl_local,     "local"      },
-    { _decl_global,    "global"     },
-    { _decl_weak,      "weak"       },
+    { decl_local,     "local"      },
+    { decl_global,    "global"     },
+    { decl_weak,      "weak"       },
     /* visibility */
-    { _decl_default,   "default"    },
-    { _decl_hidden,    "hidden"     },
+    { decl_default,   "default"    },
+    { decl_hidden,    "hidden"     },
     /* param */
-    { _decl_in,        "in"         },
-    { _decl_out,       "out"        },
+    { decl_in,        "in"         },
+    { decl_out,       "out"        },
     /* variable-length-array */
-    { _decl_vla,       "vla"        }
+    { decl_vla,       "vla"        }
 };
 
 #define _FIELD(x) offsetof(cinf_db_row,x)
 
-static const cinf_field f_id =     { "id",     5,  _FIELD(id),     _field_id  };
-static const cinf_field f_attr =   { "attr",   5,  _FIELD(attr),   _field_id  };
-static const cinf_field f_next =   { "next",   5,  _FIELD(next),   _field_id  };
-static const cinf_field f_link =   { "link",   5,  _FIELD(link),   _field_id  };
-static const cinf_field f_type =   { "type",   10, _FIELD(type),   _field_str };
-static const cinf_field f_name =   { "name",   15, _FIELD(name),   _field_str };
-static const cinf_field f_props =  { "props",  15, _FIELD(props),  _field_str };
-static const cinf_field f_detail = { "detail", 20, _FIELD(detail), _field_str };
-static const cinf_field f_hash =   { "hash",   57, _FIELD(hash),   _field_str };
-static const cinf_field f_fqn =    { "fqn",    23, _FIELD(fqn),    _field_str };
+static const cinf_field f_id =     { "id",     5,  _FIELD(id),     field_id  };
+static const cinf_field f_attr =   { "attr",   5,  _FIELD(attr),   field_id  };
+static const cinf_field f_next =   { "next",   5,  _FIELD(next),   field_id  };
+static const cinf_field f_link =   { "link",   5,  _FIELD(link),   field_id  };
+static const cinf_field f_type =   { "type",   10, _FIELD(type),   field_str };
+static const cinf_field f_name =   { "name",   15, _FIELD(name),   field_str };
+static const cinf_field f_props =  { "props",  15, _FIELD(props),  field_str };
+static const cinf_field f_detail = { "detail", 20, _FIELD(detail), field_str };
+static const cinf_field f_hash =   { "hash",   57, _FIELD(hash),   field_str };
+static const cinf_field f_fqn =    { "fqn",    23, _FIELD(fqn),    field_str };
 
-static const cinf_field fx_name =   { "name",   28, _FIELD(name),   _field_str };
-static const cinf_field fx_props =  { "props",  25, _FIELD(props),  _field_str };
-static const cinf_field fx_detail = { "detail", 30, _FIELD(detail), _field_str };
-static const cinf_field fx_fqn =    { "fqn",    30, _FIELD(fqn),    _field_str };
+static const cinf_field fx_name =   { "name",   28, _FIELD(name),   field_str };
+static const cinf_field fx_props =  { "props",  25, _FIELD(props),  field_str };
+static const cinf_field fx_detail = { "detail", 30, _FIELD(detail), field_str };
+static const cinf_field fx_fqn =    { "fqn",    30, _FIELD(fqn),    field_str };
 
 static const cinf_field * fields_std[] = {
     &f_id, &f_attr, &f_next, &f_link, &f_type, &f_name, &f_props, &f_detail,
@@ -142,15 +142,15 @@ static const cinf_field * fields_ext_all[] = {
 
 static const cinf_field ** fields = fields_std;
 
-static std::string _link(decl_ref d)
+static std::string ref_link(decl_ref d)
 {
-    decl_ref lr = cinf_lookup(d.db, cinf_decl_ptr(d)->_link);
+    decl_ref lr = cinf_lookup(d.db, cinf_decl_ptr(d)->link);
     const char *name = cinf_decl_name(lr);
     return string_printf("%s(\"%s\")", cinf_tag_name(cinf_decl_tag(lr)),
         strlen(name) ? name : "anonymous");
 }
 
-static std::string _props(decl_ref d, const char *fmt, ...)
+static std::string ref_props(decl_ref d, const char *fmt, ...)
 {
     std::string buf;
 
@@ -180,17 +180,17 @@ static std::string _props(decl_ref d, const char *fmt, ...)
     return buf;
 }
 
-static std::string _field_id(const cinf_field *f, void *obj)
+static std::string field_id(const cinf_field *f, void *obj)
 {
     return std::to_string(*reinterpret_cast<decl_id*>((char*)obj + f->offset));
 }
 
-static std::string _field_str(const cinf_field *f, void *obj)
+static std::string field_str(const cinf_field *f, void *obj)
 {
     return *reinterpret_cast<std::string*>((char*)obj + f->offset);
 }
 
-static std::string _hex_str(const uint8_t *data, size_t sz)
+static std::string hex_str(const uint8_t *data, size_t sz)
 {
     std::string s;
     char hex[3];
@@ -201,12 +201,12 @@ static std::string _hex_str(const uint8_t *data, size_t sz)
     return s;
 }
 
-static std::string _pad_str(std::string s, const size_t w, char pad = ' ')
+static std::string pad_str(std::string s, const size_t w, char pad = ' ')
 {
     return s.size() < w ? s.append(w - s.size(), pad) : s.substr(0, w - 1) + "…";
 }
 
-static std::string _fqn(decl_ref r, decl_entry_ref er)
+static std::string ref_fqn(decl_ref r, decl_entry_ref er)
 {
     std::string s;
     s.append(cinf_tag_name(cinf_decl_tag(r)));
@@ -226,38 +226,38 @@ cinf_db_row cinf_db_get_row(decl_db *db, decl_ref r)
     if (cinf_is_alias(r)) {
         decl_ref a = cinf_decl_link(r);
         er = cinf_entry_ref(ld, a);
-        fqn = _fqn(a, er);
+        fqn = ref_fqn(a, er);
     } else {
-        fqn = _fqn(r, er);
+        fqn = ref_fqn(r, er);
     }
 
     std::string props;
     switch (tag) {
-    case _decl_archive:
-    case _decl_source:
-    case _decl_alias:
-    case _decl_typedef:
-    case _decl_struct:
-    case _decl_union:
-    case _decl_parameter:
-    case _decl_qualifier:
-    case _decl_attribute: props = _props(r, ""); break;
-    case _decl_enum:
-    case _decl_pointer:
-    case _decl_intrinsic: props = _props(r, "width=" fmt_SZ, d->_width); break;
-    case _decl_array:     props = _props(r, "size=" fmt_SZ, d->_count);  break;
-    case _decl_constant:
-    case _decl_value:     props = _props(r, "value=" fmt_SZ, d->_value); break;
-    case _decl_function:  props = _props(r, "addr=" fmt_AD, d->_addr);   break;
-    case _decl_field:     props = (cinf_decl_props(r) & _decl_bitfield) ?
-                         _props(r, "width=" fmt_SZ, d->_width) : _props(r, "");
+    case decl_archive:
+    case decl_source:
+    case decl_alias:
+    case decl_typedef:
+    case decl_struct:
+    case decl_union:
+    case decl_parameter:
+    case decl_qualifier:
+    case decl_attribute: props = ref_props(r, ""); break;
+    case decl_enum:
+    case decl_pointer:
+    case decl_intrinsic: props = ref_props(r, "width=" fmt_SZ, d->width); break;
+    case decl_array:     props = ref_props(r, "size=" fmt_SZ, d->count);  break;
+    case decl_constant:
+    case decl_value:     props = ref_props(r, "value=" fmt_SZ, d->value); break;
+    case decl_function:  props = ref_props(r, "addr=" fmt_AD, d->addr);   break;
+    case decl_field:     props = (cinf_decl_props(r) & decl_bitfield) ?
+                         ref_props(r, "width=" fmt_SZ, d->width) : ref_props(r, "");
     default: break;
     }
 
     return cinf_db_row {
-        cinf_decl_idx(r), d->_attr, d->_next, d->_link, cinf_tag_name(tag),
+        cinf_decl_idx(r), d->attr, d->next, d->link, cinf_tag_name(tag),
         cinf_decl_has_name(r) ? cinf_decl_name(r) : "(anonymous)", props,
-        _link(r), _hex_str(ent->hash.sum, sizeof(ent->hash.sum)), fqn
+        ref_link(r), hex_str(ent->hash.sum, sizeof(ent->hash.sum)), fqn
     };
 }
 
@@ -269,40 +269,40 @@ static std::string cinf_field_iter(const cinf_field ** i,
     return s;
 }
 
-static void _header_names(const cinf_field ** fields)
+static void header_names(const cinf_field ** fields)
 {
     printf("%s\n", cinf_field_iter(fields,
-        [](auto f) { return _pad_str(f->name, f->width); }).c_str());
+        [](auto f) { return pad_str(f->name, f->width); }).c_str());
 }
 
-static void _header_lines(const cinf_field ** fields)
+static void header_lines(const cinf_field ** fields)
 {
     printf("%s\n", cinf_field_iter(fields,
-        [](auto f) { return _pad_str("", f->width, '-'); }).c_str());
+        [](auto f) { return pad_str("", f->width, '-'); }).c_str());
 }
 
-static void _row(const cinf_field ** fields, decl_db *db, decl_ref r)
+static void dump_row(const cinf_field ** fields, decl_db *db, decl_ref r)
 {
     cinf_db_row row = cinf_db_get_row(db, r);
     printf("%s\n", cinf_field_iter(fields,
-        [&](auto f) { return _pad_str(f->format(f, &row), f->width); }).c_str());
+        [&](auto f) { return pad_str(f->format(f, &row), f->width); }).c_str());
 }
 
-void cinf_db_header_names() { _header_names(fields); }
-void cinf_db_header_lines() { _header_lines(fields); }
-void cinf_db_dump_row(decl_db *db, decl_ref r) { _row(fields, db, r); }
+void cinf_dbheader_names() { header_names(fields); }
+void cinf_dbheader_lines() { header_lines(fields); }
+void cinf_db_dump_row(decl_db *db, decl_ref r) { dump_row(fields, db, r); }
 
 void cinf_db_dump(decl_db *db)
 {
     ld = cinf_index_new();
     cinf_index_scan(ld, db);
 
-    cinf_db_header_names();
-    cinf_db_header_lines();
+    cinf_dbheader_names();
+    cinf_dbheader_lines();
     for (size_t i = db->root_element; i < db->decl_offset; i++) {
         cinf_db_dump_row(db, cinf_lookup(db, i));
     }
-    cinf_db_header_lines();
+    cinf_dbheader_lines();
 
     cinf_index_destroy(ld);
 }

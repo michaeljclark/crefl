@@ -13,18 +13,18 @@ void t1()
 	decl_db *db = cinf_db_new();
 	assert(db != NULL);
 
-	decl_ref r1 = cinf_decl_new(db, _decl_intrinsic);
-	assert(cinf_decl_tag(r1) == _decl_intrinsic);
+	decl_ref r1 = cinf_decl_new(db, decl_intrinsic);
+	assert(cinf_decl_tag(r1) == decl_intrinsic);
 	assert(cinf_decl_idx(r1) == 1);
 
-	cinf_decl_ptr(r1)->_name = cinf_name_new(db, "s1");
+	cinf_decl_ptr(r1)->name = cinf_name_new(db, "s1");
 	assert(strcmp("s1", cinf_decl_name(r1)) == 0);
 
-	decl_ref r2 = cinf_decl_new(db, _decl_struct);
-	assert(cinf_decl_tag(r2) == _decl_struct);
+	decl_ref r2 = cinf_decl_new(db, decl_struct);
+	assert(cinf_decl_tag(r2) == decl_struct);
 	assert(cinf_decl_idx(r2) == 2);
 
-	cinf_decl_ptr(r2)->_name = cinf_name_new(db, "s2");
+	cinf_decl_ptr(r2)->name = cinf_name_new(db, "s2");
 	assert(strcmp("s2", cinf_decl_name(r2)) == 0);
 
 	cinf_db_destroy(db);
