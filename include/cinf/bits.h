@@ -1,5 +1,5 @@
 /*
- * <crefl/bits.h>
+ * <cinf/bits.h>
  *
  * This header defines the following functions:
  *

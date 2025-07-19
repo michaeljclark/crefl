@@ -4,7 +4,7 @@
 #include <assert.h>
 #include <math.h>
 
-#include <crefl/asn1.h>
+#include <cinf/asn1.h>
 
 const char* vf64_fmt = "\nvf64 out(%.16g) in(%.16g)\n";
 const char* vf32_fmt = "\nvf32 out(%.8g) in(%.8g)\n";
@@ -18,14 +18,14 @@ const unsigned char pi_asn[] = { 0x80, 0xD0, 0x03, 0x24, 0x3F, 0x6A, 0x88, 0x85,
 void test_vf64(double f)
 {
     double r;
-    crefl_buf *buf = crefl_buf_new(128);
-    assert(!crefl_vf_f64_write(buf, &f));
-    crefl_buf_reset(buf);
-    crefl_vf_f64_read(buf, &r);
+    cinf_buf *buf = cinf_buf_new(128);
+    assert(!cinf_vf_f64_write(buf, &f));
+    cinf_buf_reset(buf);
+    cinf_vf_f64_read(buf, &r);
     printf(vf64_fmt, f, r);
-    crefl_buf_dump(buf);
+    cinf_buf_dump(buf);
     assert(isnan(f) ? isnan(r) : f == r);
-    crefl_buf_destroy(buf);
+    cinf_buf_destroy(buf);
 }
 
 void test_vf64_loop()
@@ -65,14 +65,14 @@ void test_vf64_loop()
 void test_vf32(float f)
 {
     float r;
-    crefl_buf *buf = crefl_buf_new(128);
-    assert(!crefl_vf_f32_write(buf, &f));
-    crefl_buf_reset(buf);
-    crefl_vf_f32_read(buf, &r);
+    cinf_buf *buf = cinf_buf_new(128);
+    assert(!cinf_vf_f32_write(buf, &f));
+    cinf_buf_reset(buf);
+    cinf_vf_f32_read(buf, &r);
     printf(vf32_fmt, f, r);
-    crefl_buf_dump(buf);
+    cinf_buf_dump(buf);
     assert(isnan(f) ? isnan(r) : f == r);
-    crefl_buf_destroy(buf);
+    cinf_buf_destroy(buf);
 }
 
 void test_vf32_loop()
@@ -112,37 +112,37 @@ void test_vf32_loop()
 void test_leb(u64 val)
 {
     u64 val2;
-    crefl_buf *buf = crefl_buf_new(128);
-    crefl_leb_u64_write(buf, &val);
-    crefl_buf_reset(buf);
-    crefl_leb_u64_read(buf, &val2);
+    cinf_buf *buf = cinf_buf_new(128);
+    cinf_leb_u64_write(buf, &val);
+    cinf_buf_reset(buf);
+    cinf_leb_u64_read(buf, &val2);
     printf(leb_fmt, val, val2);
-    crefl_buf_dump(buf);
-    crefl_buf_destroy(buf);
+    cinf_buf_dump(buf);
+    cinf_buf_destroy(buf);
 }
 
 void test_vlu(u64 val)
 {
     u64 val2;
-    crefl_buf *buf = crefl_buf_new(128);
-    crefl_vlu_u64_write(buf, &val);
-    crefl_buf_reset(buf);
-    crefl_vlu_u64_read(buf, &val2);
+    cinf_buf *buf = cinf_buf_new(128);
+    cinf_vlu_u64_write(buf, &val);
+    cinf_buf_reset(buf);
+    cinf_vlu_u64_read(buf, &val2);
     printf(vlu_fmt, val, val2);
-    crefl_buf_dump(buf);
-    crefl_buf_destroy(buf);
+    cinf_buf_dump(buf);
+    cinf_buf_destroy(buf);
 }
 
 void test_vlu_byval(u64 val)
 {
     u64 val2;
-    crefl_buf *buf = crefl_buf_new(128);
-    crefl_vlu_u64_write(buf, &val);
-    crefl_buf_reset(buf);
-    val2 = crefl_vlu_u64_read_byval(buf).value;
+    cinf_buf *buf = cinf_buf_new(128);
+    cinf_vlu_u64_write(buf, &val);
+    cinf_buf_reset(buf);
+    val2 = cinf_vlu_u64_read_byval(buf).value;
     printf(vlu_fmt, val, val2);
-    crefl_buf_dump(buf);
-    crefl_buf_destroy(buf);
+    cinf_buf_dump(buf);
+    cinf_buf_destroy(buf);
 }
 
 void test_leb_misc()

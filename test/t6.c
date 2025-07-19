@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <string.h>
 
-#include <crefl/asn1.h>
+#include <cinf/asn1.h>
 
 void test_oid(const char *s, const char *exp, const asn1_oid *oid, int result)
 {
@@ -11,14 +11,14 @@ void test_oid(const char *s, const char *exp, const asn1_oid *oid, int result)
     size_t len, slen;
     asn1_oid oid1;
 
-    assert(crefl_asn1_oid_from_string(&oid1, s, strlen(s)) == result);
+    assert(cinf_asn1_oid_from_string(&oid1, s, strlen(s)) == result);
     assert(oid->count == oid1.count);
     assert(memcmp(oid->oid, oid1.oid, sizeof(u64) * oid->count) == 0);
 
     slen = 0;
-    assert(!crefl_asn1_oid_to_string(NULL, &slen, oid));
+    assert(!cinf_asn1_oid_to_string(NULL, &slen, oid));
     slen = sizeof(buf);
-    assert(!crefl_asn1_oid_to_string((char*)buf, &slen, oid));
+    assert(!cinf_asn1_oid_to_string((char*)buf, &slen, oid));
     assert(slen == strlen(exp));
     assert(memcmp(buf, exp, strlen(exp)) == 0);
 }

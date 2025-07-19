@@ -1,5 +1,5 @@
 /*
- * crefl runtime library and compiler plug-in to support reflection in C.
+ * cinf runtime library and compiler plug-in to support reflection in C.
  *
  * Copyright (c) 2020-2022 Michael Clark <michaeljclark@mac.com>
  *
@@ -25,40 +25,40 @@
 #include <string>
 #include <functional>
 
-#include <crefl/util.h>
-#include <crefl/model.h>
-#include <crefl/link.h>
-#include <crefl/dump.h>
-#include <crefl/db.h>
+#include <cinf/util.h>
+#include <cinf/model.h>
+#include <cinf/link.h>
+#include <cinf/dump.h>
+#include <cinf/db.h>
 
 static decl_index *ld;
 
 #define array_size(arr) ((sizeof(arr)/sizeof(arr[0])))
 
-typedef std::string (*format_fn)(const struct crefl_field*, void *obj);
-static std::string _field_id(const struct crefl_field *f, void *obj);
-static std::string _field_str(const struct crefl_field *f, void *obj);
+typedef std::string (*format_fn)(const struct cinf_field*, void *obj);
+static std::string _field_id(const struct cinf_field *f, void *obj);
+static std::string _field_str(const struct cinf_field *f, void *obj);
 
-struct crefl_field
+struct cinf_field
 {
     const char *name;
     size_t width, offset;
     format_fn format;
 };
 
-struct crefl_db_row
+struct cinf_db_row
 {
     decl_id id, attr, next, link;
     std::string type, name, props, detail, hash, fqn;
 };
 
-struct crefl_prop
+struct cinf_prop
 {
     decl_set prop;
     const char *name;
 };
 
-static crefl_prop prop_names[] = {
+static cinf_prop prop_names[] = {
     /* cvr-qualifiers */
     { _decl_const,     "const"      },
     { _decl_volatile,  "volatile"   },
@@ -82,71 +82,71 @@ static crefl_prop prop_names[] = {
     { _decl_vla,       "vla"        }
 };
 
-#define _FIELD(x) offsetof(crefl_db_row,x)
+#define _FIELD(x) offsetof(cinf_db_row,x)
 
-static const crefl_field f_id =     { "id",     5,  _FIELD(id),     _field_id  };
-static const crefl_field f_attr =   { "attr",   5,  _FIELD(attr),   _field_id  };
-static const crefl_field f_next =   { "next",   5,  _FIELD(next),   _field_id  };
-static const crefl_field f_link =   { "link",   5,  _FIELD(link),   _field_id  };
-static const crefl_field f_type =   { "type",   10, _FIELD(type),   _field_str };
-static const crefl_field f_name =   { "name",   15, _FIELD(name),   _field_str };
-static const crefl_field f_props =  { "props",  15, _FIELD(props),  _field_str };
-static const crefl_field f_detail = { "detail", 20, _FIELD(detail), _field_str };
-static const crefl_field f_hash =   { "hash",   57, _FIELD(hash),   _field_str };
-static const crefl_field f_fqn =    { "fqn",    23, _FIELD(fqn),    _field_str };
+static const cinf_field f_id =     { "id",     5,  _FIELD(id),     _field_id  };
+static const cinf_field f_attr =   { "attr",   5,  _FIELD(attr),   _field_id  };
+static const cinf_field f_next =   { "next",   5,  _FIELD(next),   _field_id  };
+static const cinf_field f_link =   { "link",   5,  _FIELD(link),   _field_id  };
+static const cinf_field f_type =   { "type",   10, _FIELD(type),   _field_str };
+static const cinf_field f_name =   { "name",   15, _FIELD(name),   _field_str };
+static const cinf_field f_props =  { "props",  15, _FIELD(props),  _field_str };
+static const cinf_field f_detail = { "detail", 20, _FIELD(detail), _field_str };
+static const cinf_field f_hash =   { "hash",   57, _FIELD(hash),   _field_str };
+static const cinf_field f_fqn =    { "fqn",    23, _FIELD(fqn),    _field_str };
 
-static const crefl_field fx_name =   { "name",   28, _FIELD(name),   _field_str };
-static const crefl_field fx_props =  { "props",  25, _FIELD(props),  _field_str };
-static const crefl_field fx_detail = { "detail", 30, _FIELD(detail), _field_str };
-static const crefl_field fx_fqn =    { "fqn",    30, _FIELD(fqn),    _field_str };
+static const cinf_field fx_name =   { "name",   28, _FIELD(name),   _field_str };
+static const cinf_field fx_props =  { "props",  25, _FIELD(props),  _field_str };
+static const cinf_field fx_detail = { "detail", 30, _FIELD(detail), _field_str };
+static const cinf_field fx_fqn =    { "fqn",    30, _FIELD(fqn),    _field_str };
 
-static const crefl_field * fields_std[] = {
+static const cinf_field * fields_std[] = {
     &f_id, &f_attr, &f_next, &f_link, &f_type, &f_name, &f_props, &f_detail,
     0
 };
 
-static const crefl_field * fields_fqn[] = {
+static const cinf_field * fields_fqn[] = {
     &f_id, &f_attr, &f_next, &f_link, &f_type, &f_name, &f_props, &f_detail,
     &f_fqn, 0
 };
 
-static const crefl_field * fields_sum[] = {
+static const cinf_field * fields_sum[] = {
     &f_id, &f_attr, &f_next, &f_link, &f_type, &f_name, &f_props, &f_detail,
     &f_hash, 0
 };
 
-static const crefl_field * fields_all[] = {
+static const cinf_field * fields_all[] = {
     &f_id, &f_attr, &f_next, &f_link, &f_type, &f_name, &f_props, &f_detail,
     &f_hash, &f_fqn, 0
 };
 
-static const crefl_field * fields_ext[] = {
+static const cinf_field * fields_ext[] = {
     &f_id, &f_attr, &f_next, &f_link, &f_type, &fx_name, &fx_props, &fx_detail,
     0
 };
 
-static const crefl_field * fields_ext_fqn[] = {
+static const cinf_field * fields_ext_fqn[] = {
     &f_id, &f_attr, &f_next, &f_link, &f_type, &fx_name, &fx_props, &fx_detail,
     &fx_fqn, 0
 };
 
-static const crefl_field * fields_ext_sum[] = {
+static const cinf_field * fields_ext_sum[] = {
     &f_id, &f_attr, &f_next, &f_link, &f_type, &fx_name, &fx_props, &fx_detail,
     &f_hash, 0
 };
 
-static const crefl_field * fields_ext_all[] = {
+static const cinf_field * fields_ext_all[] = {
     &f_id, &f_attr, &f_next, &f_link, &f_type, &fx_name, &fx_props, &fx_detail,
     &f_hash, &fx_fqn, 0
 };
 
-static const crefl_field ** fields = fields_std;
+static const cinf_field ** fields = fields_std;
 
 static std::string _link(decl_ref d)
 {
-    decl_ref lr = crefl_lookup(d.db, crefl_decl_ptr(d)->_link);
-    const char *name = crefl_decl_name(lr);
-    return string_printf("%s(\"%s\")", crefl_tag_name(crefl_decl_tag(lr)),
+    decl_ref lr = cinf_lookup(d.db, cinf_decl_ptr(d)->_link);
+    const char *name = cinf_decl_name(lr);
+    return string_printf("%s(\"%s\")", cinf_tag_name(cinf_decl_tag(lr)),
         strlen(name) ? name : "anonymous");
 }
 
@@ -154,9 +154,9 @@ static std::string _props(decl_ref d, const char *fmt, ...)
 {
     std::string buf;
 
-    decl_set props = crefl_decl_props(d);
+    decl_set props = cinf_decl_props(d);
     for (size_t i = 0; i < array_size(prop_names); i++) {
-        crefl_prop p = prop_names[i];
+        cinf_prop p = prop_names[i];
         if ((props & p.prop) == p.prop) {
             props &= ~p.prop;
             if (buf.size() > 0) {
@@ -180,12 +180,12 @@ static std::string _props(decl_ref d, const char *fmt, ...)
     return buf;
 }
 
-static std::string _field_id(const crefl_field *f, void *obj)
+static std::string _field_id(const cinf_field *f, void *obj)
 {
     return std::to_string(*reinterpret_cast<decl_id*>((char*)obj + f->offset));
 }
 
-static std::string _field_str(const crefl_field *f, void *obj)
+static std::string _field_str(const cinf_field *f, void *obj)
 {
     return *reinterpret_cast<std::string*>((char*)obj + f->offset);
 }
@@ -209,23 +209,23 @@ static std::string _pad_str(std::string s, const size_t w, char pad = ' ')
 static std::string _fqn(decl_ref r, decl_entry_ref er)
 {
     std::string s;
-    s.append(crefl_tag_name(crefl_decl_tag(r)));
+    s.append(cinf_tag_name(cinf_decl_tag(r)));
     s.append(" ");
-    s.append(crefl_entry_fqn(er));
+    s.append(cinf_entry_fqn(er));
     return s;
 }
 
-crefl_db_row crefl_db_get_row(decl_db *db, decl_ref r)
+cinf_db_row cinf_db_get_row(decl_db *db, decl_ref r)
 {
-    decl_id tag = crefl_decl_tag(r);
-    decl_entry_ref er = crefl_entry_ref(ld, r);
-    decl_entry *ent = crefl_entry_ptr(er);
-    decl_node *d = crefl_decl_ptr(r);
+    decl_id tag = cinf_decl_tag(r);
+    decl_entry_ref er = cinf_entry_ref(ld, r);
+    decl_entry *ent = cinf_entry_ptr(er);
+    decl_node *d = cinf_decl_ptr(r);
 
     std::string fqn;
-    if (crefl_is_alias(r)) {
-        decl_ref a = crefl_decl_link(r);
-        er = crefl_entry_ref(ld, a);
+    if (cinf_is_alias(r)) {
+        decl_ref a = cinf_decl_link(r);
+        er = cinf_entry_ref(ld, a);
         fqn = _fqn(a, er);
     } else {
         fqn = _fqn(r, er);
@@ -250,79 +250,79 @@ crefl_db_row crefl_db_get_row(decl_db *db, decl_ref r)
     case _decl_constant:
     case _decl_value:     props = _props(r, "value=" fmt_SZ, d->_value); break;
     case _decl_function:  props = _props(r, "addr=" fmt_AD, d->_addr);   break;
-    case _decl_field:     props = (crefl_decl_props(r) & _decl_bitfield) ?
+    case _decl_field:     props = (cinf_decl_props(r) & _decl_bitfield) ?
                          _props(r, "width=" fmt_SZ, d->_width) : _props(r, "");
     default: break;
     }
 
-    return crefl_db_row {
-        crefl_decl_idx(r), d->_attr, d->_next, d->_link, crefl_tag_name(tag),
-        crefl_decl_has_name(r) ? crefl_decl_name(r) : "(anonymous)", props,
+    return cinf_db_row {
+        cinf_decl_idx(r), d->_attr, d->_next, d->_link, cinf_tag_name(tag),
+        cinf_decl_has_name(r) ? cinf_decl_name(r) : "(anonymous)", props,
         _link(r), _hex_str(ent->hash.sum, sizeof(ent->hash.sum)), fqn
     };
 }
 
-static std::string crefl_field_iter(const crefl_field ** i,
-    std::function<std::string(const crefl_field*)> f)
+static std::string cinf_field_iter(const cinf_field ** i,
+    std::function<std::string(const cinf_field*)> f)
 {
     std::string s;
     while (*i) s.append(f(*i++));
     return s;
 }
 
-static void _header_names(const crefl_field ** fields)
+static void _header_names(const cinf_field ** fields)
 {
-    printf("%s\n", crefl_field_iter(fields,
+    printf("%s\n", cinf_field_iter(fields,
         [](auto f) { return _pad_str(f->name, f->width); }).c_str());
 }
 
-static void _header_lines(const crefl_field ** fields)
+static void _header_lines(const cinf_field ** fields)
 {
-    printf("%s\n", crefl_field_iter(fields,
+    printf("%s\n", cinf_field_iter(fields,
         [](auto f) { return _pad_str("", f->width, '-'); }).c_str());
 }
 
-static void _row(const crefl_field ** fields, decl_db *db, decl_ref r)
+static void _row(const cinf_field ** fields, decl_db *db, decl_ref r)
 {
-    crefl_db_row row = crefl_db_get_row(db, r);
-    printf("%s\n", crefl_field_iter(fields,
+    cinf_db_row row = cinf_db_get_row(db, r);
+    printf("%s\n", cinf_field_iter(fields,
         [&](auto f) { return _pad_str(f->format(f, &row), f->width); }).c_str());
 }
 
-void crefl_db_header_names() { _header_names(fields); }
-void crefl_db_header_lines() { _header_lines(fields); }
-void crefl_db_dump_row(decl_db *db, decl_ref r) { _row(fields, db, r); }
+void cinf_db_header_names() { _header_names(fields); }
+void cinf_db_header_lines() { _header_lines(fields); }
+void cinf_db_dump_row(decl_db *db, decl_ref r) { _row(fields, db, r); }
 
-void crefl_db_dump(decl_db *db)
+void cinf_db_dump(decl_db *db)
 {
-    ld = crefl_index_new();
-    crefl_index_scan(ld, db);
+    ld = cinf_index_new();
+    cinf_index_scan(ld, db);
 
-    crefl_db_header_names();
-    crefl_db_header_lines();
+    cinf_db_header_names();
+    cinf_db_header_lines();
     for (size_t i = db->root_element; i < db->decl_offset; i++) {
-        crefl_db_dump_row(db, crefl_lookup(db, i));
+        cinf_db_dump_row(db, cinf_lookup(db, i));
     }
-    crefl_db_header_lines();
+    cinf_db_header_lines();
 
-    crefl_index_destroy(ld);
+    cinf_index_destroy(ld);
 }
 
-void crefl_db_set_dump_fmt(enum crefl_db_dump_fmt fmt)
+void cinf_db_set_dump_fmt(enum cinf_db_dump_fmt fmt)
 {
     switch (fmt) {
-    case crefl_db_dump_std: fields = fields_std; break;
-    case crefl_db_dump_fqn: fields = fields_fqn; break;
-    case crefl_db_dump_sum: fields = fields_sum; break;
-    case crefl_db_dump_all: fields = fields_all; break;
-    case crefl_db_dump_ext: fields = fields_ext; break;
-    case crefl_db_dump_ext_fqn: fields = fields_ext_fqn; break;
-    case crefl_db_dump_ext_sum: fields = fields_ext_sum; break;
-    case crefl_db_dump_ext_all: fields = fields_ext_all; break;
+    case cinf_db_dump_std: fields = fields_std; break;
+    case cinf_db_dump_fqn: fields = fields_fqn; break;
+    case cinf_db_dump_sum: fields = fields_sum; break;
+    case cinf_db_dump_all: fields = fields_all; break;
+    case cinf_db_dump_ext: fields = fields_ext; break;
+    case cinf_db_dump_ext_fqn: fields = fields_ext_fqn; break;
+    case cinf_db_dump_ext_sum: fields = fields_ext_sum; break;
+    case cinf_db_dump_ext_all: fields = fields_ext_all; break;
     }
 }
 
-void crefl_db_dump_stats(decl_db *db)
+void cinf_db_dump_stats(decl_db *db)
 {
     size_t decl_builtin = db->decl_builtin;
     size_t decl_user = db->decl_offset - db->decl_builtin;

@@ -1,5 +1,5 @@
 /*
- * crefltool - tool to dump crefl reflection metadata.
+ * cinftool - tool to dump cinf reflection metadata.
  *
  * Copyright (c) 2020-2022 Michael Clark <michaeljclark@mac.com>
  *
@@ -20,30 +20,30 @@
 #include <cstdlib>
 #include <cstring>
 
-#include <crefl/model.h>
-#include <crefl/dump.h>
-#include <crefl/link.h>
-#include <crefl/db.h>
+#include <cinf/model.h>
+#include <cinf/dump.h>
+#include <cinf/link.h>
+#include <cinf/db.h>
 
 #define array_size(arr) ((sizeof(arr)/sizeof(arr[0])))
 
 void do_merge(const char *output, const char **input, size_t n)
 {
-    decl_db *db_out = crefl_db_new();
+    decl_db *db_out = cinf_db_new();
     decl_db **db_in = (decl_db**)malloc(sizeof(decl_db*) * n);
     for (size_t i = 0; i < n; i++) {
-        db_in[i] = crefl_db_new();
-        crefl_db_read_file(db_in[i], input[i]);
+        db_in[i] = cinf_db_new();
+        cinf_db_read_file(db_in[i], input[i]);
     }
-    if (crefl_link_merge(db_out, output, db_in, n) < 0) {
+    if (cinf_link_merge(db_out, output, db_in, n) < 0) {
         fprintf(stderr, "error: merging input files\n");
         exit(1);
     }
-    crefl_db_write_file(db_out, output);
+    cinf_db_write_file(db_out, output);
     for (size_t i = 0; i < n; i++) {
-        crefl_db_destroy(db_in[i]);
+        cinf_db_destroy(db_in[i]);
     }
-    crefl_db_destroy(db_out);
+    cinf_db_destroy(db_out);
 }
 
 void do_emit(const char *output, const char *input, const char *name)
@@ -54,46 +54,46 @@ void do_emit(const char *output, const char *input, const char *name)
     size_t sz;
     const size_t w = 16;
 
-    db = crefl_db_new();
-    crefl_db_read_file(db, input);
-    sz = crefl_db_size(db);
+    db = cinf_db_new();
+    cinf_db_read_file(db, input);
+    sz = cinf_db_size(db);
     buf = (uint8_t*)malloc(sz);
-    if (crefl_db_write_mem(db, buf, sz) < 0 || !(f = fopen(output, "wb"))) {
+    if (cinf_db_write_mem(db, buf, sz) < 0 || !(f = fopen(output, "wb"))) {
         free(buf);
         fprintf(stderr, "error: writing db\n");
         exit(1);
     }
     fprintf(f, "#include <stdlib.h>\n");
-    fprintf(f, "const unsigned char __crefl_%s_data[] = {\n", name);
+    fprintf(f, "const unsigned char __cinf_%s_data[] = {\n", name);
     for (size_t i = 0; i < sz; i++) {
         fprintf(f, "0x%02hhx", buf[i]);
         if (i != sz -1) fprintf(f, ",");
         if (i % w == w-1 || i == sz - 1) fprintf(f, "\n");
     }
     fprintf(f, "};\n");
-    fprintf(f, "const size_t __crefl_%s_size = sizeof(__crefl_%s_data);\n",
+    fprintf(f, "const size_t __cinf_%s_size = sizeof(__cinf_%s_data);\n",
         name, name);
     fflush(f);
     fclose(f);
     free(buf);
-    crefl_db_destroy(db);
+    cinf_db_destroy(db);
 }
 
-void do_dump(crefl_db_dump_fmt fmt, const char *input)
+void do_dump(cinf_db_dump_fmt fmt, const char *input)
 {
-    decl_db *db = crefl_db_new();
-    crefl_db_read_file(db, input);
-    crefl_db_set_dump_fmt(fmt);
-    crefl_db_dump(db);
-    crefl_db_destroy(db);
+    decl_db *db = cinf_db_new();
+    cinf_db_read_file(db, input);
+    cinf_db_set_dump_fmt(fmt);
+    cinf_db_dump(db);
+    cinf_db_destroy(db);
 }
 
 void do_stats(const char *input)
 {
-    decl_db *db = crefl_db_new();
-    crefl_db_read_file(db, input);
-    crefl_db_dump_stats(db);
-    crefl_db_destroy(db);
+    decl_db *db = cinf_db_new();
+    cinf_db_read_file(db, input);
+    cinf_db_dump_stats(db);
+    cinf_db_destroy(db);
 }
 
 typedef enum {
@@ -149,14 +149,14 @@ int main(int argc, const char **argv)
     }
 
     switch (mode) {
-        case _dump_std: do_dump(crefl_db_dump_std, argv[2]); break;
-        case _dump_fqn: do_dump(crefl_db_dump_fqn, argv[2]); break;
-        case _dump_sum: do_dump(crefl_db_dump_sum, argv[2]); break;
-        case _dump_all: do_dump(crefl_db_dump_all, argv[2]); break;
-        case _dump_ext: do_dump(crefl_db_dump_ext, argv[2]); break;
-        case _dump_ext_fqn: do_dump(crefl_db_dump_ext_fqn, argv[2]); break;
-        case _dump_ext_sum: do_dump(crefl_db_dump_ext_sum, argv[2]); break;
-        case _dump_ext_all: do_dump(crefl_db_dump_ext_all, argv[2]); break;
+        case _dump_std: do_dump(cinf_db_dump_std, argv[2]); break;
+        case _dump_fqn: do_dump(cinf_db_dump_fqn, argv[2]); break;
+        case _dump_sum: do_dump(cinf_db_dump_sum, argv[2]); break;
+        case _dump_all: do_dump(cinf_db_dump_all, argv[2]); break;
+        case _dump_ext: do_dump(cinf_db_dump_ext, argv[2]); break;
+        case _dump_ext_fqn: do_dump(cinf_db_dump_ext_fqn, argv[2]); break;
+        case _dump_ext_sum: do_dump(cinf_db_dump_ext_sum, argv[2]); break;
+        case _dump_ext_all: do_dump(cinf_db_dump_ext_all, argv[2]); break;
         case _stats: do_stats(argv[2]); break;
         case _merge: do_merge(argv[2], argv + 3, argc - 3); break;
         case _emit: do_emit(argv[2], argv[3], "main"); break;

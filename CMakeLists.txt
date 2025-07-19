@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.12)
 
-project(crefl)
+project(cinf)
 
-include(cmake/crefl_macro.cmake)
+include(cmake/cinf_macro.cmake)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -27,31 +27,31 @@ add_library(cmodel STATIC
 	src/sha256.cc
 )
 
-add_library(crefl SHARED src/reflect.cc)
-target_link_libraries(crefl PRIVATE cmodel clangAST clangFrontend)
+add_library(cinf SHARED src/reflect.cc)
+target_link_libraries(cinf PRIVATE cmodel clangAST clangFrontend)
 if(APPLE)
-target_link_libraries(crefl curses)
+target_link_libraries(cinf curses)
 endif()
 
-add_executable(crefltool tool/crefltool.cc)
-target_link_libraries(crefltool cmodel)
+add_executable(cinftool tool/cinftool.cc)
+target_link_libraries(cinftool cmodel)
 
 add_executable(asn1tool tool/asn1tool.cc)
 target_link_libraries(asn1tool cmodel)
 
-# example using the crefl reflection file api
+# example using the cinf reflection file api
 add_executable(example1_file samples/example1_file/main.c)
 target_link_libraries(example1_file cmodel)
 
-# example using the crefl reflection embedding
+# example using the cinf reflection embedding
 add_executable(example2_embed samples/example2_embed/main.c)
-crefl_target_reflect(example2_embed example2_embed_refl)
-target_link_libraries(example2_embed example2_embed_refl cmodel)
+cinf_target_reflect(example2_embed example2_embed_inf)
+target_link_libraries(example2_embed example2_embed_inf cmodel)
 
-# example using the crefl embedding and printers
+# example using the cinf embedding and printers
 add_executable(example3_printer samples/example3_printer/main.c samples/example3_printer/printer.c)
-crefl_target_reflect(example3_printer example3_printer_refl)
-target_link_libraries(example3_printer example3_printer_refl cmodel)
+cinf_target_reflect(example3_printer example3_printer_inf)
+target_link_libraries(example3_printer example3_printer_inf cmodel)
 
 add_executable(bench_asn1 test/bench_asn1.cc)
 target_link_libraries(bench_asn1 cmodel)

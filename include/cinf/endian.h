@@ -1,5 +1,5 @@
 /*
- * <crefl/endian.h>
+ * <cinf/endian.h>
  *
  * This header defines the following endian macros as defined here:
  *

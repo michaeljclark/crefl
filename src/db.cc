@@ -1,5 +1,5 @@
 /*
- * crefl runtime library and compiler plug-in to support reflection in C.
+ * cinf runtime library and compiler plug-in to support reflection in C.
  *
  * Copyright (c) 2020-2022 Michael Clark <michaeljclark@mac.com>
  *
@@ -25,20 +25,20 @@
 
 #include <vector>
 
-#include <crefl/util.h>
-#include <crefl/model.h>
-#include <crefl/db.h>
+#include <cinf/util.h>
+#include <cinf/model.h>
+#include <cinf/db.h>
 
 /*
  * decl db magic and size
  */
 
-int crefl_db_magic(const void *addr)
+int cinf_db_magic(const void *addr)
 {
     return memcmp(addr, decl_db_magic, sizeof(decl_db_magic));
 }
 
-size_t crefl_db_size(decl_db *db)
+size_t cinf_db_size(decl_db *db)
 {
     size_t hdr_sz = sizeof(decl_db_hdr);
     size_t decl_sz = sizeof(decl_node) * (db->decl_offset - db->decl_builtin);
@@ -52,14 +52,14 @@ size_t crefl_db_size(decl_db *db)
  * decl db memory io
  */
 
-int crefl_db_read_mem(decl_db *db, const uint8_t *buf, size_t input_sz)
+int cinf_db_read_mem(decl_db *db, const uint8_t *buf, size_t input_sz)
 {
     if (input_sz < sizeof(decl_db_hdr)) {
-        fprintf(stderr, "crefl: *** error: header too short\n");
+        fprintf(stderr, "cinf: *** error: header too short\n");
         return -1;
     }
-    if (crefl_db_magic(buf) != 0) {
-        fprintf(stderr, "crefl: *** error: invalid magic\n");
+    if (cinf_db_magic(buf) != 0) {
+        fprintf(stderr, "cinf: *** error: invalid magic\n");
         return -1;
     }
 
@@ -82,9 +82,9 @@ int crefl_db_read_mem(decl_db *db, const uint8_t *buf, size_t input_sz)
      *
      * note: this implies a restriction that the first element is the root
      */
-    crefl_db_defaults(db);
+    cinf_db_defaults(db);
     if (db->decl_offset != root_idx || db->decl_builtin != root_idx) {
-        fprintf(stderr, "crefl: *** error: incompatible builtin types\n");
+        fprintf(stderr, "cinf: *** error: incompatible builtin types\n");
         return -1;
     }
 
@@ -111,22 +111,22 @@ int crefl_db_read_mem(decl_db *db, const uint8_t *buf, size_t input_sz)
     for (decl_id i = 0; i < db->decl_offset; i++) {
         decl_node *d = db->decl + i;
         if (d->_link >= db->decl_offset) {
-            fprintf(stderr, "crefl: *** error: decl " fmt_ID
+            fprintf(stderr, "cinf: *** error: decl " fmt_ID
                 " link " fmt_ID " out of bounds\n", i, d->_link);
             return -1;
         }
         if (d->_next >= db->decl_offset) {
-            fprintf(stderr, "crefl: *** error: decl " fmt_ID
+            fprintf(stderr, "cinf: *** error: decl " fmt_ID
                 " next " fmt_ID " out of bounds\n", i, d->_next);
             return -1;
         }
         if (d->_attr >= db->decl_offset) {
-            fprintf(stderr, "crefl: *** error: decl " fmt_ID
+            fprintf(stderr, "cinf: *** error: decl " fmt_ID
                 " attr " fmt_ID " out of bounds\n", i, d->_attr);
             return -1;
         }
         if (d->_name >= db->name_offset) {
-            fprintf(stderr, "crefl: *** error: decl " fmt_ID
+            fprintf(stderr, "cinf: *** error: decl " fmt_ID
                 " name " fmt_ID " out of bounds\n", i, d->_name);
             return -1;
         }
@@ -135,7 +135,7 @@ int crefl_db_read_mem(decl_db *db, const uint8_t *buf, size_t input_sz)
     return 0;
 }
 
-int crefl_db_write_mem(decl_db *db, uint8_t *buf, size_t output_sz)
+int cinf_db_write_mem(decl_db *db, uint8_t *buf, size_t output_sz)
 {
     size_t hdr_sz = sizeof(decl_db_hdr);
     size_t decl_sz = sizeof(decl_node) * (db->decl_offset - db->decl_builtin);
@@ -159,18 +159,18 @@ int crefl_db_write_mem(decl_db *db, uint8_t *buf, size_t output_sz)
  * decl db file io
  */
 
-int crefl_db_read_file(decl_db *db, const char *input_filename)
+int cinf_db_read_file(decl_db *db, const char *input_filename)
 {
     std::vector<uint8_t> buf;
-    size_t ret = crefl_read_file(buf, input_filename);
+    size_t ret = cinf_read_file(buf, input_filename);
     if (ret != 0) return ret;
-    return crefl_db_read_mem(db, buf.data(), buf.size());
+    return cinf_db_read_mem(db, buf.data(), buf.size());
 }
 
-int crefl_db_write_file(decl_db *db, const char *output_filename)
+int cinf_db_write_file(decl_db *db, const char *output_filename)
 {
-    std::vector<uint8_t> buf(crefl_db_size(db));
-    size_t ret = crefl_db_write_mem(db, buf.data(), buf.size());
+    std::vector<uint8_t> buf(cinf_db_size(db));
+    size_t ret = cinf_db_write_mem(db, buf.data(), buf.size());
     if (ret != 0) return ret;
-    return crefl_write_file(buf, output_filename);
+    return cinf_write_file(buf, output_filename);
 }

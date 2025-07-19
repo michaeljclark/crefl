@@ -1,7 +1,7 @@
 /*
- * <crefl/types.h>
+ * <cinf/types.h>
  *
- * crefl runtime library and compiler plug-in to support reflection in C.
+ * cinf runtime library and compiler plug-in to support reflection in C.
  *
  * Copyright (c) 2020-2022 Michael Clark <michaeljclark@mac.com>
  *

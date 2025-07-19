@@ -26,7 +26,7 @@ def xclang_args(args):
     return list(itertools.chain(*zip([ '-Xclang' ] * len(args), args)))
 
 def xplugin_arg(arg):
-    return xclang_args(['-plugin-arg-crefl', arg ])
+    return xclang_args(['-plugin-arg-cinf', arg ])
 
 def xclang_plugin(plugin, name):
     sysname = platform.system();
@@ -34,10 +34,10 @@ def xclang_plugin(plugin, name):
 
 def xclang_cmd(is_cpp, plugin):
     cmd = [ xclang_cxx(), '-c', '-xc++' ] if is_cpp else [ xclang_c(), '-c' ]
-    cmd += xclang_args(['-load', xclang_plugin(plugin, 'crefl'), '-plugin', 'crefl'])
+    cmd += xclang_args(['-load', xclang_plugin(plugin, 'cinf'), '-plugin', 'cinf'])
     return cmd
 
-def crefl_meta_cmd(sources, output, includes, is_cpp, is_debug, plugin):
+def cinf_meta_cmd(sources, output, includes, is_cpp, is_debug, plugin):
     cmd = xclang_cmd(is_cpp, plugin)
     if includes:
         for include in includes:
@@ -61,14 +61,14 @@ def format_cmd(cmd):
         lines.append(str)
     return " \\\n    ".join(lines)
 
-def crefl_meta(sources, output, includes, is_cpp, is_debug, plugin, no_exec):
-    cmd = crefl_meta_cmd(sources, output, includes, is_cpp, is_debug, plugin)
+def cinf_meta(sources, output, includes, is_cpp, is_debug, plugin, no_exec):
+    cmd = cinf_meta_cmd(sources, output, includes, is_cpp, is_debug, plugin)
     if no_exec:
         print(format_cmd(cmd))
     else:
         return subprocess.run(cmd, check=True)
 
-parser = argparse.ArgumentParser(description='invoke crefl clang plugin')
+parser = argparse.ArgumentParser(description='invoke cinf clang plugin')
 parser.add_argument('-n', '--no-exec', default=False, action='store_true',
                     help='show the comand line invocation')
 parser.add_argument('--cpp', default=False, action='store_true',
@@ -80,7 +80,7 @@ parser.add_argument('-o', '--output', required=True,
 parser.add_argument('-p', '--plugin', action='store', default='build',
                     help='directory containing plugin')
 parser.add_argument('-d', '--debug', default=False, action='store_true',
-                    help='enable crefl debug output')
+                    help='enable cinf debug output')
 parser.add_argument('files', nargs='*',
                     help='files to be processed')
 args = parser.parse_args()
@@ -88,4 +88,4 @@ args = parser.parse_args()
 if len(args.files) == 0:
     parser.error("no input files")
 
-crefl_meta(args.files, args.output, args.include, args.cpp, args.debug, args.plugin, args.no_exec)
+cinf_meta(args.files, args.output, args.include, args.cpp, args.debug, args.plugin, args.no_exec)

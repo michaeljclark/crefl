@@ -1,7 +1,7 @@
 /*
- * <crefl/db.h>
+ * <cinf/db.h>
  *
- * crefl runtime library and compiler plug-in to support reflection in C.
+ * cinf runtime library and compiler plug-in to support reflection in C.
  *
  * Copyright (c) 2020-2022 Michael Clark <michaeljclark@mac.com>
  *
@@ -43,16 +43,16 @@ struct decl_db_hdr
 };
 
 /* decl db magic and size */
-int crefl_db_magic(const void *addr);
-size_t crefl_db_size(decl_db *db);
+int cinf_db_magic(const void *addr);
+size_t cinf_db_size(decl_db *db);
 
 /* decl db memory io */
-int crefl_db_read_mem(decl_db *db, const uint8_t *buf, size_t input_sz);
-int crefl_db_write_mem(decl_db *db, uint8_t *buf, size_t output_sz);
+int cinf_db_read_mem(decl_db *db, const uint8_t *buf, size_t input_sz);
+int cinf_db_write_mem(decl_db *db, uint8_t *buf, size_t output_sz);
 
 /* decl db file io */
-int crefl_db_read_file(decl_db *db, const char *input_filename);
-int crefl_db_write_file(decl_db *db, const char *output_filename);
+int cinf_db_read_file(decl_db *db, const char *input_filename);
+int cinf_db_write_file(decl_db *db, const char *output_filename);
 
 #ifdef __cplusplus
 }

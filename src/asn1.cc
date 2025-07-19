@@ -1,5 +1,5 @@
 /*
- * crefl runtime library and compiler plug-in to support reflection in C.
+ * cinf runtime library and compiler plug-in to support reflection in C.
  *
  * Copyright (c) 2020-2022 Michael Clark <michaeljclark@mac.com>
  *
@@ -23,11 +23,11 @@
 #include <cassert>
 #include <limits>
 
-#include <crefl/endian.h>
-#include <crefl/bits.h>
-#include <crefl/model.h>
-#include <crefl/buf.h>
-#include <crefl/asn1.h>
+#include <cinf/endian.h>
+#include <cinf/bits.h>
+#include <cinf/model.h>
+#include <cinf/buf.h>
+#include <cinf/asn1.h>
 
 /*
  * ASN.1 tag names
@@ -94,19 +94,19 @@ const char* asn1_tag_name(u64 tag)
  * called by ident_read | ident_write if low tag == 0b11111
  */
 
-size_t crefl_asn1_ber_tag_length(u64 tag)
+size_t cinf_asn1_ber_tag_length(u64 tag)
 {
     return tag == 0 ? 1 : 8 - ((clz(tag) - 1) / 7) + 1;
 }
 
-int crefl_asn1_ber_tag_read(crefl_buf *buf, u64 *tag)
+int cinf_asn1_ber_tag_read(cinf_buf *buf, u64 *tag)
 {
     int8_t b;
     size_t w = 0;
     u64 l = 0;
 
     do {
-        if (crefl_buf_read_i8(buf, &b) != 1) {
+        if (cinf_buf_read_i8(buf, &b) != 1) {
             goto err;
         }
         l <<= 7;
@@ -125,7 +125,7 @@ err:
     return -1;
 }
 
-int crefl_asn1_ber_tag_write(crefl_buf *buf, u64 tag)
+int cinf_asn1_ber_tag_write(cinf_buf *buf, u64 tag)
 {
     int8_t b;
     size_t llen;
@@ -135,13 +135,13 @@ int crefl_asn1_ber_tag_write(crefl_buf *buf, u64 tag)
         goto err;
     }
 
-    llen = crefl_asn1_ber_tag_length(tag);
+    llen = cinf_asn1_ber_tag_length(tag);
     l = tag << (64 - llen * 7);
     for (size_t i = 0; i < llen; i++) {
         b = ((l >> 57) & 0x7f);
         b |= (i != llen - 1) << 7;
         l <<= 7;
-        if (crefl_buf_write_i8(buf, b) != 1) {
+        if (cinf_buf_write_i8(buf, b) != 1) {
             goto err;
         }
     }
@@ -157,18 +157,18 @@ err:
  * read and write identifier
  */
 
-size_t crefl_asn1_ber_ident_length(asn1_id _id)
+size_t cinf_asn1_ber_ident_length(asn1_id _id)
 {
     return 1 + ((_id._identifier >= 0x1f) ?
-        crefl_asn1_ber_tag_length(_id._identifier) : 0);
+        cinf_asn1_ber_tag_length(_id._identifier) : 0);
 }
 
-int crefl_asn1_ber_ident_read(crefl_buf *buf, asn1_id *_id)
+int cinf_asn1_ber_ident_read(cinf_buf *buf, asn1_id *_id)
 {
     int8_t b;
     asn1_id r = { 0 };
 
-    if (crefl_buf_read_i8(buf, &b) != 1) {
+    if (cinf_buf_read_i8(buf, &b) != 1) {
         goto err;
     }
 
@@ -178,7 +178,7 @@ int crefl_asn1_ber_ident_read(crefl_buf *buf, asn1_id *_id)
 
     if (_id->_identifier == 0x1f) {
         u64 ber_tag;
-        if (crefl_asn1_ber_tag_read(buf, &ber_tag) < 0) {
+        if (cinf_asn1_ber_tag_read(buf, &ber_tag) < 0) {
             goto err;
         }
         if (ber_tag < 0x1f) {
@@ -192,7 +192,7 @@ err:
     return -1;
 }
 
-int crefl_asn1_ber_ident_write(crefl_buf *buf, asn1_id _id)
+int cinf_asn1_ber_ident_write(cinf_buf *buf, asn1_id _id)
 {
     int8_t b;
 
@@ -200,12 +200,12 @@ int crefl_asn1_ber_ident_write(crefl_buf *buf, asn1_id _id)
         ( (u8)(_id._constructed & 0x01) << 5 ) |
         ( (u8)(_id._identifier < 0x1f ? _id._identifier : 0x1f) );
 
-    if (crefl_buf_write_i8(buf, b) != 1) {
+    if (cinf_buf_write_i8(buf, b) != 1) {
         goto err;
     }
 
     if (_id._identifier >= 0x1f) {
-        if (crefl_asn1_ber_tag_write(buf, _id._identifier) < 0) {
+        if (cinf_asn1_ber_tag_write(buf, _id._identifier) < 0) {
             goto err;
         }
     }
@@ -221,18 +221,18 @@ err:
  * read and write 64-bit length
  */
 
-size_t crefl_asn1_ber_length_length(u64 length)
+size_t cinf_asn1_ber_length_length(u64 length)
 {
     return 1 + ((length >= 0x80) ? 8 - (clz(length) / 8) : 0);
 }
 
-int crefl_asn1_ber_length_read(crefl_buf *buf, u64 *length)
+int cinf_asn1_ber_length_read(cinf_buf *buf, u64 *length)
 {
     int8_t b;
     size_t llen = 0;
     u64 l = 0;
 
-    if (crefl_buf_read_i8(buf, &b) != 1) {
+    if (cinf_buf_read_i8(buf, &b) != 1) {
         goto err;
     }
     if ((b & 0x80) == 0) {
@@ -248,7 +248,7 @@ int crefl_asn1_ber_length_read(crefl_buf *buf, u64 *length)
         goto err;
     }
     for (size_t i = 0; i < llen; i++) {
-        if (crefl_buf_read_i8(buf, &b) != 1) {
+        if (cinf_buf_read_i8(buf, &b) != 1) {
             goto err;
         }
         l <<= 8;
@@ -263,7 +263,7 @@ err:
     return -1;
 }
 
-int crefl_asn1_ber_length_write(crefl_buf *buf, u64 length)
+int cinf_asn1_ber_length_write(cinf_buf *buf, u64 length)
 {
     int8_t b;
     size_t llen;
@@ -271,7 +271,7 @@ int crefl_asn1_ber_length_write(crefl_buf *buf, u64 length)
 
     if (length <= 0x7f) {
         b = (int8_t)length;
-        if (crefl_buf_write_i8(buf, b) != 1) {
+        if (cinf_buf_write_i8(buf, b) != 1) {
             goto err;
         }
         return 0;
@@ -280,7 +280,7 @@ int crefl_asn1_ber_length_write(crefl_buf *buf, u64 length)
 
     llen = 8 - (clz(length) / 8);
     b = (u8)llen | (u8)0x80;
-    if (crefl_buf_write_i8(buf, b) != 1) {
+    if (cinf_buf_write_i8(buf, b) != 1) {
         goto err;
     }
 
@@ -288,7 +288,7 @@ int crefl_asn1_ber_length_write(crefl_buf *buf, u64 length)
     for (size_t i = 0; i < llen; i++) {
         b = (l >> 56) & 0xff;
         l <<= 8;
-        if (crefl_buf_write_i8(buf, b) != 1) {
+        if (cinf_buf_write_i8(buf, b) != 1) {
             goto err;
         }
     }
@@ -304,16 +304,16 @@ err:
  * read and write boolean
  */
 
-size_t crefl_asn1_ber_boolean_length(const bool *value)
+size_t cinf_asn1_ber_boolean_length(const bool *value)
 {
     return 1;
 }
 
-int crefl_asn1_ber_boolean_read(crefl_buf *buf, size_t len, bool *value)
+int cinf_asn1_ber_boolean_read(cinf_buf *buf, size_t len, bool *value)
 {
     int8_t b;
 
-    if (crefl_buf_read_i8(buf, &b) != 1) {
+    if (cinf_buf_read_i8(buf, &b) != 1) {
         goto err;
     }
 
@@ -324,12 +324,12 @@ err:
     return -1;
 }
 
-int crefl_asn1_ber_boolean_write(crefl_buf *buf, size_t len, const bool *value)
+int cinf_asn1_ber_boolean_write(cinf_buf *buf, size_t len, const bool *value)
 {
     int8_t b;
 
     b = *value;
-    if (crefl_buf_write_i8(buf, b) != 1) {
+    if (cinf_buf_write_i8(buf, b) != 1) {
         goto err;
     }
 
@@ -338,23 +338,23 @@ err:
     return -1;
 }
 
-int crefl_asn1_der_boolean_read(crefl_buf *buf, asn1_tag _tag, bool *value)
+int cinf_asn1_der_boolean_read(cinf_buf *buf, asn1_tag _tag, bool *value)
 {
     asn1_hdr hdr;
-    if (crefl_asn1_ber_ident_read(buf, &hdr._id) < 0) return -1;
-    if (crefl_asn1_ber_length_read(buf, &hdr._length) < 0) return -1;
-    return crefl_asn1_ber_boolean_read(buf, hdr._length, value);
+    if (cinf_asn1_ber_ident_read(buf, &hdr._id) < 0) return -1;
+    if (cinf_asn1_ber_length_read(buf, &hdr._length) < 0) return -1;
+    return cinf_asn1_ber_boolean_read(buf, hdr._length, value);
 }
 
-int crefl_asn1_der_boolean_write(crefl_buf *buf, asn1_tag _tag, const bool *value)
+int cinf_asn1_der_boolean_write(cinf_buf *buf, asn1_tag _tag, const bool *value)
 {
     asn1_hdr hdr = {
-        { (u64)_tag, 0, asn1_class_universal }, crefl_asn1_ber_boolean_length(value)
+        { (u64)_tag, 0, asn1_class_universal }, cinf_asn1_ber_boolean_length(value)
     };
 
-    if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) return -1;
-    if (crefl_asn1_ber_length_write(buf, hdr._length) < 0) return -1;
-    return crefl_asn1_ber_boolean_write(buf, hdr._length, value);
+    if (cinf_asn1_ber_ident_write(buf, hdr._id) < 0) return -1;
+    if (cinf_asn1_ber_length_write(buf, hdr._length) < 0) return -1;
+    return cinf_asn1_ber_boolean_write(buf, hdr._length, value);
 }
 
 /*
@@ -363,17 +363,17 @@ int crefl_asn1_der_boolean_write(crefl_buf *buf, asn1_tag _tag, const bool *valu
  * read and write integer
  */
 
-size_t crefl_asn1_ber_integer_u64_length(const u64 *value)
+size_t cinf_asn1_ber_integer_u64_length(const u64 *value)
 {
     return *value == 0 ? 1 : 8 - (clz(*value) / 8);
 }
 
-size_t crefl_asn1_ber_integer_u64_length_byval(const u64 value)
+size_t cinf_asn1_ber_integer_u64_length_byval(const u64 value)
 {
     return value == 0 ? 1 : 8 - (clz(value) / 8);
 }
 
-int crefl_asn1_ber_integer_u64_read(crefl_buf *buf, size_t len, u64 *value)
+int cinf_asn1_ber_integer_u64_read(cinf_buf *buf, size_t len, u64 *value)
 {
     u64 v = 0, o = 0;
     size_t shift = (64 - len * 8);
@@ -381,7 +381,7 @@ int crefl_asn1_ber_integer_u64_read(crefl_buf *buf, size_t len, u64 *value)
     if (len > 8) {
         goto err;
     }
-    if (crefl_buf_read_bytes(buf, (char*)&o, len) != len) {
+    if (cinf_buf_read_bytes(buf, (char*)&o, len) != len) {
         goto err;
     }
 
@@ -398,7 +398,7 @@ err:
     return -1;
 }
 
-u64_result crefl_asn1_ber_integer_u64_read_byval(crefl_buf *buf, size_t len)
+u64_result cinf_asn1_ber_integer_u64_read_byval(cinf_buf *buf, size_t len)
 {
     u64 v = 0, o = 0;
     size_t shift = (64 - len * 8);
@@ -406,7 +406,7 @@ u64_result crefl_asn1_ber_integer_u64_read_byval(crefl_buf *buf, size_t len)
     if (len > 8) {
         return { 0, -1 };
     }
-    if (crefl_buf_read_bytes(buf, (char*)&o, len) != len) {
+    if (cinf_buf_read_bytes(buf, (char*)&o, len) != len) {
         return { 0, -1 };
     }
 
@@ -419,7 +419,7 @@ u64_result crefl_asn1_ber_integer_u64_read_byval(crefl_buf *buf, size_t len)
     return { v, 0 };
 }
 
-int crefl_asn1_ber_integer_u64_write(crefl_buf *buf, size_t len, const u64 *value)
+int cinf_asn1_ber_integer_u64_write(cinf_buf *buf, size_t len, const u64 *value)
 {
     u64 v = 0, o = 0;
     size_t shift = (64 - len * 8);
@@ -434,14 +434,14 @@ int crefl_asn1_ber_integer_u64_write(crefl_buf *buf, size_t len, const u64 *valu
     o = be64(*value) >> shift;
 #endif
 
-    if (crefl_buf_write_bytes(buf, (const char*)&o, len) != len) {
+    if (cinf_buf_write_bytes(buf, (const char*)&o, len) != len) {
         return -1;
     }
 
     return 0;
 }
 
-int crefl_asn1_ber_integer_u64_write_byval(crefl_buf *buf, size_t len, const u64 value)
+int cinf_asn1_ber_integer_u64_write_byval(cinf_buf *buf, size_t len, const u64 value)
 {
     u64 v = 0, o = 0;
     size_t shift = (64 - len * 8);
@@ -456,7 +456,7 @@ int crefl_asn1_ber_integer_u64_write_byval(crefl_buf *buf, size_t len, const u64
     o = be64(value) >> shift;
 #endif
 
-    if (crefl_buf_write_bytes(buf, (const char*)&o, len) != len) {
+    if (cinf_buf_write_bytes(buf, (const char*)&o, len) != len) {
         return -1;
     }
 
@@ -469,17 +469,17 @@ int crefl_asn1_ber_integer_u64_write_byval(crefl_buf *buf, size_t len, const u64
  * read and write integer
  */
 
-size_t crefl_le_ber_integer_u64_length(const u64 *value)
+size_t cinf_le_ber_integer_u64_length(const u64 *value)
 {
     return *value == 0 ? 1 : 8 - (clz(*value) / 8);
 }
 
-size_t crefl_le_ber_integer_u64_length_byval(const u64 value)
+size_t cinf_le_ber_integer_u64_length_byval(const u64 value)
 {
     return value == 0 ? 1 : 8 - (clz(value) / 8);
 }
 
-int crefl_le_ber_integer_u64_read(crefl_buf *buf, size_t len, u64 *value)
+int cinf_le_ber_integer_u64_read(cinf_buf *buf, size_t len, u64 *value)
 {
     u64 v = 0, o = 0;
 
@@ -490,11 +490,11 @@ int crefl_le_ber_integer_u64_read(crefl_buf *buf, size_t len, u64 *value)
 #if USE_UNALIGNED_ACCESSES
     *value = 0;
     /* unaligned accesses are enabled on little-endian targets */
-    if (crefl_buf_read_bytes(buf, (char*)value, len) != len) {
+    if (cinf_buf_read_bytes(buf, (char*)value, len) != len) {
         goto err;
     }
 #else
-    if (crefl_buf_read_bytes(buf, (char*)&o, len) != len) {
+    if (cinf_buf_read_bytes(buf, (char*)&o, len) != len) {
         goto err;
     }
 
@@ -506,7 +506,7 @@ err:
     return -1;
 }
 
-u64_result crefl_le_ber_integer_u64_read_byval(crefl_buf *buf, size_t len)
+u64_result cinf_le_ber_integer_u64_read_byval(cinf_buf *buf, size_t len)
 {
     u64 v = 0, o = 0;
 
@@ -514,14 +514,14 @@ u64_result crefl_le_ber_integer_u64_read_byval(crefl_buf *buf, size_t len)
         return u64_result { 0, -1 };
     }
 
-    if (crefl_buf_read_bytes(buf, (char*)&o, len) != len) {
+    if (cinf_buf_read_bytes(buf, (char*)&o, len) != len) {
         return u64_result { 0, -1 };
     }
 
     return u64_result { le64(o), 0 };
 }
 
-int crefl_le_ber_integer_u64_write(crefl_buf *buf, size_t len, const u64 *value)
+int cinf_le_ber_integer_u64_write(cinf_buf *buf, size_t len, const u64 *value)
 {
     u64 v = 0, o = 0;
 
@@ -531,13 +531,13 @@ int crefl_le_ber_integer_u64_write(crefl_buf *buf, size_t len, const u64 *value)
 
 #if USE_UNALIGNED_ACCESSES
     /* unaligned accesses are enabled on little-endian targets */
-    if (crefl_buf_write_bytes(buf, (const char*)value, len) != len) {
+    if (cinf_buf_write_bytes(buf, (const char*)value, len) != len) {
         return -1;
     }
 #else
     o = le64(*value);
 
-    if (crefl_buf_write_bytes(buf, (const char*)&o, len) != len) {
+    if (cinf_buf_write_bytes(buf, (const char*)&o, len) != len) {
         return -1;
     }
 #endif
@@ -545,7 +545,7 @@ int crefl_le_ber_integer_u64_write(crefl_buf *buf, size_t len, const u64 *value)
     return 0;
 }
 
-int crefl_le_ber_integer_u64_write_byval(crefl_buf *buf, size_t len, const u64 value)
+int cinf_le_ber_integer_u64_write_byval(cinf_buf *buf, size_t len, const u64 value)
 {
     u64 v = 0, o = 0;
 
@@ -555,7 +555,7 @@ int crefl_le_ber_integer_u64_write_byval(crefl_buf *buf, size_t len, const u64 v
 
     o = le64(value);
 
-    if (crefl_buf_write_bytes(buf, (const char*)&o, len) != len) {
+    if (cinf_buf_write_bytes(buf, (const char*)&o, len) != len) {
         return -1;
     }
 
@@ -573,13 +573,13 @@ int crefl_le_ber_integer_u64_write_byval(crefl_buf *buf, size_t len, const u64 v
  * - 0xffffffffffffff80 -> 0x80
  * - 0xffffffffffffff7f -> 0xff7f
  */
-size_t crefl_asn1_ber_integer_s64_length(const s64 *value)
+size_t cinf_asn1_ber_integer_s64_length(const s64 *value)
 {
     const s64 v = *value;
     return v == 0 ? 1 : 8 - ((clz(v < 0 ? ~v : v)-1) / 8);
 }
 
-size_t crefl_asn1_ber_integer_s64_length_byval(const s64 value)
+size_t cinf_asn1_ber_integer_s64_length_byval(const s64 value)
 {
     const s64 v = value;
     return v == 0 ? 1 : 8 - ((clz(v < 0 ? ~v : v)-1) / 8);
@@ -587,150 +587,150 @@ size_t crefl_asn1_ber_integer_s64_length_byval(const s64 value)
 
 static s64 _sign_extend_s64(s64 x, size_t y) { return ((s64)(x << y)) >> y; }
 
-int crefl_asn1_ber_integer_s64_read(crefl_buf *buf, size_t len, s64 *value)
+int cinf_asn1_ber_integer_s64_read(cinf_buf *buf, size_t len, s64 *value)
 {
-    int ret = crefl_asn1_ber_integer_u64_read(buf, len, (u64*)value);
+    int ret = cinf_asn1_ber_integer_u64_read(buf, len, (u64*)value);
     if (ret == 0) {
         *value = _sign_extend_s64(*value, 64-(len << 3));
     }
     return ret;
 }
 
-s64_result crefl_asn1_ber_integer_s64_read_byval(crefl_buf *buf, size_t len)
+s64_result cinf_asn1_ber_integer_s64_read_byval(cinf_buf *buf, size_t len)
 {
-    u64_result r = crefl_asn1_ber_integer_u64_read_byval(buf, len);
+    u64_result r = cinf_asn1_ber_integer_u64_read_byval(buf, len);
     if (r.error == 0) {
         return s64_result { _sign_extend_s64(r.value, 64-(len << 3)), 0 };
     }
     return s64_result { 0, -1 };
 }
 
-int crefl_asn1_ber_integer_s64_write(crefl_buf *buf, size_t len, const s64 *value)
+int cinf_asn1_ber_integer_s64_write(cinf_buf *buf, size_t len, const s64 *value)
 {
-    return crefl_asn1_ber_integer_u64_write(buf, len, (const u64*)value);
+    return cinf_asn1_ber_integer_u64_write(buf, len, (const u64*)value);
 }
 
-int crefl_asn1_ber_integer_s64_write_byval(crefl_buf *buf, size_t len, const s64 value)
+int cinf_asn1_ber_integer_s64_write_byval(cinf_buf *buf, size_t len, const s64 value)
 {
-    return crefl_asn1_ber_integer_u64_write_byval(buf, len, (const u64)value);
+    return cinf_asn1_ber_integer_u64_write_byval(buf, len, (const u64)value);
 }
 
-size_t crefl_le_ber_integer_s64_length(const s64 *value)
+size_t cinf_le_ber_integer_s64_length(const s64 *value)
 {
-    return crefl_asn1_ber_integer_s64_length(value);
+    return cinf_asn1_ber_integer_s64_length(value);
 }
 
-size_t crefl_le_ber_integer_s64_length_byval(const s64 value)
+size_t cinf_le_ber_integer_s64_length_byval(const s64 value)
 {
-    return crefl_asn1_ber_integer_s64_length_byval(value);
+    return cinf_asn1_ber_integer_s64_length_byval(value);
 }
 
-int crefl_le_ber_integer_s64_read(crefl_buf *buf, size_t len, s64 *value)
+int cinf_le_ber_integer_s64_read(cinf_buf *buf, size_t len, s64 *value)
 {
-    int ret = crefl_le_ber_integer_u64_read(buf, len, (u64*)value);
+    int ret = cinf_le_ber_integer_u64_read(buf, len, (u64*)value);
     if (ret == 0) {
         *value = _sign_extend_s64(*value, 64-(len << 3));
     }
     return ret;
 }
 
-s64_result crefl_le_ber_integer_s64_read_byval(crefl_buf *buf, size_t len)
+s64_result cinf_le_ber_integer_s64_read_byval(cinf_buf *buf, size_t len)
 {
-    u64_result r = crefl_le_ber_integer_u64_read_byval(buf, len);
+    u64_result r = cinf_le_ber_integer_u64_read_byval(buf, len);
     if (r.error == 0) {
         return s64_result { _sign_extend_s64(r.value, 64-(len << 3)), 0 };
     }
     return s64_result { 0, -1 };
 }
 
-int crefl_le_ber_integer_s64_write(crefl_buf *buf, size_t len, const s64 *value)
+int cinf_le_ber_integer_s64_write(cinf_buf *buf, size_t len, const s64 *value)
 {
-    return crefl_le_ber_integer_u64_write(buf, len, (const u64*)value);
+    return cinf_le_ber_integer_u64_write(buf, len, (const u64*)value);
 }
 
-int crefl_le_ber_integer_s64_write_byval(crefl_buf *buf, size_t len, const s64 value)
+int cinf_le_ber_integer_s64_write_byval(cinf_buf *buf, size_t len, const s64 value)
 {
-    return crefl_le_ber_integer_u64_write_byval(buf, len, value);
+    return cinf_le_ber_integer_u64_write_byval(buf, len, value);
 }
 
 /*
  * read and write tagged integer
  */
 
-int crefl_asn1_der_integer_u64_read(crefl_buf *buf, asn1_tag _tag, u64 *value)
+int cinf_asn1_der_integer_u64_read(cinf_buf *buf, asn1_tag _tag, u64 *value)
 {
     asn1_hdr hdr;
-    if (crefl_asn1_ber_ident_read(buf, &hdr._id) < 0) return -1;
-    if (crefl_asn1_ber_length_read(buf, &hdr._length) < 0) return -1;
-    return crefl_asn1_ber_integer_u64_read(buf, hdr._length, value);
+    if (cinf_asn1_ber_ident_read(buf, &hdr._id) < 0) return -1;
+    if (cinf_asn1_ber_length_read(buf, &hdr._length) < 0) return -1;
+    return cinf_asn1_ber_integer_u64_read(buf, hdr._length, value);
 }
 
-u64_result crefl_asn1_der_integer_u64_read_byval(crefl_buf *buf, asn1_tag _tag)
+u64_result cinf_asn1_der_integer_u64_read_byval(cinf_buf *buf, asn1_tag _tag)
 {
     asn1_hdr hdr;
-    if (crefl_asn1_ber_ident_read(buf, &hdr._id) < 0) return u64_result { 0, -1 };
-    if (crefl_asn1_ber_length_read(buf, &hdr._length) < 0) return u64_result { 0, -1 };
-    return crefl_asn1_ber_integer_u64_read_byval(buf, hdr._length);
+    if (cinf_asn1_ber_ident_read(buf, &hdr._id) < 0) return u64_result { 0, -1 };
+    if (cinf_asn1_ber_length_read(buf, &hdr._length) < 0) return u64_result { 0, -1 };
+    return cinf_asn1_ber_integer_u64_read_byval(buf, hdr._length);
 }
 
-int crefl_asn1_der_integer_u64_write(crefl_buf *buf, asn1_tag _tag, const u64 *value)
+int cinf_asn1_der_integer_u64_write(cinf_buf *buf, asn1_tag _tag, const u64 *value)
 {
     asn1_hdr hdr = {
-        { (u64)_tag, 0, asn1_class_universal }, crefl_asn1_ber_integer_u64_length(value)
+        { (u64)_tag, 0, asn1_class_universal }, cinf_asn1_ber_integer_u64_length(value)
     };
 
-    if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) return -1;
-    if (crefl_asn1_ber_length_write(buf, hdr._length) < 0) return -1;
-    return crefl_asn1_ber_integer_u64_write(buf, hdr._length, value);
+    if (cinf_asn1_ber_ident_write(buf, hdr._id) < 0) return -1;
+    if (cinf_asn1_ber_length_write(buf, hdr._length) < 0) return -1;
+    return cinf_asn1_ber_integer_u64_write(buf, hdr._length, value);
 }
 
-int crefl_asn1_der_integer_u64_write_byval(crefl_buf *buf, asn1_tag _tag, const u64 value)
+int cinf_asn1_der_integer_u64_write_byval(cinf_buf *buf, asn1_tag _tag, const u64 value)
 {
     asn1_hdr hdr = {
-        { (u64)_tag, 0, asn1_class_universal }, crefl_asn1_ber_integer_u64_length_byval(value)
+        { (u64)_tag, 0, asn1_class_universal }, cinf_asn1_ber_integer_u64_length_byval(value)
     };
 
-    if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) return -1;
-    if (crefl_asn1_ber_length_write(buf, hdr._length) < 0) return -1;
-    return crefl_asn1_ber_integer_u64_write_byval(buf, hdr._length, value);
+    if (cinf_asn1_ber_ident_write(buf, hdr._id) < 0) return -1;
+    if (cinf_asn1_ber_length_write(buf, hdr._length) < 0) return -1;
+    return cinf_asn1_ber_integer_u64_write_byval(buf, hdr._length, value);
 }
 
-int crefl_asn1_der_integer_s64_read(crefl_buf *buf, asn1_tag _tag, s64 *value)
+int cinf_asn1_der_integer_s64_read(cinf_buf *buf, asn1_tag _tag, s64 *value)
 {
     asn1_hdr hdr;
-    if (crefl_asn1_ber_ident_read(buf, &hdr._id) < 0) return -1;
-    if (crefl_asn1_ber_length_read(buf, &hdr._length) < 0) return -1;
-    return crefl_asn1_ber_integer_s64_read(buf, hdr._length, value);
+    if (cinf_asn1_ber_ident_read(buf, &hdr._id) < 0) return -1;
+    if (cinf_asn1_ber_length_read(buf, &hdr._length) < 0) return -1;
+    return cinf_asn1_ber_integer_s64_read(buf, hdr._length, value);
 }
 
-s64_result crefl_asn1_der_integer_s64_read_byval(crefl_buf *buf, asn1_tag _tag, s64 *value)
+s64_result cinf_asn1_der_integer_s64_read_byval(cinf_buf *buf, asn1_tag _tag, s64 *value)
 {
     asn1_hdr hdr;
-    if (crefl_asn1_ber_ident_read(buf, &hdr._id) < 0) return s64_result { 0, -1 };
-    if (crefl_asn1_ber_length_read(buf, &hdr._length) < 0) return s64_result { 0, -1 };
-    return crefl_asn1_ber_integer_s64_read_byval(buf, hdr._length);
+    if (cinf_asn1_ber_ident_read(buf, &hdr._id) < 0) return s64_result { 0, -1 };
+    if (cinf_asn1_ber_length_read(buf, &hdr._length) < 0) return s64_result { 0, -1 };
+    return cinf_asn1_ber_integer_s64_read_byval(buf, hdr._length);
 }
 
-int crefl_asn1_der_integer_s64_write(crefl_buf *buf, asn1_tag _tag, const s64 *value)
+int cinf_asn1_der_integer_s64_write(cinf_buf *buf, asn1_tag _tag, const s64 *value)
 {
     asn1_hdr hdr = {
-        { (u64)_tag, 0, asn1_class_universal }, crefl_asn1_ber_integer_s64_length(value)
+        { (u64)_tag, 0, asn1_class_universal }, cinf_asn1_ber_integer_s64_length(value)
     };
 
-    if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) return -1;
-    if (crefl_asn1_ber_length_write(buf, hdr._length) < 0) return -1;
-    return crefl_asn1_ber_integer_s64_write(buf, hdr._length, value);
+    if (cinf_asn1_ber_ident_write(buf, hdr._id) < 0) return -1;
+    if (cinf_asn1_ber_length_write(buf, hdr._length) < 0) return -1;
+    return cinf_asn1_ber_integer_s64_write(buf, hdr._length, value);
 }
 
-int crefl_asn1_der_integer_s64_write_byval(crefl_buf *buf, asn1_tag _tag, const s64 value)
+int cinf_asn1_der_integer_s64_write_byval(cinf_buf *buf, asn1_tag _tag, const s64 value)
 {
     asn1_hdr hdr = {
-        { (u64)_tag, 0, asn1_class_universal }, crefl_asn1_ber_integer_s64_length_byval(value)
+        { (u64)_tag, 0, asn1_class_universal }, cinf_asn1_ber_integer_s64_length_byval(value)
     };
 
-    if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) return -1;
-    if (crefl_asn1_ber_length_write(buf, hdr._length) < 0) return -1;
-    return crefl_asn1_ber_integer_s64_write_byval(buf, hdr._length, value);
+    if (cinf_asn1_ber_ident_write(buf, hdr._id) < 0) return -1;
+    if (cinf_asn1_ber_length_write(buf, hdr._length) < 0) return -1;
+    return cinf_asn1_ber_integer_s64_write_byval(buf, hdr._length, value);
 }
 
 /*
@@ -974,14 +974,14 @@ static f64_asn1_data f64_asn1_data_get(double value)
 
     return f64_asn1_data {
         frac, sexp,
-        crefl_asn1_ber_integer_u64_length(&frac),
-        crefl_asn1_ber_integer_s64_length(&sexp),
+        cinf_asn1_ber_integer_u64_length(&frac),
+        cinf_asn1_ber_integer_s64_length(&sexp),
         !!f64_sign_dec(value), !!f64_is_inf(value),
         !!f64_is_nan(value), !!f64_is_zero(value)
     };
 }
 
-size_t crefl_asn1_ber_real_f64_length(const double *value)
+size_t cinf_asn1_ber_real_f64_length(const double *value)
 {
     f64_asn1_data d = f64_asn1_data_get(*value);
 
@@ -994,7 +994,7 @@ size_t crefl_asn1_ber_real_f64_length(const double *value)
     }
 }
 
-size_t crefl_asn1_ber_real_f64_length_byval(const double value)
+size_t cinf_asn1_ber_real_f64_length_byval(const double value)
 {
     f64_asn1_data d = f64_asn1_data_get(value);
 
@@ -1007,7 +1007,7 @@ size_t crefl_asn1_ber_real_f64_length_byval(const double value)
     }
 }
 
-int crefl_asn1_ber_real_f64_read(crefl_buf *buf, size_t len, double *value)
+int cinf_asn1_ber_real_f64_read(cinf_buf *buf, size_t len, double *value)
 {
     int8_t b;
     double v = 0;
@@ -1021,7 +1021,7 @@ int crefl_asn1_ber_real_f64_read(crefl_buf *buf, size_t len, double *value)
     bool sign;
     size_t frac_lz;
 
-    if (crefl_buf_read_i8(buf, &b) != 1) {
+    if (cinf_buf_read_i8(buf, &b) != 1) {
         goto err;
     }
     fmt = _asn1_real_format(b);
@@ -1045,10 +1045,10 @@ int crefl_asn1_ber_real_f64_read(crefl_buf *buf, size_t len, double *value)
     }
     frac_len = len - exp_len - 1;
 
-    if (crefl_asn1_ber_integer_s64_read(buf, exp_len, &sexp) < 0) {
+    if (cinf_asn1_ber_integer_s64_read(buf, exp_len, &sexp) < 0) {
         goto err;
     }
-    if (crefl_asn1_ber_integer_u64_read(buf, frac_len, &frac) < 0) {
+    if (cinf_asn1_ber_integer_u64_read(buf, frac_len, &frac) < 0) {
         goto err;
     }
     frac_lz = clz(frac);
@@ -1081,7 +1081,7 @@ err:
     return -1;
 }
 
-f64_result crefl_asn1_ber_real_f64_read_byval(crefl_buf *buf, size_t len)
+f64_result cinf_asn1_ber_real_f64_read_byval(cinf_buf *buf, size_t len)
 {
     int8_t b;
     double v = 0;
@@ -1097,7 +1097,7 @@ f64_result crefl_asn1_ber_real_f64_read_byval(crefl_buf *buf, size_t len)
     s64_result rexp;
     u64_result rfrac;
 
-    if (crefl_buf_read_i8(buf, &b) != 1) {
+    if (cinf_buf_read_i8(buf, &b) != 1) {
         return f64_result { 0, -1 };
     }
     fmt = _asn1_real_format(b);
@@ -1121,12 +1121,12 @@ f64_result crefl_asn1_ber_real_f64_read_byval(crefl_buf *buf, size_t len)
     }
     frac_len = len - exp_len - 1;
 
-    rexp = crefl_asn1_ber_integer_s64_read_byval(buf, exp_len);
+    rexp = cinf_asn1_ber_integer_s64_read_byval(buf, exp_len);
     if (rexp.error < 0) {
         return f64_result { 0, rexp.error };
     }
     sexp = rexp.value;
-    rfrac = crefl_asn1_ber_integer_u64_read_byval(buf, frac_len);
+    rfrac = cinf_asn1_ber_integer_u64_read_byval(buf, frac_len);
     if (rfrac.error < 0) {
         return f64_result { 0, rfrac.error };
     }
@@ -1157,7 +1157,7 @@ f64_result crefl_asn1_ber_real_f64_read_byval(crefl_buf *buf, size_t len)
     return f64_result { v, 0 };
 }
 
-int crefl_asn1_ber_real_f64_write(crefl_buf *buf, size_t len, const double *value)
+int cinf_asn1_ber_real_f64_write(cinf_buf *buf, size_t len, const double *value)
 {
     f64_asn1_data d = f64_asn1_data_get(*value);
 
@@ -1180,23 +1180,23 @@ int crefl_asn1_ber_real_f64_write(crefl_buf *buf, size_t len, const double *valu
         }
         b = _asn1_real_binary(d.sign, exp_code);
     }
-    if (crefl_buf_write_i8(buf, b) != 1) {
+    if (cinf_buf_write_i8(buf, b) != 1) {
         return -1;
     }
     if ((d.zero && d.sign) || d.inf || d.nan) {
         return 0;
     }
-    if (crefl_asn1_ber_integer_s64_write(buf, d.exp_len, &d.sexp) < 0) {
+    if (cinf_asn1_ber_integer_s64_write(buf, d.exp_len, &d.sexp) < 0) {
         return -1;
     }
-    if (crefl_asn1_ber_integer_u64_write(buf, d.frac_len, &d.frac) < 0) {
+    if (cinf_asn1_ber_integer_u64_write(buf, d.frac_len, &d.frac) < 0) {
         return -1;
     }
 
     return 0;
 }
 
-int crefl_asn1_ber_real_f64_write_byval(crefl_buf *buf, size_t len, const double value)
+int cinf_asn1_ber_real_f64_write_byval(cinf_buf *buf, size_t len, const double value)
 {
     f64_asn1_data d = f64_asn1_data_get(value);
 
@@ -1219,58 +1219,58 @@ int crefl_asn1_ber_real_f64_write_byval(crefl_buf *buf, size_t len, const double
         }
         b = _asn1_real_binary(d.sign, exp_code);
     }
-    if (crefl_buf_write_i8(buf, b) != 1) {
+    if (cinf_buf_write_i8(buf, b) != 1) {
         return -1;
     }
     if ((d.zero && d.sign) || d.inf || d.nan) {
         return 0;
     }
-    if (crefl_asn1_ber_integer_s64_write_byval(buf, d.exp_len, d.sexp) < 0) {
+    if (cinf_asn1_ber_integer_s64_write_byval(buf, d.exp_len, d.sexp) < 0) {
         return -1;
     }
-    if (crefl_asn1_ber_integer_u64_write_byval(buf, d.frac_len, d.frac) < 0) {
+    if (cinf_asn1_ber_integer_u64_write_byval(buf, d.frac_len, d.frac) < 0) {
         return -1;
     }
 
     return 0;
 }
 
-int crefl_asn1_der_real_f64_read(crefl_buf *buf, asn1_tag _tag, double *value)
+int cinf_asn1_der_real_f64_read(cinf_buf *buf, asn1_tag _tag, double *value)
 {
     asn1_hdr hdr;
-    if (crefl_asn1_ber_ident_read(buf, &hdr._id) < 0) return -1;
-    if (crefl_asn1_ber_length_read(buf, &hdr._length) < 0) return -1;
-    return crefl_asn1_ber_real_f64_read(buf, hdr._length, value);
+    if (cinf_asn1_ber_ident_read(buf, &hdr._id) < 0) return -1;
+    if (cinf_asn1_ber_length_read(buf, &hdr._length) < 0) return -1;
+    return cinf_asn1_ber_real_f64_read(buf, hdr._length, value);
 }
 
-f64_result crefl_asn1_der_real_f64_read_byval(crefl_buf *buf, asn1_tag _tag)
+f64_result cinf_asn1_der_real_f64_read_byval(cinf_buf *buf, asn1_tag _tag)
 {
     asn1_hdr hdr;
-    if (crefl_asn1_ber_ident_read(buf, &hdr._id) < 0) return f64_result { 0, -1 };
-    if (crefl_asn1_ber_length_read(buf, &hdr._length) < 0) return f64_result { 0, -1 };
-    return crefl_asn1_ber_real_f64_read_byval(buf, hdr._length);
+    if (cinf_asn1_ber_ident_read(buf, &hdr._id) < 0) return f64_result { 0, -1 };
+    if (cinf_asn1_ber_length_read(buf, &hdr._length) < 0) return f64_result { 0, -1 };
+    return cinf_asn1_ber_real_f64_read_byval(buf, hdr._length);
 }
 
-int crefl_asn1_der_real_f64_write(crefl_buf *buf, asn1_tag _tag, const double *value)
+int cinf_asn1_der_real_f64_write(cinf_buf *buf, asn1_tag _tag, const double *value)
 {
     asn1_hdr hdr = {
-        { (u64)_tag, 0, asn1_class_universal }, crefl_asn1_ber_real_f64_length(value)
+        { (u64)_tag, 0, asn1_class_universal }, cinf_asn1_ber_real_f64_length(value)
     };
 
-    if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) return -1;
-    if (crefl_asn1_ber_length_write(buf, hdr._length) < 0) return -1;
-    return crefl_asn1_ber_real_f64_write(buf, hdr._length, value);
+    if (cinf_asn1_ber_ident_write(buf, hdr._id) < 0) return -1;
+    if (cinf_asn1_ber_length_write(buf, hdr._length) < 0) return -1;
+    return cinf_asn1_ber_real_f64_write(buf, hdr._length, value);
 }
 
-int crefl_asn1_der_real_f64_write_byval(crefl_buf *buf, asn1_tag _tag, const double value)
+int cinf_asn1_der_real_f64_write_byval(cinf_buf *buf, asn1_tag _tag, const double value)
 {
     asn1_hdr hdr = {
-        { (u64)_tag, 0, asn1_class_universal }, crefl_asn1_ber_real_f64_length_byval(value)
+        { (u64)_tag, 0, asn1_class_universal }, cinf_asn1_ber_real_f64_length_byval(value)
     };
 
-    if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) return -1;
-    if (crefl_asn1_ber_length_write(buf, hdr._length) < 0) return -1;
-    return crefl_asn1_ber_real_f64_write_byval(buf, hdr._length, value);
+    if (cinf_asn1_ber_ident_write(buf, hdr._id) < 0) return -1;
+    if (cinf_asn1_ber_length_write(buf, hdr._length) < 0) return -1;
+    return cinf_asn1_ber_real_f64_write_byval(buf, hdr._length, value);
 }
 
 /*
@@ -1278,10 +1278,10 @@ int crefl_asn1_der_real_f64_write_byval(crefl_buf *buf, asn1_tag _tag, const dou
  */
 
 /*
- * crefl_vf_f64_data contains fraction, signed exponent, their
+ * cinf_vf_f64_data contains fraction, signed exponent, their
  * encoded lengths and flags for sign, infinity, nan and zero.
  */
-struct crefl_vf_f64_data
+struct cinf_vf_f64_data
 {
     bool sign;
     s64 sexp;
@@ -1291,17 +1291,17 @@ struct crefl_vf_f64_data
 /*
  * extract exponent and left-justified fraction
  */
-static crefl_vf_f64_data crefl_vf_f64_data_get(double value)
+static cinf_vf_f64_data cinf_vf_f64_data_get(double value)
 {
     bool sign = !!f64_sign_dec(value);
     s64 sexp = (s64)(f64_exp_dec(value) - f64_exp_bias);
     u64 frac = (u64)f64_mant_dec(value) << (f64_exp_size + 1);
 
-    return crefl_vf_f64_data { sign, sexp, frac };
+    return cinf_vf_f64_data { sign, sexp, frac };
 }
 
 #if DEBUG_ENCODING
-static void _crefl_vf_f64_debug(double v, u8 pre, s64 vp_exp, u64 vp_man, s64 vd_exp, u64 vd_man)
+static void _cinf_vf_f64_debug(double v, u8 pre, s64 vp_exp, u64 vp_man, s64 vd_exp, u64 vd_man)
 {
     bool vf_inl = ! ((pre >> 7) & 1);
     bool vf_sgn =    (pre >> 6) & 1;
@@ -1331,7 +1331,7 @@ static void _crefl_vf_f64_debug(double v, u8 pre, s64 vp_exp, u64 vp_man, s64 vd
 }
 #endif
 
-int crefl_vf_f64_read(crefl_buf *buf, double *value)
+int cinf_vf_f64_read(cinf_buf *buf, double *value)
 {
     s8 pre;
     double v = 0;
@@ -1344,7 +1344,7 @@ int crefl_vf_f64_read(crefl_buf *buf, double *value)
     u64 vp_man = 0;
     s64 vp_exp = 0;
 
-    if (crefl_buf_read_i8(buf, &pre) != 1) {
+    if (cinf_buf_read_i8(buf, &pre) != 1) {
         goto err;
     }
 
@@ -1354,10 +1354,10 @@ int crefl_vf_f64_read(crefl_buf *buf, double *value)
     vf_man =     pre       & 15;
 
     if (!vf_inl) {
-        if (vf_exp && crefl_le_ber_integer_s64_read(buf, vf_exp, &vr_exp) < 0) {
+        if (vf_exp && cinf_le_ber_integer_s64_read(buf, vf_exp, &vr_exp) < 0) {
             goto err;
         }
-        if (vf_man && crefl_le_ber_integer_u64_read(buf, vf_man, &vr_man) < 0) {
+        if (vf_man && cinf_le_ber_integer_u64_read(buf, vf_man, &vr_man) < 0) {
             goto err;
         }
     }
@@ -1415,7 +1415,7 @@ int crefl_vf_f64_read(crefl_buf *buf, double *value)
     *value = v;
 
 #if DEBUG_ENCODING
-    _crefl_vf_f64_debug(v, pre, vp_exp - f64_exp_bias, vp_man << 12, vr_exp, vr_man);
+    _cinf_vf_f64_debug(v, pre, vp_exp - f64_exp_bias, vp_man << 12, vr_exp, vr_man);
 #endif
 
     return 0;
@@ -1429,7 +1429,7 @@ enum : u64 {
     u64_msn = 0xf000000000000000ull
 };
 
-f64_result crefl_vf_f64_read_byval(crefl_buf *buf)
+f64_result cinf_vf_f64_read_byval(cinf_buf *buf)
 {
     s8 pre;
     double v = 0;
@@ -1442,7 +1442,7 @@ f64_result crefl_vf_f64_read_byval(crefl_buf *buf)
     u64 vp_man = 0;
     s64 vp_exp = 0;
 
-    if (crefl_buf_read_i8(buf, &pre) != 1) {
+    if (cinf_buf_read_i8(buf, &pre) != 1) {
         return f64_result { 0, -1 };
     }
 
@@ -1453,12 +1453,12 @@ f64_result crefl_vf_f64_read_byval(crefl_buf *buf)
 
     if (!vf_inl) {
         if (vf_exp) {
-            s64_result r = crefl_le_ber_integer_s64_read_byval(buf, vf_exp);
+            s64_result r = cinf_le_ber_integer_s64_read_byval(buf, vf_exp);
             if (r.error < 0) return f64_result { 0, r.error };
             vr_exp = r.value;
         }
         if (vf_man) {
-            u64_result r = crefl_le_ber_integer_u64_read_byval(buf, vf_man);
+            u64_result r = cinf_le_ber_integer_u64_read_byval(buf, vf_man);
             if (r.error < 0) return f64_result { 0, r.error };
             vr_man = r.value;
         }
@@ -1516,17 +1516,17 @@ f64_result crefl_vf_f64_read_byval(crefl_buf *buf)
     v = f64_pack_float(f64_struct{vp_man, (u64)vp_exp, vf_sgn});
 
 #if DEBUG_ENCODING
-    _crefl_vf_f64_debug(v, pre, vp_exp - f64_exp_bias, vp_man << 12, vr_exp, vr_man);
+    _cinf_vf_f64_debug(v, pre, vp_exp - f64_exp_bias, vp_man << 12, vr_exp, vr_man);
 #endif
 
     return f64_result { v, 0 };
 }
 
-int crefl_vf_f64_write(crefl_buf *buf, const double *value)
+int cinf_vf_f64_write(cinf_buf *buf, const double *value)
 {
     s8 pre;
     double v = *value;
-    crefl_vf_f64_data d = crefl_vf_f64_data_get(v);
+    cinf_vf_f64_data d = cinf_vf_f64_data_get(v);
     int vf_exp = 0;
     int vf_man = 0;
     u64 vw_man = 0;
@@ -1564,13 +1564,13 @@ int crefl_vf_f64_write(crefl_buf *buf, const double *value)
         if (d.sexp == -(s64)f64_exp_bias) {
             vw_man = d.frac >> tz;
             vw_exp = d.sexp - lz - 1;
-            vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
-            vf_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
+            vf_exp = (u8)cinf_le_ber_integer_s64_length_byval(vw_exp);
+            vf_man = (u8)cinf_le_ber_integer_u64_length_byval(vw_man);
             pre = 0x80 | (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
         else if (d.frac == 0) {
             vw_exp = d.sexp;
-            vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
+            vf_exp = (u8)cinf_le_ber_integer_s64_length_byval(vw_exp);
             pre = 0x80 | (d.sign << 6) | (vf_exp << 4);
         }
         else if (d.sexp < 0 && d.sexp >= -8) {
@@ -1585,9 +1585,9 @@ int crefl_vf_f64_write(crefl_buf *buf, const double *value)
             size_t sh = -d.sexp - 1;
             u64 vw_man_a = (d.frac >> tz) | (u64_msb >> (tz - 1));
             u64 vw_man_b = ((d.frac >> tz) << sh) | ((u64_msb >> (tz - 1)) << sh);
-            int vf_exp_a = (u8)crefl_le_ber_integer_s64_length_byval(d.sexp);
-            int vf_man_a = (u8)crefl_le_ber_integer_u64_length_byval(vw_man_a);
-            int vf_man_b = (u8)crefl_le_ber_integer_u64_length_byval(vw_man_b);
+            int vf_exp_a = (u8)cinf_le_ber_integer_s64_length_byval(d.sexp);
+            int vf_man_a = (u8)cinf_le_ber_integer_u64_length_byval(vw_man_a);
+            int vf_man_b = (u8)cinf_le_ber_integer_u64_length_byval(vw_man_b);
             if (vf_man_a + vf_exp_a < vf_man_b) {
                 vw_man = vw_man_a;
                 vw_exp = d.sexp;
@@ -1602,38 +1602,38 @@ int crefl_vf_f64_write(crefl_buf *buf, const double *value)
         else {
             vw_man = (d.frac >> tz) | (u64_msb >> (tz - 1));
             vw_exp = d.sexp;
-            vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
-            vf_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
+            vf_exp = (u8)cinf_le_ber_integer_s64_length_byval(vw_exp);
+            vf_man = (u8)cinf_le_ber_integer_u64_length_byval(vw_man);
             pre = 0x80 | (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
         /* vf_exp and vf_man contain length of exponent and fraction in bytes */
     }
 
-    if (crefl_buf_write_i8(buf, pre) != 1) {
+    if (cinf_buf_write_i8(buf, pre) != 1) {
         return -1;
     }
 
     if ((pre & 0x80)) {
-        if (vf_exp && crefl_le_ber_integer_s64_write_byval(buf, vf_exp, vw_exp) < 0) {
+        if (vf_exp && cinf_le_ber_integer_s64_write_byval(buf, vf_exp, vw_exp) < 0) {
             return -1;
         }
-        if (vf_man && crefl_le_ber_integer_u64_write_byval(buf, vf_man, vw_man) < 0) {
+        if (vf_man && cinf_le_ber_integer_u64_write_byval(buf, vf_man, vw_man) < 0) {
             return -1;
         }
     }
 
 #if DEBUG_ENCODING
-    _crefl_vf_f64_debug(v, pre, d.sexp, d.frac, vw_exp, vw_man);
+    _cinf_vf_f64_debug(v, pre, d.sexp, d.frac, vw_exp, vw_man);
 #endif
 
     return 0;
 }
 
-int crefl_vf_f64_write_byval(crefl_buf *buf, const double value)
+int cinf_vf_f64_write_byval(cinf_buf *buf, const double value)
 {
     s8 pre;
     const double v = value;
-    crefl_vf_f64_data d = crefl_vf_f64_data_get(v);
+    cinf_vf_f64_data d = cinf_vf_f64_data_get(v);
     int vf_exp = 0;
     int vf_man = 0;
     u64 vw_man = 0;
@@ -1671,13 +1671,13 @@ int crefl_vf_f64_write_byval(crefl_buf *buf, const double value)
         if (d.sexp == -(s64)f64_exp_bias) {
             vw_man = d.frac >> tz;
             vw_exp = d.sexp - lz - 1;
-            vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
-            vf_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
+            vf_exp = (u8)cinf_le_ber_integer_s64_length_byval(vw_exp);
+            vf_man = (u8)cinf_le_ber_integer_u64_length_byval(vw_man);
             pre = 0x80 | (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
         else if (d.frac == 0) {
             vw_exp = d.sexp;
-            vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
+            vf_exp = (u8)cinf_le_ber_integer_s64_length_byval(vw_exp);
             pre = 0x80 | (d.sign << 6) | (vf_exp << 4);
         }
         else if (d.sexp < 0 && d.sexp >= -8) {
@@ -1692,9 +1692,9 @@ int crefl_vf_f64_write_byval(crefl_buf *buf, const double value)
             size_t sh = -d.sexp - 1;
             u64 vw_man_a = (d.frac >> tz) | (u64_msb >> (tz - 1));
             u64 vw_man_b = ((d.frac >> tz) << sh) | ((u64_msb >> (tz - 1)) << sh);
-            int vf_exp_a = (u8)crefl_le_ber_integer_s64_length_byval(d.sexp);
-            int vf_man_a = (u8)crefl_le_ber_integer_u64_length_byval(vw_man_a);
-            int vf_man_b = (u8)crefl_le_ber_integer_u64_length_byval(vw_man_b);
+            int vf_exp_a = (u8)cinf_le_ber_integer_s64_length_byval(d.sexp);
+            int vf_man_a = (u8)cinf_le_ber_integer_u64_length_byval(vw_man_a);
+            int vf_man_b = (u8)cinf_le_ber_integer_u64_length_byval(vw_man_b);
             if (vf_man_a + vf_exp_a < vf_man_b) {
                 vw_man = vw_man_a;
                 vw_exp = d.sexp;
@@ -1709,28 +1709,28 @@ int crefl_vf_f64_write_byval(crefl_buf *buf, const double value)
         else {
             vw_man = (d.frac >> tz) | (u64_msb >> (tz - 1));
             vw_exp = d.sexp;
-            vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
-            vf_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
+            vf_exp = (u8)cinf_le_ber_integer_s64_length_byval(vw_exp);
+            vf_man = (u8)cinf_le_ber_integer_u64_length_byval(vw_man);
             pre = 0x80 | (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
         /* vf_exp and vf_man contain length of exponent and fraction in bytes */
     }
 
-    if (crefl_buf_write_i8(buf, pre) != 1) {
+    if (cinf_buf_write_i8(buf, pre) != 1) {
         return -1;
     }
 
     if ((pre & 0x80)) {
-        if (vf_exp && crefl_le_ber_integer_s64_write_byval(buf, vf_exp, vw_exp) < 0) {
+        if (vf_exp && cinf_le_ber_integer_s64_write_byval(buf, vf_exp, vw_exp) < 0) {
             return -1;
         }
-        if (vf_man && crefl_le_ber_integer_u64_write_byval(buf, vf_man, vw_man) < 0) {
+        if (vf_man && cinf_le_ber_integer_u64_write_byval(buf, vf_man, vw_man) < 0) {
             return -1;
         }
     }
 
 #if DEBUG_ENCODING
-    _crefl_vf_f64_debug(v, pre, d.sexp, d.frac, vw_exp, vw_man);
+    _cinf_vf_f64_debug(v, pre, d.sexp, d.frac, vw_exp, vw_man);
 #endif
 
     return 0;
@@ -1741,10 +1741,10 @@ int crefl_vf_f64_write_byval(crefl_buf *buf, const double value)
  */
 
 /*
- * crefl_vf_f32_data contains fraction, signed exponent, their
+ * cinf_vf_f32_data contains fraction, signed exponent, their
  * encoded lengths and flags for sign, infinity, nan and zero.
  */
-struct crefl_vf_f32_data
+struct cinf_vf_f32_data
 {
     bool sign;
     s32 sexp;
@@ -1754,17 +1754,17 @@ struct crefl_vf_f32_data
 /*
  * extract exponent and left-justified fraction
  */
-static crefl_vf_f32_data crefl_vf_f32_data_get(float value)
+static cinf_vf_f32_data cinf_vf_f32_data_get(float value)
 {
     bool sign = !!f32_sign_dec(value);
     s32 sexp = (s32)(f32_exp_dec(value) - f32_exp_bias);
     u32 frac = (u32)f32_mant_dec(value) << (f32_exp_size + 1);
 
-    return crefl_vf_f32_data { sign, sexp, frac };
+    return cinf_vf_f32_data { sign, sexp, frac };
 }
 
 #if DEBUG_ENCODING
-static void _crefl_vf_f32_debug(float v, u8 pre, s32 vp_exp, u32 vp_man, s32 vd_exp, u32 vd_man)
+static void _cinf_vf_f32_debug(float v, u8 pre, s32 vp_exp, u32 vp_man, s32 vd_exp, u32 vd_man)
 {
     bool vf_inl = ! ((pre >> 7) & 1);
     bool vf_sgn =    (pre >> 6) & 1;
@@ -1794,7 +1794,7 @@ static void _crefl_vf_f32_debug(float v, u8 pre, s32 vp_exp, u32 vp_man, s32 vd_
 }
 #endif
 
-int crefl_vf_f32_read(crefl_buf *buf, float *value)
+int cinf_vf_f32_read(cinf_buf *buf, float *value)
 {
     s8 pre;
     float v = 0;
@@ -1807,7 +1807,7 @@ int crefl_vf_f32_read(crefl_buf *buf, float *value)
     u32 vp_man = 0;
     s32 vp_exp = 0;
 
-    if (crefl_buf_read_i8(buf, &pre) != 1) {
+    if (cinf_buf_read_i8(buf, &pre) != 1) {
         goto err;
     }
 
@@ -1818,12 +1818,12 @@ int crefl_vf_f32_read(crefl_buf *buf, float *value)
 
     if (!vf_inl) {
         if (vf_exp) {
-            s64_result r = crefl_le_ber_integer_s64_read_byval(buf, vf_exp);
+            s64_result r = cinf_le_ber_integer_s64_read_byval(buf, vf_exp);
             if (r.error < 0) goto err;
             vr_exp = (s32)r.value;
         }
         if (vf_man) {
-            u64_result r = crefl_le_ber_integer_u64_read_byval(buf, vf_man);
+            u64_result r = cinf_le_ber_integer_u64_read_byval(buf, vf_man);
             if (r.error < 0) goto err;
 
             /* if there are less than 32 leading zeros, then we must
@@ -1887,7 +1887,7 @@ int crefl_vf_f32_read(crefl_buf *buf, float *value)
     *value = v;
 
 #if DEBUG_ENCODING
-    _crefl_vf_f32_debug(v, pre, vp_exp - f32_exp_bias, vp_man << 9, vr_exp, vr_man);
+    _cinf_vf_f32_debug(v, pre, vp_exp - f32_exp_bias, vp_man << 9, vr_exp, vr_man);
 #endif
 
     return 0;
@@ -1901,7 +1901,7 @@ enum : u32 {
     u32_msn = 0xf0000000u
 };
 
-f32_result crefl_vf_f32_read_byval(crefl_buf *buf)
+f32_result cinf_vf_f32_read_byval(cinf_buf *buf)
 {
     s8 pre;
     float v = 0;
@@ -1914,7 +1914,7 @@ f32_result crefl_vf_f32_read_byval(crefl_buf *buf)
     u32 vp_man = 0;
     s32 vp_exp = 0;
 
-    if (crefl_buf_read_i8(buf, &pre) != 1) {
+    if (cinf_buf_read_i8(buf, &pre) != 1) {
         return f32_result { 0, -1 };
     }
 
@@ -1925,12 +1925,12 @@ f32_result crefl_vf_f32_read_byval(crefl_buf *buf)
 
     if (!vf_inl) {
         if (vf_exp) {
-            s64_result r = crefl_le_ber_integer_s64_read_byval(buf, vf_exp);
+            s64_result r = cinf_le_ber_integer_s64_read_byval(buf, vf_exp);
             if (r.error < 0) return f32_result { 0, (s32)r.error };
             vr_exp = (s32)r.value;
         }
         if (vf_man) {
-            u64_result r = crefl_le_ber_integer_u64_read_byval(buf, vf_man);
+            u64_result r = cinf_le_ber_integer_u64_read_byval(buf, vf_man);
             if (r.error < 0) return f32_result { 0, (s32)r.error };
 
             /* if there are less than 32 leading zeros, then we must
@@ -1993,17 +1993,17 @@ f32_result crefl_vf_f32_read_byval(crefl_buf *buf)
     v = f32_pack_float(f32_struct{vp_man, (u32)vp_exp, vf_sgn});
 
 #if DEBUG_ENCODING
-    _crefl_vf_f32_debug(v, pre, vp_exp - f32_exp_bias, vp_man << 9, vr_exp, vr_man);
+    _cinf_vf_f32_debug(v, pre, vp_exp - f32_exp_bias, vp_man << 9, vr_exp, vr_man);
 #endif
 
     return f32_result { v, 0 };
 }
 
-int crefl_vf_f32_write(crefl_buf *buf, const float *value)
+int cinf_vf_f32_write(cinf_buf *buf, const float *value)
 {
     s8 pre;
     float v = *value;
-    crefl_vf_f32_data d = crefl_vf_f32_data_get(v);
+    cinf_vf_f32_data d = cinf_vf_f32_data_get(v);
     int vf_exp = 0;
     int vf_man = 0;
     u32 vw_man = 0;
@@ -2041,13 +2041,13 @@ int crefl_vf_f32_write(crefl_buf *buf, const float *value)
         if (d.sexp == -(s32)f32_exp_bias) {
             vw_man = d.frac >> tz;
             vw_exp = d.sexp - (u32)lz - 1;
-            vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
-            vf_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
+            vf_exp = (u8)cinf_le_ber_integer_s64_length_byval(vw_exp);
+            vf_man = (u8)cinf_le_ber_integer_u64_length_byval(vw_man);
             pre = 0x80 | (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
         else if (d.frac == 0) {
             vw_exp = d.sexp;
-            vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
+            vf_exp = (u8)cinf_le_ber_integer_s64_length_byval(vw_exp);
             pre = 0x80 | (d.sign << 6) | (vf_exp << 4);
         }
         else if (d.sexp < 0 && d.sexp >= -8) {
@@ -2062,9 +2062,9 @@ int crefl_vf_f32_write(crefl_buf *buf, const float *value)
             size_t sh = -d.sexp - 1;
             u32 vw_man_a = (d.frac >> tz) | (u32_msb >> (tz - 1));
             u32 vw_man_b = ((d.frac >> tz) << sh) | ((u32_msb >> (tz - 1)) << sh);
-            int vf_exp_a = (u8)crefl_le_ber_integer_s64_length_byval(d.sexp);
-            int vf_man_a = (u8)crefl_le_ber_integer_u64_length_byval(vw_man_a);
-            int vf_man_b = (u8)crefl_le_ber_integer_u64_length_byval(vw_man_b);
+            int vf_exp_a = (u8)cinf_le_ber_integer_s64_length_byval(d.sexp);
+            int vf_man_a = (u8)cinf_le_ber_integer_u64_length_byval(vw_man_a);
+            int vf_man_b = (u8)cinf_le_ber_integer_u64_length_byval(vw_man_b);
             if (vf_man_a + vf_exp_a < vf_man_b) {
                 vw_man = vw_man_a;
                 vw_exp = d.sexp;
@@ -2079,38 +2079,38 @@ int crefl_vf_f32_write(crefl_buf *buf, const float *value)
         else {
             vw_man = (d.frac >> tz) | (u32_msb >> (tz - 1));
             vw_exp = d.sexp;
-            vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
-            vf_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
+            vf_exp = (u8)cinf_le_ber_integer_s64_length_byval(vw_exp);
+            vf_man = (u8)cinf_le_ber_integer_u64_length_byval(vw_man);
             pre = 0x80 | (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
         /* vf_exp and vf_man contain length of exponent and fraction in bytes */
     }
 
-    if (crefl_buf_write_i8(buf, pre) != 1) {
+    if (cinf_buf_write_i8(buf, pre) != 1) {
         return -1;
     }
 
     if ((pre & 0x80)) {
-        if (vf_exp && crefl_le_ber_integer_s64_write_byval(buf, vf_exp, vw_exp) < 0) {
+        if (vf_exp && cinf_le_ber_integer_s64_write_byval(buf, vf_exp, vw_exp) < 0) {
             return -1;
         }
-        if (vf_man && crefl_le_ber_integer_u64_write_byval(buf, vf_man, vw_man) < 0) {
+        if (vf_man && cinf_le_ber_integer_u64_write_byval(buf, vf_man, vw_man) < 0) {
             return -1;
         }
     }
 
 #if DEBUG_ENCODING
-    _crefl_vf_f32_debug(v, pre, d.sexp, d.frac, vw_exp, vw_man);
+    _cinf_vf_f32_debug(v, pre, d.sexp, d.frac, vw_exp, vw_man);
 #endif
 
     return 0;
 }
 
-int crefl_vf_f32_write_byval(crefl_buf *buf, const float value)
+int cinf_vf_f32_write_byval(cinf_buf *buf, const float value)
 {
     s8 pre;
     const float v = value;
-    crefl_vf_f32_data d = crefl_vf_f32_data_get(v);
+    cinf_vf_f32_data d = cinf_vf_f32_data_get(v);
     int vf_exp = 0;
     int vf_man = 0;
     u32 vw_man = 0;
@@ -2148,13 +2148,13 @@ int crefl_vf_f32_write_byval(crefl_buf *buf, const float value)
         if (d.sexp == -(s32)f32_exp_bias) {
             vw_man = d.frac >> tz;
             vw_exp = d.sexp - (u32)lz - 1;
-            vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
-            vf_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
+            vf_exp = (u8)cinf_le_ber_integer_s64_length_byval(vw_exp);
+            vf_man = (u8)cinf_le_ber_integer_u64_length_byval(vw_man);
             pre = 0x80 | (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
         else if (d.frac == 0) {
             vw_exp = d.sexp;
-            vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
+            vf_exp = (u8)cinf_le_ber_integer_s64_length_byval(vw_exp);
             pre = 0x80 | (d.sign << 6) | (vf_exp << 4);
         }
         else if (d.sexp < 0 && d.sexp >= -8) {
@@ -2169,9 +2169,9 @@ int crefl_vf_f32_write_byval(crefl_buf *buf, const float value)
             size_t sh = -d.sexp - 1;
             u32 vw_man_a = (d.frac >> tz) | (u32_msb >> (tz - 1));
             u32 vw_man_b = ((d.frac >> tz) << sh) | ((u32_msb >> (tz - 1)) << sh);
-            int vf_exp_a = (u8)crefl_le_ber_integer_s64_length_byval(d.sexp);
-            int vf_man_a = (u8)crefl_le_ber_integer_u64_length_byval(vw_man_a);
-            int vf_man_b = (u8)crefl_le_ber_integer_u64_length_byval(vw_man_b);
+            int vf_exp_a = (u8)cinf_le_ber_integer_s64_length_byval(d.sexp);
+            int vf_man_a = (u8)cinf_le_ber_integer_u64_length_byval(vw_man_a);
+            int vf_man_b = (u8)cinf_le_ber_integer_u64_length_byval(vw_man_b);
             if (vf_man_a + vf_exp_a < vf_man_b) {
                 vw_man = vw_man_a;
                 vw_exp = d.sexp;
@@ -2186,28 +2186,28 @@ int crefl_vf_f32_write_byval(crefl_buf *buf, const float value)
         else {
             vw_man = (d.frac >> tz) | (u32_msb >> (tz - 1));
             vw_exp = d.sexp;
-            vf_exp = (u8)crefl_le_ber_integer_s64_length_byval(vw_exp);
-            vf_man = (u8)crefl_le_ber_integer_u64_length_byval(vw_man);
+            vf_exp = (u8)cinf_le_ber_integer_s64_length_byval(vw_exp);
+            vf_man = (u8)cinf_le_ber_integer_u64_length_byval(vw_man);
             pre = 0x80 | (d.sign << 6) | (vf_exp << 4) | vf_man;
         }
         /* vf_exp and vf_man contain length of exponent and fraction in bytes */
     }
 
-    if (crefl_buf_write_i8(buf, pre) != 1) {
+    if (cinf_buf_write_i8(buf, pre) != 1) {
         return -1;
     }
 
     if ((pre & 0x80)) {
-        if (vf_exp && crefl_le_ber_integer_s64_write_byval(buf, vf_exp, vw_exp) < 0) {
+        if (vf_exp && cinf_le_ber_integer_s64_write_byval(buf, vf_exp, vw_exp) < 0) {
             return -1;
         }
-        if (vf_man && crefl_le_ber_integer_u64_write_byval(buf, vf_man, vw_man) < 0) {
+        if (vf_man && cinf_le_ber_integer_u64_write_byval(buf, vf_man, vw_man) < 0) {
             return -1;
         }
     }
 
 #if DEBUG_ENCODING
-    _crefl_vf_f32_debug(v, pre, d.sexp, d.frac, vw_exp, vw_man);
+    _cinf_vf_f32_debug(v, pre, d.sexp, d.frac, vw_exp, vw_man);
 #endif
 
     return 0;
@@ -2217,14 +2217,14 @@ int crefl_vf_f32_write_byval(crefl_buf *buf, const float value)
  * LEB128
  */
 
-int crefl_leb_u64_read(crefl_buf *buf, u64 *value)
+int cinf_leb_u64_read(cinf_buf *buf, u64 *value)
 {
     int8_t b;
     size_t w = 0;
     u64 v = 0;
 
     do {
-        if (crefl_buf_read_i8(buf, &b) != 1) {
+        if (cinf_buf_read_i8(buf, &b) != 1) {
             goto err;
         }
         v |= ((u64)b & 0x7f) << w;
@@ -2242,14 +2242,14 @@ err:
     return -1;
 }
 
-u64_result crefl_leb_u64_read_byval(crefl_buf *buf)
+u64_result cinf_leb_u64_read_byval(cinf_buf *buf)
 {
     int8_t b;
     size_t w = 0;
     u64 v = 0;
 
     do {
-        if (crefl_buf_read_i8(buf, &b) != 1) {
+        if (cinf_buf_read_i8(buf, &b) != 1) {
             return u64_result { 0, -1 };
         }
         v |= ((u64)b & 0x7f) << w;
@@ -2263,7 +2263,7 @@ u64_result crefl_leb_u64_read_byval(crefl_buf *buf)
     return u64_result { v, 0 };
 }
 
-int crefl_leb_u64_write(crefl_buf *buf, const u64 *value)
+int cinf_leb_u64_write(cinf_buf *buf, const u64 *value)
 {
     size_t len, i;
     u64 x = *value;
@@ -2274,23 +2274,23 @@ int crefl_leb_u64_write(crefl_buf *buf, const u64 *value)
     }
 
     len = (x == 0) ? 1 : 8 - ((clz(x) - 1) / 7) + 1;
-    if (crefl_buf_check_capacity(buf, len) < 0) {
+    if (cinf_buf_check_capacity(buf, len) < 0) {
         return -1;
     }
     for (i = 0; i < len - 1; i++) {
-        if (crefl_buf_write_unchecked_i8(buf, ((x & 0x7f) | 0x80)) != 1) {
+        if (cinf_buf_write_unchecked_i8(buf, ((x & 0x7f) | 0x80)) != 1) {
             return -1;
         }
         x >>= 7;
     }
-    if (crefl_buf_write_unchecked_i8(buf, (x & 0x7f)) != 1) {
+    if (cinf_buf_write_unchecked_i8(buf, (x & 0x7f)) != 1) {
         return -1;
     }
 
     return 0;
 }
 
-int crefl_leb_u64_write_byval(crefl_buf *buf, const u64 value)
+int cinf_leb_u64_write_byval(cinf_buf *buf, const u64 value)
 {
     size_t len, i;
     u64 x = value;
@@ -2301,16 +2301,16 @@ int crefl_leb_u64_write_byval(crefl_buf *buf, const u64 value)
     }
 
     len = (x == 0) ? 1 : 8 - ((clz(x) - 1) / 7) + 1;
-    if (crefl_buf_check_capacity(buf, len) < 0) {
+    if (cinf_buf_check_capacity(buf, len) < 0) {
         return -1;
     }
     for (i = 0; i < len - 1; i++) {
-        if (crefl_buf_write_unchecked_i8(buf, ((x & 0x7f) | 0x80)) != 1) {
+        if (cinf_buf_write_unchecked_i8(buf, ((x & 0x7f) | 0x80)) != 1) {
             return -1;
         }
         x >>= 7;
     }
-    if (crefl_buf_write_unchecked_i8(buf, (x & 0x7f)) != 1) {
+    if (cinf_buf_write_unchecked_i8(buf, (x & 0x7f)) != 1) {
         return -1;
     }
 
@@ -2321,13 +2321,13 @@ int crefl_leb_u64_write_byval(crefl_buf *buf, const u64 value)
  * VLU
  */
 
-int crefl_vlu_u64_read(crefl_buf *buf, u64 *value)
+int cinf_vlu_u64_read(cinf_buf *buf, u64 *value)
 {
     size_t len;
     int8_t b;
     u64 v = 0;
 
-    if (crefl_buf_read_i8(buf, &b) != 1) {
+    if (cinf_buf_read_i8(buf, &b) != 1) {
         goto err;
     }
 
@@ -2335,7 +2335,7 @@ int crefl_vlu_u64_read(crefl_buf *buf, u64 *value)
     if (len > 8) {
         goto err;
     }
-    if (len > 1 && crefl_le_ber_integer_u64_read(buf, len - 1, &v) < 0) {
+    if (len > 1 && cinf_le_ber_integer_u64_read(buf, len - 1, &v) < 0) {
         goto err;
     }
     v = ((u64)(u8)b >> len) | v << (8 - len);
@@ -2347,14 +2347,14 @@ err:
     return -1;
 }
 
-u64_result crefl_vlu_u64_read_byval(crefl_buf *buf)
+u64_result cinf_vlu_u64_read_byval(cinf_buf *buf)
 {
     size_t len;
     int8_t b;
     u64_result r;
     u64 v = 0;
 
-    if (crefl_buf_read_i8(buf, &b) != 1) {
+    if (cinf_buf_read_i8(buf, &b) != 1) {
         return u64_result { 0, -1 };
     }
 
@@ -2363,7 +2363,7 @@ u64_result crefl_vlu_u64_read_byval(crefl_buf *buf)
         return u64_result { 0, -1 };
     }
     if (len > 1) {
-        r = crefl_le_ber_integer_u64_read_byval(buf, len - 1);
+        r = cinf_le_ber_integer_u64_read_byval(buf, len - 1);
         if (r.error < 0) {
             return u64_result { 0, r.error };
         }
@@ -2372,7 +2372,7 @@ u64_result crefl_vlu_u64_read_byval(crefl_buf *buf)
     return u64_result { ((u64)(u8)b >> len) | v << (8 - len), 0 };
 }
 
-int crefl_vlu_u64_write(crefl_buf *buf, const u64 *value)
+int cinf_vlu_u64_write(cinf_buf *buf, const u64 *value)
 {
     size_t len;
     const u64 x = *value;
@@ -2385,14 +2385,14 @@ int crefl_vlu_u64_write(crefl_buf *buf, const u64 *value)
     len = (x == 0) ? 1 : 8 - ((clz(x) - 1) / 7) + 1;
     v = (x << len) | ((1ull << (len-1))-1);
 
-    if (crefl_le_ber_integer_u64_write(buf, len, &v) < 0) {
+    if (cinf_le_ber_integer_u64_write(buf, len, &v) < 0) {
         return -1;
     }
 
     return 0;
 }
 
-int crefl_vlu_u64_write_byval(crefl_buf *buf, const u64 value)
+int cinf_vlu_u64_write_byval(cinf_buf *buf, const u64 value)
 {
     size_t len;
     const u64 x = value;
@@ -2405,7 +2405,7 @@ int crefl_vlu_u64_write_byval(crefl_buf *buf, const u64 value)
     len = (x == 0) ? 1 : 8 - ((clz(x) - 1) / 7) + 1;
     v = (x << len) | ((1ull << (len-1))-1);
 
-    if (crefl_le_ber_integer_u64_write_byval(buf, len, v) < 0) {
+    if (cinf_le_ber_integer_u64_write_byval(buf, len, v) < 0) {
         return -1;
     }
 
@@ -2418,7 +2418,7 @@ int crefl_vlu_u64_write_byval(crefl_buf *buf, const u64 value)
  * read and write object identifier value
  */
 
-size_t crefl_asn1_ber_oid_length(const asn1_oid *obj)
+size_t cinf_asn1_ber_oid_length(const asn1_oid *obj)
 {
     size_t length = 0;
     for (size_t i = 0; i < obj->count; i++) {
@@ -2426,23 +2426,23 @@ size_t crefl_asn1_ber_oid_length(const asn1_oid *obj)
          * 8.19.4 rule where first two components are combined -> (X*40) + Y
          */
         if (i == 0 && obj->count > 1) {
-            length = crefl_asn1_ber_tag_length(obj->oid[0] * 40 + obj->oid[1]);
+            length = cinf_asn1_ber_tag_length(obj->oid[0] * 40 + obj->oid[1]);
             i++;
         } else {
-            length += crefl_asn1_ber_tag_length(obj->oid[i]);
+            length += cinf_asn1_ber_tag_length(obj->oid[i]);
         }
     }
     return length;
 }
 
-int crefl_asn1_ber_oid_read(crefl_buf *buf, size_t len, asn1_oid *obj)
+int cinf_asn1_ber_oid_read(cinf_buf *buf, size_t len, asn1_oid *obj)
 {
-    size_t start = crefl_buf_offset(buf), offset = start;
+    size_t start = cinf_buf_offset(buf), offset = start;
     size_t n = 0, limit = asn1_oid_comp_max;
     u64 comp;
 
     while ((offset - start) < len) {
-        if (crefl_asn1_ber_tag_read(buf, &comp) < 0) goto err;
+        if (cinf_asn1_ber_tag_read(buf, &comp) < 0) goto err;
         /*
          * 8.19.4 rule where first two components are combined -> (X*40) + Y
          */
@@ -2456,7 +2456,7 @@ int crefl_asn1_ber_oid_read(crefl_buf *buf, size_t len, asn1_oid *obj)
             if (n < limit) obj->oid[n] = comp;
             n++;
         }
-        offset = crefl_buf_offset(buf);
+        offset = cinf_buf_offset(buf);
     }
     obj->count = n;
     return 0;
@@ -2465,17 +2465,17 @@ err:
     return -1;
 }
 
-int crefl_asn1_ber_oid_write(crefl_buf *buf, size_t len, const asn1_oid *obj)
+int cinf_asn1_ber_oid_write(cinf_buf *buf, size_t len, const asn1_oid *obj)
 {
     for (size_t i = 0; i < obj->count; i++) {
         /*
          * 8.19.4 rule where first two components are combined -> (X*40) + Y
          */
         if (i == 0 && obj->count > 1) {
-            if (crefl_asn1_ber_tag_write(buf, obj->oid[0] * 40 + obj->oid[1]) < 0) goto err;
+            if (cinf_asn1_ber_tag_write(buf, obj->oid[0] * 40 + obj->oid[1]) < 0) goto err;
             i++;
         } else {
-            if (crefl_asn1_ber_tag_write(buf, obj->oid[i]) < 0) goto err;
+            if (cinf_asn1_ber_tag_write(buf, obj->oid[i]) < 0) goto err;
         }
     }
 
@@ -2484,26 +2484,26 @@ err:
     return -1;
 }
 
-int crefl_asn1_der_oid_read(crefl_buf *buf, asn1_tag _tag, asn1_oid *obj)
+int cinf_asn1_der_oid_read(cinf_buf *buf, asn1_tag _tag, asn1_oid *obj)
 {
     asn1_hdr hdr;
-    if (crefl_asn1_ber_ident_read(buf, &hdr._id) < 0) return -1;
-    if (crefl_asn1_ber_length_read(buf, &hdr._length) < 0) return -1;
-    return crefl_asn1_ber_oid_read(buf, hdr._length, obj);
+    if (cinf_asn1_ber_ident_read(buf, &hdr._id) < 0) return -1;
+    if (cinf_asn1_ber_length_read(buf, &hdr._length) < 0) return -1;
+    return cinf_asn1_ber_oid_read(buf, hdr._length, obj);
 }
 
-int crefl_asn1_der_oid_write(crefl_buf *buf, asn1_tag _tag, const asn1_oid *obj)
+int cinf_asn1_der_oid_write(cinf_buf *buf, asn1_tag _tag, const asn1_oid *obj)
 {
     asn1_hdr hdr = {
-        { (u64)_tag, 0, asn1_class_universal }, crefl_asn1_ber_oid_length(obj)
+        { (u64)_tag, 0, asn1_class_universal }, cinf_asn1_ber_oid_length(obj)
     };
 
-    if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) return -1;
-    if (crefl_asn1_ber_length_write(buf, hdr._length) < 0) return -1;
-    return crefl_asn1_ber_oid_write(buf, hdr._length, obj);
+    if (cinf_asn1_ber_ident_write(buf, hdr._id) < 0) return -1;
+    if (cinf_asn1_ber_length_write(buf, hdr._length) < 0) return -1;
+    return cinf_asn1_ber_oid_write(buf, hdr._length, obj);
 }
 
-int crefl_asn1_oid_to_string(char *str, size_t *buflen, const asn1_oid *obj)
+int cinf_asn1_oid_to_string(char *str, size_t *buflen, const asn1_oid *obj)
 {
     size_t limit = *buflen;
     if (str && limit) {
@@ -2525,7 +2525,7 @@ int crefl_asn1_oid_to_string(char *str, size_t *buflen, const asn1_oid *obj)
     return 0;
 }
 
-int crefl_asn1_oid_from_string(asn1_oid *obj, const char *str, size_t buflen)
+int cinf_asn1_oid_from_string(asn1_oid *obj, const char *str, size_t buflen)
 {
     u64 comp_num = 0;
     size_t last = 0, comp = 0;
@@ -2577,16 +2577,16 @@ err:
  * interface where the user does not know the length in advance.
  */
 
-size_t crefl_asn1_ber_octets_length(const asn1_string *obj)
+size_t cinf_asn1_ber_octets_length(const asn1_string *obj)
 {
     return obj->count;
 }
 
-int crefl_asn1_ber_octets_read(crefl_buf *buf, size_t len, asn1_string *obj)
+int cinf_asn1_ber_octets_read(cinf_buf *buf, size_t len, asn1_string *obj)
 {
     size_t copy_count = len > obj->count ? obj->count : len;
 
-    crefl_span span = crefl_buf_remaining(buf);
+    cinf_span span = cinf_buf_remaining(buf);
     if (span.length < copy_count) {
         return -1;
     }
@@ -2594,44 +2594,44 @@ int crefl_asn1_ber_octets_read(crefl_buf *buf, size_t len, asn1_string *obj)
     if (obj->str) {
         memcpy(obj->str, span.data, copy_count);
     }
-    crefl_buf_seek(buf, crefl_buf_offset(buf) + len);
+    cinf_buf_seek(buf, cinf_buf_offset(buf) + len);
     obj->count = len;
 
     return 0;
 }
 
-int crefl_asn1_ber_octets_write(crefl_buf *buf, size_t len, const asn1_string *obj)
+int cinf_asn1_ber_octets_write(cinf_buf *buf, size_t len, const asn1_string *obj)
 {
     size_t copy_count = len > obj->count ? obj->count : len;
 
-    crefl_span span = crefl_buf_remaining(buf);
+    cinf_span span = cinf_buf_remaining(buf);
     if (span.length < copy_count) {
         return -1;
     }
 
     memcpy(span.data, obj->str, copy_count);
-    crefl_buf_seek(buf, crefl_buf_offset(buf) + len);
+    cinf_buf_seek(buf, cinf_buf_offset(buf) + len);
 
     return 0;
 }
 
-int crefl_asn1_der_octets_read(crefl_buf *buf, asn1_tag _tag, asn1_string *obj)
+int cinf_asn1_der_octets_read(cinf_buf *buf, asn1_tag _tag, asn1_string *obj)
 {
     asn1_hdr hdr;
-    if (crefl_asn1_ber_ident_read(buf, &hdr._id) < 0) return -1;
-    if (crefl_asn1_ber_length_read(buf, &hdr._length) < 0) return -1;
-    return crefl_asn1_ber_octets_read(buf, hdr._length, obj);
+    if (cinf_asn1_ber_ident_read(buf, &hdr._id) < 0) return -1;
+    if (cinf_asn1_ber_length_read(buf, &hdr._length) < 0) return -1;
+    return cinf_asn1_ber_octets_read(buf, hdr._length, obj);
 }
 
-int crefl_asn1_der_octets_write(crefl_buf *buf, asn1_tag _tag, const asn1_string *obj)
+int cinf_asn1_der_octets_write(cinf_buf *buf, asn1_tag _tag, const asn1_string *obj)
 {
     asn1_hdr hdr = {
-        { (u64)_tag, 0, asn1_class_universal }, crefl_asn1_ber_octets_length(obj)
+        { (u64)_tag, 0, asn1_class_universal }, cinf_asn1_ber_octets_length(obj)
     };
 
-    if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) return -1;
-    if (crefl_asn1_ber_length_write(buf, hdr._length) < 0) return -1;
-    return crefl_asn1_ber_octets_write(buf, hdr._length, obj);
+    if (cinf_asn1_ber_ident_write(buf, hdr._id) < 0) return -1;
+    if (cinf_asn1_ber_length_write(buf, hdr._length) < 0) return -1;
+    return cinf_asn1_ber_octets_write(buf, hdr._length, obj);
 }
 
 /*
@@ -2641,36 +2641,36 @@ int crefl_asn1_der_octets_write(crefl_buf *buf, asn1_tag _tag, const asn1_string
  *
  */
 
-size_t crefl_asn1_ber_null_length()
+size_t cinf_asn1_ber_null_length()
 {
     return 0;
 }
 
-int crefl_asn1_ber_null_read(crefl_buf *buf, size_t len)
+int cinf_asn1_ber_null_read(cinf_buf *buf, size_t len)
 {
     return len == 0 ? 0 : -1;
 }
 
-int crefl_asn1_ber_null_write(crefl_buf *buf, size_t len)
+int cinf_asn1_ber_null_write(cinf_buf *buf, size_t len)
 {
     return len == 0 ? 0 : -1;
 }
 
-int crefl_asn1_der_null_read(crefl_buf *buf, asn1_tag _tag)
+int cinf_asn1_der_null_read(cinf_buf *buf, asn1_tag _tag)
 {
     asn1_hdr hdr;
-    if (crefl_asn1_ber_ident_read(buf, &hdr._id) < 0) return -1;
-    if (crefl_asn1_ber_length_read(buf, &hdr._length) < 0) return -1;
-    return crefl_asn1_ber_null_read(buf, hdr._length);
+    if (cinf_asn1_ber_ident_read(buf, &hdr._id) < 0) return -1;
+    if (cinf_asn1_ber_length_read(buf, &hdr._length) < 0) return -1;
+    return cinf_asn1_ber_null_read(buf, hdr._length);
 }
 
-int crefl_asn1_der_null_write(crefl_buf *buf, asn1_tag _tag)
+int cinf_asn1_der_null_write(cinf_buf *buf, asn1_tag _tag)
 {
     asn1_hdr hdr = {
-        { (u64)_tag, 0, asn1_class_universal }, crefl_asn1_ber_null_length()
+        { (u64)_tag, 0, asn1_class_universal }, cinf_asn1_ber_null_length()
     };
 
-    if (crefl_asn1_ber_ident_write(buf, hdr._id) < 0) return -1;
-    if (crefl_asn1_ber_length_write(buf, hdr._length) < 0) return -1;
-    return crefl_asn1_ber_null_write(buf, hdr._length);
+    if (cinf_asn1_ber_ident_write(buf, hdr._id) < 0) return -1;
+    if (cinf_asn1_ber_length_write(buf, hdr._length) < 0) return -1;
+    return cinf_asn1_ber_null_write(buf, hdr._length);
 }

@@ -1,22 +1,22 @@
-# Crefl
+# Cinf
 
-> _Crefl_ - a C-type-reflection-API and clang plug-in to write reflection metadata.
+> _Cinf_ - a C-type-reflection-API and clang plug-in to write reflection metadata.
 
-The _Crefl_ API and plugin provides access to runtime reflection metadata for
+The _Cinf_ API and plugin provides access to runtime reflection metadata for
 C interface declarations with support for arbitrarily nested combinations of:
 intrinsic, set, enum, struct, union, field, array, constant, and function.
 
-_Crefl_ addresses the following three areas:
+_Cinf_ addresses the following three areas:
 
-- The _Crefl_ reflection graph database format for portable reflection metadata.
-- The _Crefl_ clang plug-in outputs C reflection metadata used by the library.
-- The _Crefl_ API provides task-oriented query access to C reflection metadata.
+- The _Cinf_ reflection graph database format for portable reflection metadata.
+- The _Cinf_ clang plug-in outputs C reflection metadata used by the library.
+- The _Cinf_ API provides task-oriented query access to C reflection metadata.
 
-![crefl](/images/crefl.svg)
+![cinf](/images/cinf.svg)
 
 ---
 
-## Crefl C example
+## Cinf C example
 
 This example has an outer-loop iterating through _struct types_ and an
 inner-loop iterating through _struct fields_.
@@ -27,8 +27,8 @@ inner-loop iterating through _struct fields_.
 #include <stdlib.h>
 #include <assert.h>
 
-#include <crefl/model.h>
-#include <crefl/db.h>
+#include <cinf/model.h>
+#include <cinf/db.h>
 
 int main(int argc, const char **argv)
 {
@@ -37,45 +37,45 @@ int main(int argc, const char **argv)
         exit(1);
     }
 
-    decl_db *db = crefl_db_new();
-    crefl_db_read_file(db, argv[1]);
+    decl_db *db = cinf_db_new();
+    cinf_db_read_file(db, argv[1]);
 
     size_t ntypes = 0;
-    crefl_source_decls(crefl_root(db), NULL, &ntypes);
+    cinf_source_decls(cinf_root(db), NULL, &ntypes);
     decl_ref *_types = calloc(ntypes, sizeof(decl_ref));
     assert(_types);
-    crefl_source_decls(crefl_root(db), _types, &ntypes);
+    cinf_source_decls(cinf_root(db), _types, &ntypes);
 
     for (size_t i = 0; i < ntypes; i++) {
         size_t nfields = 0;
-        if (crefl_is_struct(_types[i])) {
+        if (cinf_is_struct(_types[i])) {
             printf("%s %s : %zu\n",
-                crefl_tag_name(crefl_decl_tag(_types[i])),
-                crefl_decl_name(_types[i]),
-                crefl_type_width(_types[i]));
+                cinf_tag_name(cinf_decl_tag(_types[i])),
+                cinf_decl_name(_types[i]),
+                cinf_type_width(_types[i]));
 
-            crefl_struct_fields(_types[i], NULL, &nfields);
+            cinf_struct_fields(_types[i], NULL, &nfields);
             decl_ref *_fields = calloc(nfields, sizeof(decl_ref));
             assert(_fields);
-            crefl_struct_fields(_types[i], _fields, &nfields);
+            cinf_struct_fields(_types[i], _fields, &nfields);
             for (size_t j = 0; j < nfields; j++) {
                 printf("\t%s %s : %zu\n",
-                    crefl_tag_name(crefl_decl_tag(_fields[j])),
-                    crefl_decl_name(_fields[j]),
-                    crefl_type_width(_fields[j]));
+                    cinf_tag_name(cinf_decl_tag(_fields[j])),
+                    cinf_decl_name(_fields[j]),
+                    cinf_type_width(_fields[j]));
             }
         }
     }
 
-    crefl_db_destroy(db);
+    cinf_db_destroy(db);
 }
 ```
 
 ---
 
-## Crefl model
+## Cinf model
 
-_Crefl_ implements a data model based on the description of the C data types
+_Cinf_ implements a data model based on the description of the C data types
 in ISO/IEC 9899:9999 with minor changes. The following sections describe:
 
 - primary types to model the type system.
@@ -84,7 +84,7 @@ in ISO/IEC 9899:9999 with minor changes. The following sections describe:
   - _intrinsic, typedef, set, enum, struct, union, field, array, pointer,
     constant, function, parameter, attribute, value_.
 
-_Crefl_ variations from the C standard:
+_Cinf_ variations from the C standard:
 
 - uses _field_ instead of _member_ for the name of structure elements.
 - functions with empty parameter lists are interpreted as functions with
@@ -92,7 +92,7 @@ _Crefl_ variations from the C standard:
 
 ### primary types
 
-The _Crefl_ API uses a small number of primary data types for the reflection
+The _Cinf_ API uses a small number of primary data types for the reflection
 graph database, the declaration graph nodes and their properties.
 
 | Type       | Description                                    |
@@ -108,7 +108,7 @@ graph database, the declaration graph nodes and their properties.
 
 ### decl node
 
-The _Crefl_ data structure consists of an array of _decl_ nodes which have a
+The _Cinf_ data structure consists of an array of _decl_ nodes which have a
 type tag, a set of properties, an interned name, a link to the next item in a
 list, a link to a child item and a link to an optional attribute list.
 
@@ -161,7 +161,7 @@ This table table lists the properties used by each subtype:
 
 ### type hashes
 
-Crefl contains a work-in-progress experimental model for C linkage that
+Cinf contains a work-in-progress experimental model for C linkage that
 composes the identity of function interfaces and their associated types
 using Merkle Tree cryptographic hash sums. Merkel Tree style hash sums are
 composed from the hierachical node properties of an abstract type tree, a
@@ -180,24 +180,24 @@ hashes with the following constraints and properties:
 - semicolon is used as a delimeter as it does not occur in type names.
 - SHA-224 is used because it is not subject to length extension attacks.
 
-### crefltool output
+### cinftool output
 
-This example invocation of `crefltool` shows the extended reflection meta-data
+This example invocation of `cinftool` shows the extended reflection meta-data
 generated with `./scripts/run_tests.py --dump-all test/adjacent-decls-3.h`:
 
-![crefltool](/images/crefltool.png)
+![cinftool](/images/cinftool.png)
 
 ---
 
-## Crefl implementation notes
+## Cinf implementation notes
 
-The _Crefl_ implementation is currently _alpha software_.
+The _Cinf_ implementation is currently _alpha software_.
 
 - binary format is subject to change and needs to be more compact.
   - format was reduced ~20% in size by eliding builtin types.
   - format could be made even smaller using LEB128 or ASN.1.
 
-### Crefl features
+### Cinf features
 
 - [x] C intrinsic data types.
   - [x] integer types.
@@ -236,9 +236,9 @@ The _Crefl_ implementation is currently _alpha software_.
 
 ---
 
-## Crefl build instructions
+## Cinf build instructions
 
-crefl has been tested on ubuntu 20.04 LTS.
+cinf has been tested on ubuntu 20.04 LTS.
 
 ### install dependencies
 
@@ -248,7 +248,7 @@ ubuntu 20.04 LTS:
 sudo apt-get install llvm libclang-dev
 ```
 
-### building crefl
+### building cinf
 
 ubuntu 20.04 LTS:
 
@@ -259,27 +259,27 @@ cmake --build build -- --verbose
 
 ### invoking plugin
 
-to run the crefl plugin and dump the reflection table to stdout:
+to run the cinf plugin and dump the reflection table to stdout:
 
 ```shell
 clang test/simple-struct-1.h \
-      -Xclang -load -Xclang build/libcrefl.so \
-      -Xclang -plugin -Xclang crefl \
-      -Xclang -plugin-arg-crefl -Xclang -dump
+      -Xclang -load -Xclang build/libcinf.so \
+      -Xclang -plugin -Xclang cinf \
+      -Xclang -plugin-arg-cinf -Xclang -dump
 ```
 
-to run the crefl plugin and write the reflection data to a file:
+to run the cinf plugin and write the reflection data to a file:
 
 ```shell
 clang test/simple-struct-1.h \
-      -Xclang -load -Xclang build/libcrefl.so \
-      -Xclang -plugin -Xclang crefl \
-      -Xclang -plugin-arg-crefl -Xclang -o \
-      -Xclang -plugin-arg-crefl -Xclang tmp/simple-struct-1.refl
+      -Xclang -load -Xclang build/libcinf.so \
+      -Xclang -plugin -Xclang cinf \
+      -Xclang -plugin-arg-cinf -Xclang -o \
+      -Xclang -plugin-arg-cinf -Xclang tmp/simple-struct-1.refl
 ```
 
-to enable crefl plugin debugging, add the following option:
+to enable cinf plugin debugging, add the following option:
 
 ```shell
-      -Xclang -plugin-arg-crefl -Xclang -debug
+      -Xclang -plugin-arg-cinf -Xclang -debug
 ```

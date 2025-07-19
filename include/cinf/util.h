@@ -1,7 +1,7 @@
 /*
- * <crefl/util.h>
+ * <cinf/util.h>
  *
- * crefl runtime library and compiler plug-in to support reflection in C.
+ * cinf runtime library and compiler plug-in to support reflection in C.
  *
  * Copyright (c) 2020-2022 Michael Clark <michaeljclark@mac.com>
  *
@@ -77,7 +77,7 @@ static std::string string_printf(const char* fmt, ...)
  * internal filename helpers
  */
 
-static std::string crefl_basename(std::string s)
+static std::string cinf_basename(std::string s)
 {
     size_t o = s.find_last_of("\\/");
     return (o != std::string::npos) ? s.substr(o+1) : s;
@@ -87,7 +87,7 @@ static std::string crefl_basename(std::string s)
  * internal file io helpers
  */
 
-static size_t crefl_read_file(std::vector<uint8_t> &buf, const char* filename)
+static size_t cinf_read_file(std::vector<uint8_t> &buf, const char* filename)
 {
     FILE *f;
     struct stat statbuf;
@@ -106,7 +106,7 @@ static size_t crefl_read_file(std::vector<uint8_t> &buf, const char* filename)
     return buf.size() == len ? 0 : -1;
 }
 
-static size_t crefl_write_file(std::vector<uint8_t> &buf, const char* filename)
+static size_t cinf_write_file(std::vector<uint8_t> &buf, const char* filename)
 {
     FILE *f;
     if ((f = fopen(filename, "wb")) == nullptr) {

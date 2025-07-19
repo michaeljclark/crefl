@@ -4,19 +4,19 @@
 #include <math.h>
 #include <wchar.h>
 
-#include <crefl/buf.h>
-#include <crefl/asn1.h>
+#include <cinf/buf.h>
+#include <cinf/asn1.h>
 
 int format_vf8(char *buf, size_t buflen, uint8_t v)
 {
     float f;
     char s[16] = { 0 };
     int n = 0;
-    crefl_buf *vfbuf = crefl_buf_new(1);
-    crefl_buf_write_bytes(vfbuf, (const char*)&v, 1);
-    crefl_buf_reset(vfbuf);
-    crefl_vf_f32_read(vfbuf, &f);
-    crefl_format_byte(s, sizeof(s), v);
+    cinf_buf *vfbuf = cinf_buf_new(1);
+    cinf_buf_write_bytes(vfbuf, (const char*)&v, 1);
+    cinf_buf_reset(vfbuf);
+    cinf_vf_f32_read(vfbuf, &f);
+    cinf_format_byte(s, sizeof(s), v);
     if (isnan(f)) {
         union { float f; unsigned x; } u = { f };
         char x[32];
@@ -26,7 +26,7 @@ int format_vf8(char *buf, size_t buflen, uint8_t v)
     else {
         n = snprintf(buf, buflen, "%-3d %s %9.4f", v, s, f);
     }
-    crefl_buf_destroy(vfbuf);
+    cinf_buf_destroy(vfbuf);
     return n;
 }
 

@@ -1,5 +1,5 @@
 /*
- * crefl runtime library and compiler plug-in to support reflection in C.
+ * cinf runtime library and compiler plug-in to support reflection in C.
  *
  * Copyright (c) 2020-2022 Michael Clark <michaeljclark@mac.com>
  *
@@ -24,11 +24,11 @@
 
 #include <string>
 
-#include <crefl/bits.h>
-#include <crefl/model.h>
-#include <crefl/link.h>
-#include <crefl/util.h>
-#include <crefl/hashmap.h>
+#include <cinf/bits.h>
+#include <cinf/model.h>
+#include <cinf/link.h>
+#include <cinf/util.h>
+#include <cinf/hashmap.h>
 
 /*
  * Crefl node hash algorithm
@@ -81,54 +81,54 @@ struct decl_sum
     sha224_ctx ctx;
 };
 
-static void crefl_hash_init(decl_sum *sum)
+static void cinf_hash_init(decl_sum *sum)
 {
     sha224_init(&sum->ctx);
 }
 
-static void crefl_hash_absorb(decl_sum *sum, const char *str)
+static void cinf_hash_absorb(decl_sum *sum, const char *str)
 {
     sha224_update(&sum->ctx, str, strlen(str));
 }
 
-static void crefl_hash_final(decl_sum *sum, decl_hash *hash)
+static void cinf_hash_final(decl_sum *sum, decl_hash *hash)
 {
     sha224_final(&sum->ctx, (unsigned char*)hash->sum);
 }
 
-static void crefl_hash_update(decl_sum *sum, const void *data, size_t len)
+static void cinf_hash_update(decl_sum *sum, const void *data, size_t len)
 {
     sha224_update(&sum->ctx, data, len);
 }
 
-decl_hash * crefl_node_hash(decl_index *index,
+decl_hash * cinf_node_hash(decl_index *index,
     decl_ref d, decl_ref p, std::string prefix);
 
-static void crefl_hash_node_sum(decl_sum *sum, decl_index *index,
+static void cinf_hash_node_sum(decl_sum *sum, decl_index *index,
     decl_ref d, decl_ref p, std::string prefix)
 {
-    decl_node *node = crefl_decl_ptr(d);
+    decl_node *node = cinf_decl_ptr(d);
     decl_hash *hash;
     decl_ref next;
 
-    crefl_hash_absorb(sum, tag_delimeter);
-    crefl_hash_absorb(sum, crefl_tag_name(crefl_decl_tag(d)));
-    crefl_hash_absorb(sum, name_delimeter);
-    crefl_hash_absorb(sum, crefl_decl_name(d));
-    crefl_hash_absorb(sum, props_delimeter);
-    crefl_hash_update(sum, &node->_props, sizeof(node->_props));
-    crefl_hash_absorb(sum, quantity_delimeter);
-    crefl_hash_update(sum, &node->_quantity, sizeof(node->_quantity));
+    cinf_hash_absorb(sum, tag_delimeter);
+    cinf_hash_absorb(sum, cinf_tag_name(cinf_decl_tag(d)));
+    cinf_hash_absorb(sum, name_delimeter);
+    cinf_hash_absorb(sum, cinf_decl_name(d));
+    cinf_hash_absorb(sum, props_delimeter);
+    cinf_hash_update(sum, &node->_props, sizeof(node->_props));
+    cinf_hash_absorb(sum, quantity_delimeter);
+    cinf_hash_update(sum, &node->_quantity, sizeof(node->_quantity));
 
     if (node->_attr) {
-        next = crefl_lookup(d.db, node->_attr);
-        crefl_hash_absorb(sum, attr_delimeter);
-        hash = crefl_node_hash(index, next, d, prefix);
-        crefl_hash_absorb(sum, hash_delimeter);
-        crefl_hash_update(sum, (const char*)hash->sum, sizeof(decl_hash));
+        next = cinf_lookup(d.db, node->_attr);
+        cinf_hash_absorb(sum, attr_delimeter);
+        hash = cinf_node_hash(index, next, d, prefix);
+        cinf_hash_absorb(sum, hash_delimeter);
+        cinf_hash_update(sum, (const char*)hash->sum, sizeof(decl_hash));
     }
     if (node->_link) {
-        switch (crefl_decl_tag(d)) {
+        switch (cinf_decl_tag(d)) {
         /*
          * follow `link` to child list for container types: 'object',
          * 'set', 'enum', 'struct', 'union', and 'function' are lists
@@ -141,14 +141,14 @@ static void crefl_hash_node_sum(decl_sum *sum, decl_index *index,
         case _decl_struct:
         case _decl_union:
         case _decl_function:
-            crefl_hash_absorb(sum, link_delimeter);
-            next = crefl_lookup(d.db, node->_link);
-            while (crefl_decl_idx(next))  {
-                crefl_hash_absorb(sum, next_delimeter);
-                decl_hash *hash = crefl_node_hash(index, next, d, prefix);
-                crefl_hash_absorb(sum, hash_delimeter);
-                crefl_hash_update(sum, (const char*)hash->sum, sizeof(decl_hash));
-                next = crefl_decl_next(next);
+            cinf_hash_absorb(sum, link_delimeter);
+            next = cinf_lookup(d.db, node->_link);
+            while (cinf_decl_idx(next))  {
+                cinf_hash_absorb(sum, next_delimeter);
+                decl_hash *hash = cinf_node_hash(index, next, d, prefix);
+                cinf_hash_absorb(sum, hash_delimeter);
+                cinf_hash_update(sum, (const char*)hash->sum, sizeof(decl_hash));
+                next = cinf_decl_next(next);
             }
             break;
         /*
@@ -158,87 +158,87 @@ static void crefl_hash_node_sum(decl_sum *sum, decl_index *index,
          * cause cycles from type references to adjacent anonymous types.
          */
         default:
-            next = crefl_lookup(d.db, node->_link);
-            if (crefl_entry_is_marked(crefl_entry_ref(index, next)) &&
-                !crefl_entry_is_valid(crefl_entry_ref(index, next))) {
+            next = cinf_lookup(d.db, node->_link);
+            if (cinf_entry_is_marked(cinf_entry_ref(index, next)) &&
+                !cinf_entry_is_valid(cinf_entry_ref(index, next))) {
                 /* we have a reference to a node that is being hashed */
-                crefl_hash_absorb(sum, crefl_tag_name(crefl_decl_tag(next)));
-                crefl_hash_absorb(sum, crefl_decl_name(next));
+                cinf_hash_absorb(sum, cinf_tag_name(cinf_decl_tag(next)));
+                cinf_hash_absorb(sum, cinf_decl_name(next));
             } else {
-                hash = crefl_node_hash(index, next, d, prefix);
-                crefl_hash_absorb(sum, hash_delimeter);
-                crefl_hash_update(sum, (const char*)hash->sum, sizeof(decl_hash));
+                hash = cinf_node_hash(index, next, d, prefix);
+                cinf_hash_absorb(sum, hash_delimeter);
+                cinf_hash_update(sum, (const char*)hash->sum, sizeof(decl_hash));
             }
             break;
         }
     }
-    crefl_hash_absorb(sum, end_delimeter);
+    cinf_hash_absorb(sum, end_delimeter);
 }
 
-int crefl_entry_is_marked(decl_entry_ref er)
+int cinf_entry_is_marked(decl_entry_ref er)
 {
-    return (crefl_entry_ptr(er)->props & decl_entry_marked) == decl_entry_marked;
+    return (cinf_entry_ptr(er)->props & decl_entry_marked) == decl_entry_marked;
 }
 
-int crefl_entry_is_valid(decl_entry_ref er)
+int cinf_entry_is_valid(decl_entry_ref er)
 {
-    return (crefl_entry_ptr(er)->props & decl_entry_valid) == decl_entry_valid;
+    return (cinf_entry_ptr(er)->props & decl_entry_valid) == decl_entry_valid;
 }
 
 static const std::string sep = "::";
 
-std::string crefl_node_name(decl_ref d, decl_ref p, std::string prefix)
+std::string cinf_node_name(decl_ref d, decl_ref p, std::string prefix)
 {
     static bool anon_parenthesis = false;
     std::string osep = prefix.size() > 0 ? sep : "";
 
-    if (crefl_is_source(p)) return crefl_decl_name(d);
-    if (crefl_is_archive(p)) return crefl_decl_name(d);
+    if (cinf_is_source(p)) return cinf_decl_name(d);
+    if (cinf_is_archive(p)) return cinf_decl_name(d);
 
-    switch (crefl_decl_tag(d)) {
+    switch (cinf_decl_tag(d)) {
     case _decl_array:
     case _decl_pointer:
         if (anon_parenthesis) {
             return prefix + osep + std::string("(") + std::string(
-                crefl_tag_name(crefl_decl_tag(d))) + std::string(")");
+                cinf_tag_name(cinf_decl_tag(d))) + std::string(")");
         } else {
             return prefix;
         }
         break;
     }
 
-    if (strlen(crefl_decl_name(d))) {
-        return prefix + osep + crefl_decl_name(d);
+    if (strlen(cinf_decl_name(d))) {
+        return prefix + osep + cinf_decl_name(d);
     } else if (anon_parenthesis) {
         return prefix + osep + std::string("(") + std::string(
-            crefl_tag_name(crefl_decl_tag(d))) + std::string(")");
+            cinf_tag_name(cinf_decl_tag(d))) + std::string(")");
     } else {
         return prefix;
     }
 }
 
-decl_hash * crefl_node_hash(decl_index *index, decl_ref d, decl_ref p, std::string prefix)
+decl_hash * cinf_node_hash(decl_index *index, decl_ref d, decl_ref p, std::string prefix)
 {
-    decl_entry_ref er = crefl_entry_ref(index, d);
-    decl_entry *ent = crefl_entry_ptr(er);
+    decl_entry_ref er = cinf_entry_ref(index, d);
+    decl_entry *ent = cinf_entry_ptr(er);
 
-    prefix = crefl_node_name(d, p, prefix);
+    prefix = cinf_node_name(d, p, prefix);
 
     if ((ent->props & decl_entry_valid) != decl_entry_valid) {
         decl_sum sum;
         ent->props |= decl_entry_marked;
-        crefl_hash_init(&sum);
-        crefl_hash_node_sum(&sum, index, d, p, prefix);
-        ent = crefl_entry_ptr(er); /* revalidate due to realloc */
-        crefl_hash_final(&sum, &ent->hash);
-        ent->fqn = crefl_entry_name_new(index, prefix.c_str());
+        cinf_hash_init(&sum);
+        cinf_hash_node_sum(&sum, index, d, p, prefix);
+        ent = cinf_entry_ptr(er); /* revalidate due to realloc */
+        cinf_hash_final(&sum, &ent->hash);
+        ent->fqn = cinf_entry_name_new(index, prefix.c_str());
         ent->props |= decl_entry_valid;
     }
 
     return &ent->hash;
 }
 
-decl_index * crefl_index_new()
+decl_index * cinf_index_new()
 {
     decl_index *index = (decl_index*)malloc(sizeof(decl_index));
 
@@ -255,14 +255,14 @@ decl_index * crefl_index_new()
     return index;
 }
 
-void crefl_index_destroy(decl_index *index)
+void cinf_index_destroy(decl_index *index)
 {
     free(index->name);
     free(index->entry);
     free(index);
 }
 
-decl_entry_ref crefl_entry_ref(decl_index *index, decl_ref r)
+decl_entry_ref cinf_entry_ref(decl_index *index, decl_ref r)
 {
     if (r.decl_idx >= index->entry_size) {
         size_t old_size = index->entry_size;
@@ -275,7 +275,7 @@ decl_entry_ref crefl_entry_ref(decl_index *index, decl_ref r)
     return decl_entry_ref { index, r.decl_idx };
 }
 
-decl_id crefl_entry_name_new(decl_index *index, const char *name)
+decl_id cinf_entry_name_new(decl_index *index, const char *name)
 {
     size_t len = strlen(name) + 1;
     if (len == 1) return 0;
@@ -291,20 +291,20 @@ decl_id crefl_entry_name_new(decl_index *index, const char *name)
     return name_offset;
 }
 
-decl_entry * crefl_entry_ptr(decl_entry_ref d)
+decl_entry * cinf_entry_ptr(decl_entry_ref d)
 {
     return d.index->entry + d.offset;
 }
 
-const char* crefl_entry_fqn(decl_entry_ref d)
+const char* cinf_entry_fqn(decl_entry_ref d)
 {
-    return d.index->name + crefl_entry_ptr(d)->fqn;
+    return d.index->name + cinf_entry_ptr(d)->fqn;
 }
 
-void crefl_index_scan(decl_index *index, decl_db *db)
+void cinf_index_scan(decl_index *index, decl_db *db)
 {
-    decl_ref d = crefl_lookup(db, db->root_element);
-    crefl_node_hash(index, d, crefl_decl_void(d), "");
+    decl_ref d = cinf_lookup(db, db->root_element);
+    cinf_node_hash(index, d, cinf_decl_void(d), "");
 }
 
 static std::string _hex_str(const uint8_t *data, size_t sz)
@@ -328,7 +328,7 @@ bool operator==(const decl_hash &a, const decl_hash &b)
     return memcmp(a.sum, b.sum, sizeof(a.sum)) == 0;
 }
 
-struct crefl_link_state
+struct cinf_link_state
 {
     hashmap<decl_hash,decl_ref,_hash_fn> *map;
     decl_db *db;
@@ -339,58 +339,58 @@ struct crefl_link_state
 bool _should_copy(decl_ref d)
 {
     /* copy if not one of: 'set', 'enum', 'struct', 'union' and 'function' */
-    decl_ref r = crefl_decl_link(d);
-    return !(crefl_is_set(d) || crefl_is_enum(d) ||
-             crefl_is_struct(d) || crefl_is_union(d) ||
-             crefl_is_function(d));
+    decl_ref r = cinf_decl_link(d);
+    return !(cinf_is_set(d) || cinf_is_enum(d) ||
+             cinf_is_struct(d) || cinf_is_union(d) ||
+             cinf_is_function(d));
 }
 
-decl_ref crefl_copy_node(crefl_link_state *state, decl_ref d, decl_ref p,
+decl_ref cinf_copy_node(cinf_link_state *state, decl_ref d, decl_ref p,
     bool _is_child = false)
 {
     decl_db *db = state->db;
-    decl_node *node = crefl_decl_ptr(d);
-    decl_entry_ref er = crefl_entry_ref(state->src_ld, d);
-    decl_entry *ent = crefl_entry_ptr(er);
+    decl_node *node = cinf_decl_ptr(d);
+    decl_entry_ref er = cinf_entry_ref(state->src_ld, d);
+    decl_entry *ent = cinf_entry_ptr(er);
     decl_hash *hash = &ent->hash;
     decl_ref next, r, c, a, last = { db, 0 };
 
     /* always return direct references to intrinsics */
-    if (crefl_decl_tag(d) == _decl_intrinsic) {
-        return decl_ref {db, crefl_decl_idx(d) };
+    if (cinf_decl_tag(d) == _decl_intrinsic) {
+        return decl_ref {db, cinf_decl_idx(d) };
     }
 
     /* lookup node in our hash table to decide whether to copy or alias */
     auto i = state->map->find(*hash);
     if (i == state->map->end() || _should_copy(d)) {
         /* copy unseen nodes or non-collection nodes */
-        r = crefl_decl_new(db, crefl_decl_tag(d));
-        crefl_decl_ptr(r)->_name = crefl_name_new(db, crefl_decl_name(d));
-        crefl_decl_ptr(r)->_props = crefl_decl_props(d);
-        crefl_decl_ptr(r)->_quantity = crefl_decl_qty(d);
+        r = cinf_decl_new(db, cinf_decl_tag(d));
+        cinf_decl_ptr(r)->_name = cinf_name_new(db, cinf_decl_name(d));
+        cinf_decl_ptr(r)->_props = cinf_decl_props(d);
+        cinf_decl_ptr(r)->_quantity = cinf_decl_qty(d);
         (*state->map)[*hash] = r;
     } else {
         /* return node directly if it is a child link */
         if (_is_child) return decl_ref { db, i->second.decl_idx };
         /* otherwise alias node so we can override its next element */
-        a = crefl_lookup(db, i->second.decl_idx);
-        while (crefl_decl_tag(a) == _decl_alias) {
-            a = crefl_decl_link(a);
+        a = cinf_lookup(db, i->second.decl_idx);
+        while (cinf_decl_tag(a) == _decl_alias) {
+            a = cinf_decl_link(a);
         }
-        r = crefl_decl_new(db, _decl_alias);
-        crefl_decl_ptr(r)->_name = crefl_name_new(db, crefl_decl_name(d));
-        crefl_decl_ptr(r)->_link = crefl_decl_idx(a);
+        r = cinf_decl_new(db, _decl_alias);
+        cinf_decl_ptr(r)->_name = cinf_name_new(db, cinf_decl_name(d));
+        cinf_decl_ptr(r)->_link = cinf_decl_idx(a);
         (*state->map)[*hash] = r;
         return r;
     }
 
     if (node->_attr) {
-        next = crefl_lookup(d.db, node->_attr);
-        c = crefl_copy_node(state, next, d);
-        crefl_decl_ptr(r)->_attr = crefl_decl_idx(c);
+        next = cinf_lookup(d.db, node->_attr);
+        c = cinf_copy_node(state, next, d);
+        cinf_decl_ptr(r)->_attr = cinf_decl_idx(c);
     }
     if (node->_link) {
-        switch (crefl_decl_tag(d)) {
+        switch (cinf_decl_tag(d)) {
         /*
          * follow `link` to child list for container types: 'object',
          * 'set', 'enum', 'struct', 'union', and 'function' are lists
@@ -403,19 +403,19 @@ decl_ref crefl_copy_node(crefl_link_state *state, decl_ref d, decl_ref p,
         case _decl_struct:
         case _decl_union:
         case _decl_function:
-            next = crefl_lookup(d.db, node->_link);
-            while (crefl_decl_idx(next))  {
-                c = crefl_copy_node(state, next, d);
-                if (crefl_decl_idx(last)) crefl_decl_ptr(last)->_next = crefl_decl_idx(c);
-                else crefl_decl_ptr(r)->_link = crefl_decl_idx(c);
+            next = cinf_lookup(d.db, node->_link);
+            while (cinf_decl_idx(next))  {
+                c = cinf_copy_node(state, next, d);
+                if (cinf_decl_idx(last)) cinf_decl_ptr(last)->_next = cinf_decl_idx(c);
+                else cinf_decl_ptr(r)->_link = cinf_decl_idx(c);
                 last = c;
-                next = crefl_decl_next(next);
+                next = cinf_decl_next(next);
             }
             break;
         default:
-            next = crefl_lookup(d.db, node->_link);
-            c = crefl_copy_node(state, next, d, true);
-            crefl_decl_ptr(r)->_link = crefl_decl_idx(c);
+            next = cinf_lookup(d.db, node->_link);
+            c = cinf_copy_node(state, next, d, true);
+            cinf_decl_ptr(r)->_link = cinf_decl_idx(c);
             break;
         }
     }
@@ -423,34 +423,34 @@ decl_ref crefl_copy_node(crefl_link_state *state, decl_ref d, decl_ref p,
     return r;
 }
 
-int crefl_link_merge(decl_db *db, const char *name, decl_db **srcn, size_t n)
+int cinf_link_merge(decl_db *db, const char *name, decl_db **srcn, size_t n)
 {
     hashmap<decl_hash,decl_ref,_hash_fn> map;
-    decl_index *ld = crefl_index_new();
+    decl_index *ld = cinf_index_new();
 
-    crefl_db_defaults(db);
-    crefl_index_scan(ld, db);
+    cinf_db_defaults(db);
+    cinf_index_scan(ld, db);
 
-    decl_ref r = crefl_decl_new(db, _decl_archive);
-    crefl_decl_ptr(r)->_name = crefl_name_new(db,
-        crefl_basename(name).c_str());
-    db->root_element = crefl_decl_idx(r);
+    decl_ref r = cinf_decl_new(db, _decl_archive);
+    cinf_decl_ptr(r)->_name = cinf_name_new(db,
+        cinf_basename(name).c_str());
+    db->root_element = cinf_decl_idx(r);
 
     decl_ref l { db, 0 };
     for (size_t i = 0; i < n; i++) {
-        decl_index *src_ld = crefl_index_new();
-        crefl_index_scan(src_ld, srcn[i]);
-        crefl_link_state state{ &map, db, ld, src_ld };
-        decl_ref d = crefl_lookup(srcn[i], srcn[i]->root_element);
-        decl_ref p = crefl_decl_void(d);
-        decl_ref o = crefl_copy_node(&state, d, p);
-        if (crefl_decl_idx(l)) crefl_decl_ptr(l)->_next = crefl_decl_idx(o);
-        else crefl_decl_ptr(r)->_link = crefl_decl_idx(o);
+        decl_index *src_ld = cinf_index_new();
+        cinf_index_scan(src_ld, srcn[i]);
+        cinf_link_state state{ &map, db, ld, src_ld };
+        decl_ref d = cinf_lookup(srcn[i], srcn[i]->root_element);
+        decl_ref p = cinf_decl_void(d);
+        decl_ref o = cinf_copy_node(&state, d, p);
+        if (cinf_decl_idx(l)) cinf_decl_ptr(l)->_next = cinf_decl_idx(o);
+        else cinf_decl_ptr(r)->_link = cinf_decl_idx(o);
         l = o;
-        crefl_index_destroy(src_ld);
+        cinf_index_destroy(src_ld);
     }
 
-    crefl_index_destroy(ld);
+    cinf_index_destroy(ld);
 
     return 0;
 }

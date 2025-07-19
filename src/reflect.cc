@@ -1,5 +1,5 @@
 /*
- * crefl runtime library and compiler plug-in to support reflection in C.
+ * cinf runtime library and compiler plug-in to support reflection in C.
  *
  * Copyright (c) 2020-2022 Michael Clark <michaeljclark@mac.com>
  *
@@ -30,10 +30,10 @@
 #include <clang/Frontend/FrontendPluginRegistry.h>
 #include <clang/Frontend/CompilerInstance.h>
 
-#include <crefl/util.h>
-#include <crefl/model.h>
-#include <crefl/dump.h>
-#include <crefl/db.h>
+#include <cinf/util.h>
+#include <cinf/model.h>
+#include <cinf/dump.h>
+#include <cinf/db.h>
 
 using namespace clang;
 
@@ -62,7 +62,7 @@ protected:
 };
 
 static FrontendPluginRegistry::Add<ReflectAction>
-    X("crefl", "emit reflection metadata.");
+    X("cinf", "emit reflection metadata.");
 
 static void log_debug(const char* fmt, ...)
 {
@@ -99,7 +99,7 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
     ReflectVisitor(ASTContext &context, decl_db *db, std::string inputFile, bool debug = false)
         : context(context), db(db), last(), inputFile(inputFile), debug(debug) {}
 
-    std::string crefl_path(const Decl *d)
+    std::string cinf_path(const Decl *d)
     {
         std::string s;
         std::vector<std::string> dl;
@@ -118,7 +118,7 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
 
     void print_decl(const Decl *d)
     {
-        std::string dps = crefl_path(d);
+        std::string dps = cinf_path(d);
         SourceLocation sl = d->getLocation();
         std::string sls = sl.printToString(context.getSourceManager());
         const Decl *nd = d->getNextDeclInContext();
@@ -136,12 +136,12 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
     decl_ref create_attribute(decl_ref last, const char *name)
     {
         /* create attribute */
-        decl_ref r = crefl_decl_new(db, _decl_attribute);
-        crefl_decl_ptr(r)->_name = crefl_name_new(db, name);
+        decl_ref r = cinf_decl_new(db, _decl_attribute);
+        cinf_decl_ptr(r)->_name = cinf_name_new(db, name);
 
         /* create prev next link */
-        if (crefl_decl_idx(last) && !crefl_decl_ptr(last)->_next) {
-            crefl_decl_ptr(last)->_next = crefl_decl_idx(r);
+        if (cinf_decl_idx(last) && !cinf_decl_ptr(last)->_next) {
+            cinf_decl_ptr(last)->_next = cinf_decl_idx(r);
         }
 
         return r;
@@ -150,17 +150,17 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
     decl_ref create_attribute_string(decl_ref last, const char *name, const char *val)
     {
         /* create attribute */
-        decl_ref r = crefl_decl_new(db, _decl_attribute);
-        crefl_decl_ptr(r)->_name = crefl_name_new(db, name);
+        decl_ref r = cinf_decl_new(db, _decl_attribute);
+        cinf_decl_ptr(r)->_name = cinf_name_new(db, name);
 
         /* create value */
-        decl_ref v = crefl_decl_new(db, _decl_value);
-        crefl_decl_ptr(v)->_name = crefl_name_new(db, val);
-        crefl_decl_ptr(r)->_link = crefl_decl_idx(v);
+        decl_ref v = cinf_decl_new(db, _decl_value);
+        cinf_decl_ptr(v)->_name = cinf_name_new(db, val);
+        cinf_decl_ptr(r)->_link = cinf_decl_idx(v);
 
         /* create prev next link */
-        if (crefl_decl_idx(last) && !crefl_decl_ptr(last)->_next) {
-            crefl_decl_ptr(last)->_next = crefl_decl_idx(r);
+        if (cinf_decl_idx(last) && !cinf_decl_ptr(last)->_next) {
+            cinf_decl_ptr(last)->_next = cinf_decl_idx(r);
         }
 
         return r;
@@ -169,17 +169,17 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
     decl_ref create_attribute_value(decl_ref last, const char *name, decl_sz val)
     {
         /* create attribute */
-        decl_ref r = crefl_decl_new(db, _decl_attribute);
-        crefl_decl_ptr(r)->_name = crefl_name_new(db, name);
+        decl_ref r = cinf_decl_new(db, _decl_attribute);
+        cinf_decl_ptr(r)->_name = cinf_name_new(db, name);
 
         /* create value */
-        decl_ref v = crefl_decl_new(db, _decl_value);
-        crefl_decl_ptr(v)->_value = val;
-        crefl_decl_ptr(r)->_link = crefl_decl_idx(v);
+        decl_ref v = cinf_decl_new(db, _decl_value);
+        cinf_decl_ptr(v)->_value = val;
+        cinf_decl_ptr(r)->_link = cinf_decl_idx(v);
 
         /* create prev next link */
-        if (crefl_decl_idx(last) && !crefl_decl_ptr(last)->_next) {
-            crefl_decl_ptr(last)->_next = crefl_decl_idx(r);
+        if (cinf_decl_idx(last) && !cinf_decl_ptr(last)->_next) {
+            cinf_decl_ptr(last)->_next = cinf_decl_idx(r);
         }
 
         return r;
@@ -228,14 +228,14 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
                 std::string annotation = cast<AnnotateAttr>(*at).getAnnotation().str();
                 last = create_attribute_string(last, "annotate", annotation.c_str());
             }
-            if (crefl_decl_idx(last)) result = crefl_decl_idx(last);
+            if (cinf_decl_idx(last)) result = cinf_decl_idx(last);
         }
         return result;
     }
 
     decl_ref get_intrinsic_type(const QualType q)
     {
-        decl_ref tr = crefl_intrinsic(db, _decl_void, 0);
+        decl_ref tr = cinf_intrinsic(db, _decl_void, 0);
 
         bool _is_scalar = q->isScalarType();
         bool _is_pointer = q->isPointerType();
@@ -257,12 +257,12 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
             const QualType pq = q->getPointeeType();
             decl_ref ti = get_intrinsic_type(pq);
 
-            std::string name = string_printf("*%s", crefl_decl_name(ti));
+            std::string name = string_printf("*%s", cinf_decl_name(ti));
 
-            tr = crefl_decl_new(db, _decl_pointer);
-            crefl_decl_ptr(tr)->_link = crefl_decl_idx(ti);
-            crefl_decl_ptr(tr)->_name = crefl_name_new(db, name.c_str());
-            crefl_decl_ptr(tr)->_width = t.Width;
+            tr = cinf_decl_new(db, _decl_pointer);
+            cinf_decl_ptr(tr)->_link = cinf_decl_idx(ti);
+            cinf_decl_ptr(tr)->_name = cinf_name_new(db, name.c_str());
+            cinf_decl_ptr(tr)->_width = t.Width;
         }
         else if (_is_enum) {
             const EnumType *et = q->getAs<EnumType>();
@@ -280,13 +280,13 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
             tr = decl_ref { db, idmap[rd->getID()] };
         }
         else if (_is_complex) {
-            tr = crefl_intrinsic(db, _decl_cfloat, t.Width);
+            tr = cinf_intrinsic(db, _decl_cfloat, t.Width);
         }
         else if (_is_scalar) {
             auto stk = q->getScalarTypeKind();
             switch (stk) {
             case Type::ScalarTypeKind::STK_CPointer: {
-                 tr = crefl_intrinsic(db, _decl_void, t.Width);
+                 tr = cinf_intrinsic(db, _decl_void, t.Width);
                  break;
             }
             case Type::ScalarTypeKind::STK_BlockPointer:
@@ -296,19 +296,19 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
             case Type::ScalarTypeKind::STK_MemberPointer:
                 break;
             case Type::ScalarTypeKind::STK_Bool: {
-                tr = crefl_intrinsic(db, _decl_int, 1);
+                tr = cinf_intrinsic(db, _decl_int, 1);
                 break;
             }
             case Type::ScalarTypeKind::STK_Integral: {
                 if (q->isUnsignedIntegerType()) {
-                    tr = crefl_intrinsic(db, _decl_uint, t.Width);
+                    tr = cinf_intrinsic(db, _decl_uint, t.Width);
                 } else {
-                    tr = crefl_intrinsic(db, _decl_int, t.Width);
+                    tr = cinf_intrinsic(db, _decl_int, t.Width);
                 }
                 break;
             }
             case Type::ScalarTypeKind::STK_Floating: {
-                tr = crefl_intrinsic(db, _decl_float, t.Width);
+                tr = cinf_intrinsic(db, _decl_float, t.Width);
                 break;
             }
             case Type::ScalarTypeKind::STK_IntegralComplex:
@@ -330,28 +330,28 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
 
             decl_ref ti = get_intrinsic_type(q);
 
-            tr = crefl_decl_new(db, _decl_array);
-            crefl_decl_ptr(tr)->_link = crefl_decl_idx(ti);
-            const char *decl_name = crefl_decl_name(ti);
+            tr = cinf_decl_new(db, _decl_array);
+            cinf_decl_ptr(tr)->_link = cinf_decl_idx(ti);
+            const char *decl_name = cinf_decl_name(ti);
             if (vat) {
                 name = string_printf("[*]%s", decl_name);
-                crefl_decl_ptr(tr)->_props |= _decl_vla;
+                cinf_decl_ptr(tr)->_props |= _decl_vla;
             } else if (cat) {
                 u64 _count = cat->getSize().getLimitedValue();
-                crefl_decl_ptr(tr)->_count = _count;
+                cinf_decl_ptr(tr)->_count = _count;
                 name = string_printf("[%llu]%s", _count, decl_name);
             } else {
                 name = string_printf("[]%s", decl_name);
             }
-            crefl_decl_ptr(tr)->_name = crefl_name_new(db, name.c_str());
-            crefl_decl_ptr(tr)->_props |= -(int)is_static & _decl_static;
+            cinf_decl_ptr(tr)->_name = cinf_name_new(db, name.c_str());
+            cinf_decl_ptr(tr)->_props |= -(int)is_static & _decl_static;
         }
         else if (_is_vector) {
             const VectorType *vt = q->getAs<VectorType>();
             // TODO
         }
         else {
-            tr = crefl_intrinsic(db, _decl_void, t.Width);
+            tr = cinf_intrinsic(db, _decl_void, t.Width);
         }
 
         debugf("\tscalar:%d complex:%d vector:%d array:%d struct:%d"
@@ -366,15 +366,15 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
 
         if (cvr_props) {
             decl_ref ti = tr;
-            tr = crefl_decl_new(db, _decl_qualifier);
+            tr = cinf_decl_new(db, _decl_qualifier);
             std::string name = string_printf("%s%s%s%s",
                 _is_const ? "const_" : "",
                 _is_volatile ? "volatile_" : "",
                 _is_restrict ? "restrict_" : "",
-                crefl_decl_name(ti));
-            crefl_decl_ptr(tr)->_name = crefl_name_new(db, name.c_str());
-            crefl_decl_ptr(tr)->_link = crefl_decl_idx(ti);
-            crefl_decl_ptr(tr)->_props |= cvr_props;
+                cinf_decl_name(ti));
+            cinf_decl_ptr(tr)->_name = cinf_name_new(db, name.c_str());
+            cinf_decl_ptr(tr)->_link = cinf_decl_idx(ti);
+            cinf_decl_ptr(tr)->_props |= cvr_props;
         }
 
         return tr;
@@ -383,12 +383,12 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
     decl_ref create_named_node(NamedDecl *d, decl_tag tag)
     {
         /* create node */
-        decl_ref r = crefl_decl_new(db, tag);
-        crefl_decl_ptr(r)->_name = crefl_name_new(db,
+        decl_ref r = cinf_decl_new(db, tag);
+        cinf_decl_ptr(r)->_name = cinf_name_new(db,
             d->NamedDecl::getNameAsString().c_str());
 
-        /* record clang -> crefl id */
-        idmap[d->Decl::getID()] = crefl_decl_idx(r);
+        /* record clang -> cinf id */
+        idmap[d->Decl::getID()] = cinf_decl_idx(r);
 
         /* find parent id */
         const auto& parents = context.getParents(*d);
@@ -403,18 +403,18 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
         }
 
         /* create next last links */
-        if (crefl_decl_idx(last) && !crefl_decl_ptr(last)->_next) {
-            crefl_decl_ptr(last)->_next = crefl_decl_idx(r);
+        if (cinf_decl_idx(last) && !cinf_decl_ptr(last)->_next) {
+            cinf_decl_ptr(last)->_next = cinf_decl_idx(r);
         }
 
         /* create parent link */
-        if (crefl_decl_idx(p) && !crefl_decl_ptr(p)->_link) {
-            crefl_decl_ptr(p)->_link = crefl_decl_idx(r);
+        if (cinf_decl_idx(p) && !cinf_decl_ptr(p)->_link) {
+            cinf_decl_ptr(p)->_link = cinf_decl_idx(r);
         }
 
         /* set root element */
         if (db->root_element == 0) {
-            db->root_element = crefl_decl_idx(r);
+            db->root_element = cinf_decl_idx(r);
         }
 
         return r;
@@ -447,16 +447,16 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
         if (debug) print_decl(d);
 
         /* create node */
-        decl_ref r = crefl_decl_new(db, _decl_source);
-        crefl_decl_ptr(r)->_name = crefl_name_new(db,
-            crefl_basename(inputFile).c_str());
+        decl_ref r = cinf_decl_new(db, _decl_source);
+        cinf_decl_ptr(r)->_name = cinf_name_new(db,
+            cinf_basename(inputFile).c_str());
 
-        /* record clang -> crefl id */
-        idmap[d->Decl::getID()] = crefl_decl_idx(r);
+        /* record clang -> cinf id */
+        idmap[d->Decl::getID()] = cinf_decl_idx(r);
 
         /* set root element */
         if (db->root_element == 0) {
-            db->root_element = crefl_decl_idx(r);
+            db->root_element = cinf_decl_idx(r);
         }
 
         return true;
@@ -476,8 +476,8 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
 
         /* create typedef */
         decl_ref r = create_named_node(d, _decl_typedef);
-        crefl_decl_ptr(r)->_link = crefl_decl_idx(get_intrinsic_type(q));
-        crefl_decl_ptr(r)->_attr = create_attributes(d, r);
+        cinf_decl_ptr(r)->_link = cinf_decl_idx(get_intrinsic_type(q));
+        cinf_decl_ptr(r)->_attr = create_attributes(d, r);
 
         last = r;
 
@@ -503,8 +503,8 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
 
         /* create enum */
         decl_ref r = create_named_node(d, _decl_enum);
-        crefl_decl_ptr(r)->_attr = create_attributes(d, r);
-        crefl_decl_ptr(r)->_width = t.Width;
+        cinf_decl_ptr(r)->_attr = create_attributes(d, r);
+        cinf_decl_ptr(r)->_width = t.Width;
 
         stack.push_back(r);
         last = decl_ref { db, 0 };
@@ -529,9 +529,9 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
 
         /* create constant */
         decl_ref r = create_named_node(d, _decl_constant);
-        crefl_decl_ptr(r)->_link = crefl_decl_idx(get_intrinsic_type(q));
-        crefl_decl_ptr(r)->_value = value;
-        crefl_decl_ptr(r)->_attr = create_attributes(d, r);
+        cinf_decl_ptr(r)->_link = cinf_decl_idx(get_intrinsic_type(q));
+        cinf_decl_ptr(r)->_value = value;
+        cinf_decl_ptr(r)->_attr = create_attributes(d, r);
 
         last = r;
 
@@ -569,7 +569,7 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
 
             /* create struct */
             decl_ref r = create_named_node(d, tag);
-            crefl_decl_ptr(r)->_attr = create_attributes(d, r);
+            cinf_decl_ptr(r)->_attr = create_attributes(d, r);
 
             stack.push_back(r);
             last = decl_ref { db, 0 };
@@ -598,10 +598,10 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
 
         /* create field */
         decl_ref r = create_named_node(d, _decl_field);
-        crefl_decl_ptr(r)->_link = crefl_decl_idx(get_intrinsic_type(q));
-        crefl_decl_ptr(r)->_width = width;
-        crefl_decl_ptr(r)->_props |= (-(int)d->isBitField() & _decl_bitfield);
-        crefl_decl_ptr(r)->_attr = create_attributes(d, r);
+        cinf_decl_ptr(r)->_link = cinf_decl_idx(get_intrinsic_type(q));
+        cinf_decl_ptr(r)->_width = width;
+        cinf_decl_ptr(r)->_props |= (-(int)d->isBitField() & _decl_bitfield);
+        cinf_decl_ptr(r)->_attr = create_attributes(d, r);
 
         last = r;
 
@@ -620,8 +620,8 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
 
         /* create function */
         decl_ref r = create_named_node(d, _decl_function);
-        crefl_decl_ptr(r)->_attr = create_attributes(d, r);
-        crefl_decl_ptr(r)->_props |=
+        cinf_decl_ptr(r)->_attr = create_attributes(d, r);
+        cinf_decl_ptr(r)->_props |=
             (-(int)d->isGlobal() & _decl_global) |
             (-(int)d->isExternC() & _decl_extern_c) |
             (-(int)d->isStatic() & _decl_static) |
@@ -633,10 +633,10 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
         QualType qr = d->getReturnType();
 
         /* create return param */
-        decl_ref pr = crefl_decl_new(db, _decl_parameter);
-        crefl_decl_ptr(last)->_link = crefl_decl_idx(pr);
-        crefl_decl_ptr(pr)->_link = crefl_decl_idx(get_intrinsic_type(qr));
-        crefl_decl_ptr(pr)->_props |= _decl_out;
+        decl_ref pr = cinf_decl_new(db, _decl_parameter);
+        cinf_decl_ptr(last)->_link = cinf_decl_idx(pr);
+        cinf_decl_ptr(pr)->_link = cinf_decl_idx(get_intrinsic_type(qr));
+        cinf_decl_ptr(pr)->_props |= _decl_out;
 
         /* create argument params */
         const ArrayRef<ParmVarDecl*> parms = d->parameters();
@@ -644,11 +644,11 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
             const ParmVarDecl* parm = parms[i];
             const QualType q = parm->getOriginalType();
 
-            decl_ref ar = crefl_decl_new(db, _decl_parameter);
-            crefl_decl_ptr(ar)->_name = crefl_name_new(db,
+            decl_ref ar = cinf_decl_new(db, _decl_parameter);
+            cinf_decl_ptr(ar)->_name = cinf_name_new(db,
                 parm->NamedDecl::getNameAsString().c_str());
-            crefl_decl_ptr(pr)->_next = crefl_decl_idx(ar);
-            crefl_decl_ptr(ar)->_link = crefl_decl_idx(get_intrinsic_type(q));
+            cinf_decl_ptr(pr)->_next = cinf_decl_idx(ar);
+            cinf_decl_ptr(ar)->_link = cinf_decl_idx(get_intrinsic_type(q));
             pr = ar;
         }
 
@@ -672,11 +672,11 @@ struct ReflectVisitor : public RecursiveASTVisitor<ReflectVisitor>
         decl_ref r = create_named_node(d, _decl_field);
         const QualType q = d->getTypeSourceInfo()->getType();
         bool is_static = d->getStorageDuration() == StorageDuration::SD_Static;
-        crefl_decl_ptr(r)->_link = crefl_decl_idx(get_intrinsic_type(q));
-        crefl_decl_ptr(r)->_props |=
+        cinf_decl_ptr(r)->_link = cinf_decl_idx(get_intrinsic_type(q));
+        cinf_decl_ptr(r)->_props |=
             (-(int)d->isExternC() & _decl_extern_c) |
             (-(int)is_static & _decl_static);
-        crefl_decl_ptr(r)->_attr = create_attributes(d, r);
+        cinf_decl_ptr(r)->_attr = create_attributes(d, r);
 
         last = r;
 
@@ -717,8 +717,8 @@ void ReflectAction::EndSourceFileAction()
     auto &context = ci.getASTContext();
     auto &input = getCurrentInput();
 
-    decl_db *db = crefl_db_new();
-    crefl_db_defaults(db);
+    decl_db *db = cinf_db_new();
+    cinf_db_defaults(db);
     ReflectVisitor v(context, db, input.getFile().str(), debug);
     if (debug) {
         log_debug("Input file  : %s\n", v.inputFile.c_str());
@@ -729,12 +729,12 @@ void ReflectAction::EndSourceFileAction()
 
     v.TraverseDecl(context.getTranslationUnitDecl());
     if (dump) {
-        crefl_db_dump(db);
+        cinf_db_dump(db);
     }
     if (outputFile.size()) {
-        crefl_db_write_file(db, outputFile.c_str());
+        cinf_db_write_file(db, outputFile.c_str());
     }
-    crefl_db_destroy(db);
+    cinf_db_destroy(db);
 
     ASTFrontendAction::EndSourceFileAction();
 }

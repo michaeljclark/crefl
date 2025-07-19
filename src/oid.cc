@@ -3,7 +3,7 @@
 #include <map>
 #include <string>
 
-#include <crefl/oid.h>
+#include <cinf/oid.h>
 
 static const struct asn1_oid_record {
 	const unsigned char oid[16];
@@ -1087,7 +1087,7 @@ static const struct asn1_oid_record {
 { {}, 0, 0 }
 };
 
-const char* crefl_asn1_oid_desc(const char *oid, size_t len)
+const char* cinf_asn1_oid_desc(const char *oid, size_t len)
 {
 	static std::map<std::string,std::string> map;
 

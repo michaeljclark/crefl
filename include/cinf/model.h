@@ -1,7 +1,7 @@
 /*
- * <crefl/model.h>
+ * <cinf/model.h>
  *
- * crefl runtime library and compiler plug-in to support reflection in C.
+ * cinf runtime library and compiler plug-in to support reflection in C.
  *
  * Copyright (c) 2020-2022 Michael Clark <michaeljclark@mac.com>
  *
@@ -27,9 +27,9 @@ extern "C" {
 #endif
 
 /*
- * # crefl reflection api
+ * # cinf reflection api
  *
- * the crefl API provides access to runtime reflection metadata for C
+ * the cinf API provides access to runtime reflection metadata for C
  * structure declarations with support for arbitrarily nested combinations
  * of: intrinsic, set, enum, struct, union, field, array, constant, variable.
  *
@@ -289,87 +289,87 @@ union decl_raw
 /*
  * decl types
  */
-int crefl_is_any(decl_ref d);
-int crefl_is_none(decl_ref d);
-int crefl_is_type(decl_ref d);
-int crefl_is_intrinsic(decl_ref d);
-int crefl_is_typedef(decl_ref d);
-int crefl_is_set(decl_ref d);
-int crefl_is_enum(decl_ref d);
-int crefl_is_struct(decl_ref d);
-int crefl_is_union(decl_ref d);
-int crefl_is_field(decl_ref d);
-int crefl_is_array(decl_ref d);
-int crefl_is_pointer(decl_ref d);
-int crefl_is_constant(decl_ref d);
-int crefl_is_function(decl_ref d);
-int crefl_is_parameter(decl_ref d);
-int crefl_is_attribute(decl_ref d);
-int crefl_is_value(decl_ref d);
-int crefl_is_archive(decl_ref d);
-int crefl_is_source(decl_ref d);
-int crefl_is_alias(decl_ref d);
+int cinf_is_any(decl_ref d);
+int cinf_is_none(decl_ref d);
+int cinf_is_type(decl_ref d);
+int cinf_is_intrinsic(decl_ref d);
+int cinf_is_typedef(decl_ref d);
+int cinf_is_set(decl_ref d);
+int cinf_is_enum(decl_ref d);
+int cinf_is_struct(decl_ref d);
+int cinf_is_union(decl_ref d);
+int cinf_is_field(decl_ref d);
+int cinf_is_array(decl_ref d);
+int cinf_is_pointer(decl_ref d);
+int cinf_is_constant(decl_ref d);
+int cinf_is_function(decl_ref d);
+int cinf_is_parameter(decl_ref d);
+int cinf_is_attribute(decl_ref d);
+int cinf_is_value(decl_ref d);
+int cinf_is_archive(decl_ref d);
+int cinf_is_source(decl_ref d);
+int cinf_is_alias(decl_ref d);
 
 /*
  * decl database
  */
-decl_db * crefl_db_new();
-void crefl_db_defaults(decl_db *db);
-void crefl_db_destroy(decl_db *db);
+decl_db * cinf_db_new();
+void cinf_db_defaults(decl_db *db);
+void cinf_db_destroy(decl_db *db);
 
 /*
  * decl properties
  */
-decl_ref crefl_decl_void(decl_ref d);
-decl_node * crefl_decl_ptr(decl_ref d);
-decl_tag crefl_decl_tag(decl_ref d);
-decl_set crefl_decl_props(decl_ref d);
-decl_id crefl_decl_idx(decl_ref d);
-decl_ref crefl_decl_next(decl_ref d);
-decl_ref crefl_decl_link(decl_ref d);
-decl_ref crefl_decl_attr(decl_ref d);
-decl_sz crefl_decl_qty(decl_ref d);
+decl_ref cinf_decl_void(decl_ref d);
+decl_node * cinf_decl_ptr(decl_ref d);
+decl_tag cinf_decl_tag(decl_ref d);
+decl_set cinf_decl_props(decl_ref d);
+decl_id cinf_decl_idx(decl_ref d);
+decl_ref cinf_decl_next(decl_ref d);
+decl_ref cinf_decl_link(decl_ref d);
+decl_ref cinf_decl_attr(decl_ref d);
+decl_sz cinf_decl_qty(decl_ref d);
 
 /*
  * decl allocation
  */
-decl_id crefl_name_new(decl_db *db, const char *name);
-decl_ref crefl_decl_new(decl_db *db, decl_tag tag);
+decl_id cinf_name_new(decl_db *db, const char *name);
+decl_ref cinf_decl_new(decl_db *db, decl_tag tag);
 
 /*
  * decl queries
  */
-decl_ref crefl_root(decl_db *db);
-decl_ref crefl_intrinsic(decl_db *db, decl_set props, size_t width);
-decl_ref crefl_lookup(decl_db *db, size_t decl_idx);
-const char* crefl_tag_name(decl_tag tag);
-const char* crefl_decl_name(decl_ref d);
-int crefl_decl_has_name(decl_ref d);
-size_t crefl_type_width(decl_ref d);
-size_t crefl_intrinsic_width(decl_ref d);
-size_t crefl_struct_width(decl_ref d);
-size_t crefl_union_width(decl_ref d);
-size_t crefl_array_count(decl_ref d);
-size_t crefl_pointer_width(decl_ref d);
-decl_ref crefl_typedef_type(decl_ref d);
-decl_ref crefl_field_type(decl_ref d);
-decl_ref crefl_array_type(decl_ref d);
-decl_ref crefl_pointer_type(decl_ref d);
-decl_ref crefl_constant_type(decl_ref d);
-decl_ref crefl_parameter_type(decl_ref d);
-int crefl_enum_constants(decl_ref d, decl_ref *r, size_t *s);
-int crefl_set_constants(decl_ref d, decl_ref *r, size_t *s);
-int crefl_struct_fields(decl_ref d, decl_ref *r, size_t *s);
-int crefl_struct_fields_offsets(decl_ref d, decl_ref *r, size_t *o, size_t *s);
-int crefl_union_fields(decl_ref d, decl_ref *r, size_t *s);
-int crefl_function_parameters(decl_ref d, decl_ref *r, size_t *s);
-int crefl_source_decls(decl_ref d, decl_ref *r, size_t *s);
-int crefl_source_types(decl_ref f, decl_ref *r, size_t *s);
-int crefl_source_fields(decl_ref f, decl_ref *r, size_t *s);
-int crefl_source_functions(decl_ref f, decl_ref *r, size_t *s);
-int crefl_archive_sources(decl_ref d, decl_ref *r, size_t *s);
-decl_raw crefl_constant_value(decl_ref d);
-void * crefl_function_addr(decl_ref d);
+decl_ref cinf_root(decl_db *db);
+decl_ref cinf_intrinsic(decl_db *db, decl_set props, size_t width);
+decl_ref cinf_lookup(decl_db *db, size_t decl_idx);
+const char* cinf_tag_name(decl_tag tag);
+const char* cinf_decl_name(decl_ref d);
+int cinf_decl_has_name(decl_ref d);
+size_t cinf_type_width(decl_ref d);
+size_t cinf_intrinsic_width(decl_ref d);
+size_t cinf_struct_width(decl_ref d);
+size_t cinf_union_width(decl_ref d);
+size_t cinf_array_count(decl_ref d);
+size_t cinf_pointer_width(decl_ref d);
+decl_ref cinf_typedef_type(decl_ref d);
+decl_ref cinf_field_type(decl_ref d);
+decl_ref cinf_array_type(decl_ref d);
+decl_ref cinf_pointer_type(decl_ref d);
+decl_ref cinf_constant_type(decl_ref d);
+decl_ref cinf_parameter_type(decl_ref d);
+int cinf_enum_constants(decl_ref d, decl_ref *r, size_t *s);
+int cinf_set_constants(decl_ref d, decl_ref *r, size_t *s);
+int cinf_struct_fields(decl_ref d, decl_ref *r, size_t *s);
+int cinf_struct_fields_offsets(decl_ref d, decl_ref *r, size_t *o, size_t *s);
+int cinf_union_fields(decl_ref d, decl_ref *r, size_t *s);
+int cinf_function_parameters(decl_ref d, decl_ref *r, size_t *s);
+int cinf_source_decls(decl_ref d, decl_ref *r, size_t *s);
+int cinf_source_types(decl_ref f, decl_ref *r, size_t *s);
+int cinf_source_fields(decl_ref f, decl_ref *r, size_t *s);
+int cinf_source_functions(decl_ref f, decl_ref *r, size_t *s);
+int cinf_archive_sources(decl_ref d, decl_ref *r, size_t *s);
+decl_raw cinf_constant_value(decl_ref d);
+void * cinf_function_addr(decl_ref d);
 
 #ifdef __cplusplus
 }

@@ -1,5 +1,5 @@
 /*
- * crefl runtime library and compiler plug-in to support reflection in C.
+ * cinf runtime library and compiler plug-in to support reflection in C.
  *
  * Copyright (c) 2020-2022 Michael Clark <michaeljclark@mac.com>
  *
@@ -19,11 +19,11 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include <crefl/buf.h>
+#include <cinf/buf.h>
 
-crefl_buf* crefl_buf_new(size_t size)
+cinf_buf* cinf_buf_new(size_t size)
 {
-    crefl_buf *buf = (crefl_buf*)malloc(sizeof(crefl_buf));
+    cinf_buf *buf = (cinf_buf*)malloc(sizeof(cinf_buf));
 
     buf->data_offset = 0;
     buf->data_size = size;
@@ -33,13 +33,13 @@ crefl_buf* crefl_buf_new(size_t size)
     return buf;
 }
 
-void crefl_buf_destroy(crefl_buf* buf)
+void cinf_buf_destroy(cinf_buf* buf)
 {
     free(buf->data);
     free(buf);
 }
 
-int crefl_format_byte(char *buf, size_t buflen, uint8_t c)
+int cinf_format_byte(char *buf, size_t buflen, uint8_t c)
 {
     static const char arr[4][4] = { "▄", "▟", "▙", "█" };
 
@@ -53,7 +53,7 @@ int crefl_format_byte(char *buf, size_t buflen, uint8_t c)
     return n;
 }
 
-void crefl_buf_dump(crefl_buf *buf)
+void cinf_buf_dump(cinf_buf *buf)
 {
     intptr_t stride = 16;
     for (intptr_t i = 0; i < buf->data_offset; i += stride) {
@@ -67,7 +67,7 @@ void crefl_buf_dump(crefl_buf *buf)
             printf(" ");
             if (j < buf->data_offset) {
                 char s[16];
-                crefl_format_byte(s, sizeof(s), buf->data[j]);
+                cinf_format_byte(s, sizeof(s), buf->data[j]);
                 printf("%s", s);
             }
             else {

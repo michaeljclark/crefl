@@ -1,7 +1,7 @@
 /*
- * <crefl/link.h>
+ * <cinf/link.h>
  *
- * crefl runtime library and compiler plug-in to support reflection in C.
+ * cinf runtime library and compiler plug-in to support reflection in C.
  *
  * Copyright (c) 2020-2022 Michael Clark <michaeljclark@mac.com>
  *
@@ -73,20 +73,20 @@ struct decl_index
     size_t entry_size;
 };
 
-decl_index* crefl_index_new();
-void crefl_index_destroy(decl_index *index);
+decl_index* cinf_index_new();
+void cinf_index_destroy(decl_index *index);
 
-decl_entry_ref crefl_entry_ref(decl_index *index, decl_ref r);
-decl_id crefl_entry_name_new(decl_index *index, const char *name);
+decl_entry_ref cinf_entry_ref(decl_index *index, decl_ref r);
+decl_id cinf_entry_name_new(decl_index *index, const char *name);
 
-decl_entry * crefl_entry_ptr(decl_entry_ref d);
-const char* crefl_entry_fqn(decl_entry_ref d);
+decl_entry * cinf_entry_ptr(decl_entry_ref d);
+const char* cinf_entry_fqn(decl_entry_ref d);
 
-int crefl_entry_is_marked(decl_entry_ref d);
-int crefl_entry_is_valid(decl_entry_ref d);
+int cinf_entry_is_marked(decl_entry_ref d);
+int cinf_entry_is_valid(decl_entry_ref d);
 
-void crefl_index_scan(decl_index *index, decl_db *db);
-int crefl_link_merge(decl_db *dst, const char *name, decl_db **srcn, size_t n);
+void cinf_index_scan(decl_index *index, decl_db *db);
+int cinf_link_merge(decl_db *dst, const char *name, decl_db **srcn, size_t n);
 
 #ifdef __cplusplus
 }

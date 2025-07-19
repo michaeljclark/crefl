@@ -5,7 +5,7 @@
 #include <math.h>
 #include <random>
 
-#include <crefl/asn1.h>
+#include <cinf/asn1.h>
 
 void print_header()
 {
@@ -17,13 +17,13 @@ size_t test_vf64(double f)
 {
     double r;
     size_t s;
-    crefl_buf *buf = crefl_buf_new(128);
-    assert(!crefl_vf_f64_write(buf, &f));
-    s = crefl_buf_offset(buf);
-    crefl_buf_reset(buf);
-    crefl_vf_f64_read(buf, &r);
+    cinf_buf *buf = cinf_buf_new(128);
+    assert(!cinf_vf_f64_write(buf, &f));
+    s = cinf_buf_offset(buf);
+    cinf_buf_reset(buf);
+    cinf_vf_f64_read(buf, &r);
     assert(isnan(f) ? isnan(r) : f == r);
-    crefl_buf_destroy(buf);
+    cinf_buf_destroy(buf);
     return s;
 }
 
@@ -44,13 +44,13 @@ size_t test_vf32(float f)
 {
     float r;
     size_t s;
-    crefl_buf *buf = crefl_buf_new(128);
-    assert(!crefl_vf_f32_write(buf, &f));
-    s = crefl_buf_offset(buf);
-    crefl_buf_reset(buf);
-    crefl_vf_f32_read(buf, &r);
+    cinf_buf *buf = cinf_buf_new(128);
+    assert(!cinf_vf_f32_write(buf, &f));
+    s = cinf_buf_offset(buf);
+    cinf_buf_reset(buf);
+    cinf_vf_f32_read(buf, &r);
     assert(isnan(f) ? isnan(r) : f == r);
-    crefl_buf_destroy(buf);
+    cinf_buf_destroy(buf);
     return s;
 }
 

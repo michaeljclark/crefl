@@ -1,7 +1,7 @@
 /*
- * <crefl/buf.h>
+ * <cinf/buf.h>
  *
- * crefl runtime library and compiler plug-in to support reflection in C.
+ * cinf runtime library and compiler plug-in to support reflection in C.
  *
  * Copyright (c) 2020-2022 Michael Clark <michaeljclark@mac.com>
  *
@@ -24,54 +24,54 @@
 #include <stdint.h>
 #include <string.h>
 
-#include <crefl/endian.h>
+#include <cinf/endian.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct crefl_buf;
-struct crefl_span;
+struct cinf_buf;
+struct cinf_span;
 
-typedef struct crefl_buf crefl_buf;
-typedef struct crefl_span crefl_span;
+typedef struct cinf_buf cinf_buf;
+typedef struct cinf_span cinf_span;
 
-struct crefl_span
+struct cinf_span
 {
     void *data;
     size_t length;
 };
 
-struct crefl_buf
+struct cinf_buf
 {
     char *data;
     size_t data_offset;
     size_t data_size;
 };
 
-crefl_buf* crefl_buf_new(size_t size);
-void crefl_buf_destroy(crefl_buf* buf);
-void crefl_buf_dump(crefl_buf *buf);
-int crefl_format_byte(char *buf, size_t buflen, uint8_t c);
+cinf_buf* cinf_buf_new(size_t size);
+void cinf_buf_destroy(cinf_buf* buf);
+void cinf_buf_dump(cinf_buf *buf);
+int cinf_format_byte(char *buf, size_t buflen, uint8_t c);
 
-static size_t crefl_buf_write_i8(crefl_buf* buf, int8_t num);
-static size_t crefl_buf_write_i16(crefl_buf* buf, int16_t num);
-static size_t crefl_buf_write_i32(crefl_buf* buf, int32_t num);
-static size_t crefl_buf_write_i64(crefl_buf* buf, int64_t num);
-static size_t crefl_buf_write_bytes(crefl_buf* buf, const char *s, size_t len);
-static size_t crefl_buf_write_bytes_unchecked(crefl_buf* buf, const char *s, size_t len);
+static size_t cinf_buf_write_i8(cinf_buf* buf, int8_t num);
+static size_t cinf_buf_write_i16(cinf_buf* buf, int16_t num);
+static size_t cinf_buf_write_i32(cinf_buf* buf, int32_t num);
+static size_t cinf_buf_write_i64(cinf_buf* buf, int64_t num);
+static size_t cinf_buf_write_bytes(cinf_buf* buf, const char *s, size_t len);
+static size_t cinf_buf_write_bytes_unchecked(cinf_buf* buf, const char *s, size_t len);
 
-static size_t crefl_buf_read_i8(crefl_buf* buf, int8_t *num);
-static size_t crefl_buf_read_i16(crefl_buf* buf, int16_t *num);
-static size_t crefl_buf_read_i32(crefl_buf* buf, int32_t *num);
-static size_t crefl_buf_read_i64(crefl_buf* buf, int64_t *num);
-static size_t crefl_buf_read_bytes(crefl_buf* buf, char *s, size_t len);
-static size_t crefl_buf_read_bytes_unchecked(crefl_buf* buf, char *s, size_t len);
+static size_t cinf_buf_read_i8(cinf_buf* buf, int8_t *num);
+static size_t cinf_buf_read_i16(cinf_buf* buf, int16_t *num);
+static size_t cinf_buf_read_i32(cinf_buf* buf, int32_t *num);
+static size_t cinf_buf_read_i64(cinf_buf* buf, int64_t *num);
+static size_t cinf_buf_read_bytes(cinf_buf* buf, char *s, size_t len);
+static size_t cinf_buf_read_bytes_unchecked(cinf_buf* buf, char *s, size_t len);
 
-static void crefl_buf_reset(crefl_buf* buf);
-static void crefl_buf_seek(crefl_buf* buf, size_t offset);
-static char* crefl_buf_data(crefl_buf *buf);
-static size_t crefl_buf_offset(crefl_buf* buf);
+static void cinf_buf_reset(cinf_buf* buf);
+static void cinf_buf_seek(cinf_buf* buf, size_t offset);
+static char* cinf_buf_data(cinf_buf *buf);
+static size_t cinf_buf_offset(cinf_buf* buf);
 
 /*
  * buffer inline functions
@@ -89,9 +89,9 @@ static size_t crefl_buf_offset(crefl_buf* buf);
 #define USE_CRT_MEMCPY 1
 #endif
 
-#define CREFL_FN(Y,X) crefl_ ## Y ## _ ## X
+#define CREFL_FN(Y,X) cinf_ ## Y ## _ ## X
 
-static inline size_t crefl_buf_check_capacity(crefl_buf *buf, size_t len)
+static inline size_t cinf_buf_check_capacity(cinf_buf *buf, size_t len)
 {
     return (buf->data_offset + len > buf->data_size) ? -1 : 0;
 }
@@ -99,7 +99,7 @@ static inline size_t crefl_buf_check_capacity(crefl_buf *buf, size_t len)
 #if USE_UNALIGNED_ACCESSES && !USE_CRT_MEMCPY
 
 #define CREFL_BUF_WRITE_IMPL(suffix,T,swap)                                    \
-static inline size_t CREFL_FN(buf_write,suffix)(crefl_buf *buf, T val)           \
+static inline size_t CREFL_FN(buf_write,suffix)(cinf_buf *buf, T val)           \
 {                                                                              \
     if (buf->data_offset + sizeof(T) > buf->data_size) return 0;               \
     T t = swap(val);                                                           \
@@ -107,7 +107,7 @@ static inline size_t CREFL_FN(buf_write,suffix)(crefl_buf *buf, T val)          
     buf->data_offset += sizeof(T);                                             \
     return sizeof(T);                                                          \
 }                                                                              \
-static inline size_t CREFL_FN(buf_write_unchecked,suffix)(crefl_buf *buf, T val) \
+static inline size_t CREFL_FN(buf_write_unchecked,suffix)(cinf_buf *buf, T val) \
 {                                                                              \
     T t = swap(val);                                                           \
     *(T*)(buf->data + buf->data_offset) = t;                                   \
@@ -116,7 +116,7 @@ static inline size_t CREFL_FN(buf_write_unchecked,suffix)(crefl_buf *buf, T val)
 }
 
 #define CREFL_BUF_READ_IMPL(suffix,T,swap)                                     \
-static inline size_t CREFL_FN(buf_read,suffix)(crefl_buf *buf, T* val)           \
+static inline size_t CREFL_FN(buf_read,suffix)(cinf_buf *buf, T* val)           \
 {                                                                              \
     if (buf->data_offset + sizeof(T) > buf->data_size) return 0;               \
     T t = *(T*)(buf->data + buf->data_offset);                                 \
@@ -124,7 +124,7 @@ static inline size_t CREFL_FN(buf_read,suffix)(crefl_buf *buf, T* val)          
     buf->data_offset += sizeof(T);                                             \
     return sizeof(T);                                                          \
 }                                                                              \
-static inline size_t CREFL_FN(buf_read_unchecked,suffix)(crefl_buf *buf, T* val) \
+static inline size_t CREFL_FN(buf_read_unchecked,suffix)(cinf_buf *buf, T* val) \
 {                                                                              \
     T t = *(T*)(buf->data + buf->data_offset);                                 \
     *val = swap(t);                                                            \
@@ -135,7 +135,7 @@ static inline size_t CREFL_FN(buf_read_unchecked,suffix)(crefl_buf *buf, T* val)
 #else
 
 #define CREFL_BUF_WRITE_IMPL(suffix,T,swap)                                    \
-static inline size_t CREFL_FN(buf_write,suffix)(crefl_buf *buf, T val)           \
+static inline size_t CREFL_FN(buf_write,suffix)(cinf_buf *buf, T val)           \
 {                                                                              \
     if (buf->data_offset + sizeof(T) > buf->data_size) return 0;               \
     T t = swap(val);                                                           \
@@ -143,7 +143,7 @@ static inline size_t CREFL_FN(buf_write,suffix)(crefl_buf *buf, T val)          
     buf->data_offset += sizeof(T);                                             \
     return sizeof(T);                                                          \
 }                                                                              \
-static inline size_t CREFL_FN(buf_write_unchecked,suffix)(crefl_buf *buf, T val) \
+static inline size_t CREFL_FN(buf_write_unchecked,suffix)(cinf_buf *buf, T val) \
 {                                                                              \
     T t = swap(val);                                                           \
     memcpy(buf->data + buf->data_offset, &t, sizeof(T));                       \
@@ -152,7 +152,7 @@ static inline size_t CREFL_FN(buf_write_unchecked,suffix)(crefl_buf *buf, T val)
 }
 
 #define CREFL_BUF_READ_IMPL(suffix,T,swap)                                     \
-static inline size_t CREFL_FN(buf_read,suffix)(crefl_buf *buf, T* val)           \
+static inline size_t CREFL_FN(buf_read,suffix)(cinf_buf *buf, T* val)           \
 {                                                                              \
     if (buf->data_offset + sizeof(T) > buf->data_size) return 0;               \
     T t;                                                                       \
@@ -161,7 +161,7 @@ static inline size_t CREFL_FN(buf_read,suffix)(crefl_buf *buf, T* val)          
     buf->data_offset += sizeof(T);                                             \
     return sizeof(T);                                                          \
 }                                                                              \
-static inline size_t CREFL_FN(buf_read_unchecked,suffix)(crefl_buf *buf, T* val) \
+static inline size_t CREFL_FN(buf_read_unchecked,suffix)(cinf_buf *buf, T* val) \
 {                                                                              \
     T t;                                                                       \
     memcpy(&t, buf->data + buf->data_offset, sizeof(T));                       \
@@ -180,7 +180,7 @@ CREFL_BUF_READ_IMPL(i16,int16_t,le16)
 CREFL_BUF_READ_IMPL(i32,int32_t,le32)
 CREFL_BUF_READ_IMPL(i64,int64_t,le64)
 
-static inline size_t crefl_buf_read_i8(crefl_buf *buf, int8_t* val)
+static inline size_t cinf_buf_read_i8(cinf_buf *buf, int8_t* val)
 {
     if (buf->data_offset + 1 > buf->data_size) return 0;
     *val = *(int8_t*)(buf->data + buf->data_offset);
@@ -188,28 +188,28 @@ static inline size_t crefl_buf_read_i8(crefl_buf *buf, int8_t* val)
     return 1;
 }
 
-static inline size_t crefl_buf_read_unchecked_i8(crefl_buf *buf, int8_t* val)
+static inline size_t cinf_buf_read_unchecked_i8(cinf_buf *buf, int8_t* val)
 {
     *val = *(int8_t*)(buf->data + buf->data_offset);
     buf->data_offset++;
     return 1;
 }
 
-static inline size_t crefl_buf_write_i8(crefl_buf *buf, int8_t val)
+static inline size_t cinf_buf_write_i8(cinf_buf *buf, int8_t val)
 {
     if (buf->data_offset + 1 > buf->data_size) return 0;
     *(int8_t*)(buf->data + buf->data_offset) = val;
     buf->data_offset++;
     return 1;
 }
-static inline size_t crefl_buf_write_unchecked_i8(crefl_buf *buf, int8_t val)
+static inline size_t cinf_buf_write_unchecked_i8(cinf_buf *buf, int8_t val)
 {
     *(int8_t*)(buf->data + buf->data_offset) = val;
     buf->data_offset++;
     return 1;
 }
 
-static inline size_t crefl_buf_write_bytes(crefl_buf* buf, const char *src, size_t len)
+static inline size_t cinf_buf_write_bytes(cinf_buf* buf, const char *src, size_t len)
 {
     if (buf->data_offset + len > buf->data_size) return 0;
 #if USE_CRT_MEMCPY
@@ -223,7 +223,7 @@ static inline size_t crefl_buf_write_bytes(crefl_buf* buf, const char *src, size
     return len;
 }
 
-static inline size_t crefl_buf_read_bytes(crefl_buf* buf, char *dst, size_t len)
+static inline size_t cinf_buf_read_bytes(cinf_buf* buf, char *dst, size_t len)
 {
     if (buf->data_offset + len > buf->data_size) return 0;
 #if USE_CRT_MEMCPY
@@ -237,7 +237,7 @@ static inline size_t crefl_buf_read_bytes(crefl_buf* buf, char *dst, size_t len)
     return len;
 }
 
-static inline size_t crefl_buf_write_bytes_unchecked(crefl_buf* buf, const char *src, size_t len)
+static inline size_t cinf_buf_write_bytes_unchecked(cinf_buf* buf, const char *src, size_t len)
 {
 #if USE_CRT_MEMCPY
     memcpy(&buf->data[buf->data_offset], src, len);
@@ -250,7 +250,7 @@ static inline size_t crefl_buf_write_bytes_unchecked(crefl_buf* buf, const char 
     return len;
 }
 
-static inline size_t crefl_buf_read_bytes_unchecked(crefl_buf* buf, char *dst, size_t len)
+static inline size_t cinf_buf_read_bytes_unchecked(cinf_buf* buf, char *dst, size_t len)
 {
 #if USE_CRT_MEMCPY
     memcpy(dst, &buf->data[buf->data_offset], len);
@@ -263,29 +263,29 @@ static inline size_t crefl_buf_read_bytes_unchecked(crefl_buf* buf, char *dst, s
     return len;
 }
 
-static inline void crefl_buf_reset(crefl_buf* buf)
+static inline void cinf_buf_reset(cinf_buf* buf)
 {
     buf->data_offset = 0;
 }
 
-static inline void crefl_buf_seek(crefl_buf* buf, size_t offset)
+static inline void cinf_buf_seek(cinf_buf* buf, size_t offset)
 {
     buf->data_offset = offset;
 }
 
-static inline char* crefl_buf_data(crefl_buf *buf)
+static inline char* cinf_buf_data(cinf_buf *buf)
 {
     return buf->data;
 }
 
-static inline size_t crefl_buf_offset(crefl_buf* buf)
+static inline size_t cinf_buf_offset(cinf_buf* buf)
 {
     return buf->data_offset;
 }
 
-static inline crefl_span crefl_buf_remaining(crefl_buf* buf)
+static inline cinf_span cinf_buf_remaining(cinf_buf* buf)
 {
-    crefl_span s = {
+    cinf_span s = {
         &buf->data[buf->data_offset], buf->data_size - buf->data_offset
     };
     return s;

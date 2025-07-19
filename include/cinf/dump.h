@@ -1,7 +1,7 @@
 /*
- * <crefl/oid.h>
+ * <cinf/dump.h>
  *
- * crefl runtime library and compiler plug-in to support reflection in C.
+ * cinf runtime library and compiler plug-in to support reflection in C.
  *
  * Copyright (c) 2020-2022 Michael Clark <michaeljclark@mac.com>
  *
@@ -24,7 +24,26 @@
 extern "C" {
 #endif
 
-const char* crefl_asn1_oid_desc(const char *oid, size_t len);
+enum cinf_db_dump_fmt
+{
+    cinf_db_dump_std,
+    cinf_db_dump_fqn,
+    cinf_db_dump_sum,
+    cinf_db_dump_all,
+    cinf_db_dump_ext,
+    cinf_db_dump_ext_fqn,
+    cinf_db_dump_ext_sum,
+    cinf_db_dump_ext_all
+};
+
+void cinf_db_header_names();
+void cinf_db_header_lines();
+
+void cinf_db_set_dump_fmt(enum cinf_db_dump_fmt fmt);
+
+void cinf_db_dump(decl_db *db);
+void cinf_db_dump_row(decl_db *db, decl_ref r);
+void cinf_db_dump_stats(decl_db *db);
 
 #ifdef __cplusplus
 }
