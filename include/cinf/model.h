@@ -97,7 +97,6 @@ typedef u64 decl_sz;
  * - void           - empty type
  * - intrinsic      - machine type with width in bits
  * - typedef        - alias to another type definition
- * - set            - machine type with many-of sequence
  * - enum           - machine type with one-of sequence
  * - struct         - sequence of non-overlapping types
  * - union          - sequence of overlapping types
@@ -184,7 +183,6 @@ enum decl_tags
     _decl_none,
     _decl_intrinsic,
     _decl_typedef,
-    _decl_set,
     _decl_enum,
     _decl_struct,
     _decl_union,
@@ -294,7 +292,6 @@ int cinf_is_none(decl_ref d);
 int cinf_is_type(decl_ref d);
 int cinf_is_intrinsic(decl_ref d);
 int cinf_is_typedef(decl_ref d);
-int cinf_is_set(decl_ref d);
 int cinf_is_enum(decl_ref d);
 int cinf_is_struct(decl_ref d);
 int cinf_is_union(decl_ref d);
@@ -358,7 +355,6 @@ decl_ref cinf_pointer_type(decl_ref d);
 decl_ref cinf_constant_type(decl_ref d);
 decl_ref cinf_parameter_type(decl_ref d);
 int cinf_enum_constants(decl_ref d, decl_ref *r, size_t *s);
-int cinf_set_constants(decl_ref d, decl_ref *r, size_t *s);
 int cinf_struct_fields(decl_ref d, decl_ref *r, size_t *s);
 int cinf_struct_fields_offsets(decl_ref d, decl_ref *r, size_t *o, size_t *s);
 int cinf_union_fields(decl_ref d, decl_ref *r, size_t *s);

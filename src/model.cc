@@ -39,15 +39,14 @@ int cinf_is_type(decl_ref d)
 {
     decl_tag t = cinf_decl_tag(d);
     return t == _decl_typedef || t == _decl_intrinsic ||
-           t == _decl_set     || t == _decl_enum      ||
-           t == _decl_struct  || t == _decl_union     ||
-           t == _decl_array   || t == _decl_pointer   || t == _decl_qualifier;
+           t == _decl_enum    || t == _decl_struct    ||
+           t == _decl_union   || t == _decl_array     ||
+           t == _decl_pointer || t == _decl_qualifier;
 }
 
 int cinf_is_none      (decl_ref d) { return cinf_decl_tag(d) == _decl_none;      }
 int cinf_is_typedef   (decl_ref d) { return cinf_decl_tag(d) == _decl_typedef;   }
 int cinf_is_intrinsic (decl_ref d) { return cinf_decl_tag(d) == _decl_intrinsic; }
-int cinf_is_set       (decl_ref d) { return cinf_decl_tag(d) == _decl_set;       }
 int cinf_is_enum      (decl_ref d) { return cinf_decl_tag(d) == _decl_enum;      }
 int cinf_is_struct    (decl_ref d) { return cinf_decl_tag(d) == _decl_struct;    }
 int cinf_is_union     (decl_ref d) { return cinf_decl_tag(d) == _decl_union;     }
@@ -444,12 +443,6 @@ decl_ref cinf_parameter_type(decl_ref d)
 int cinf_enum_constants(decl_ref d, decl_ref *r, size_t *s)
 {
     if (!cinf_is_enum(d)) return -1;
-    return _decl_array_fetch(d.db, r, s, cinf_decl_link(d), cinf_is_constant);
-}
-
-int cinf_set_constants(decl_ref d, decl_ref *r, size_t *s)
-{
-    if (!cinf_is_set(d)) return -1;
     return _decl_array_fetch(d.db, r, s, cinf_decl_link(d), cinf_is_constant);
 }
 

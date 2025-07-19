@@ -136,7 +136,6 @@ static void cinf_hash_node_sum(decl_sum *sum, decl_index *index,
          */
         case _decl_archive:
         case _decl_source:
-        case _decl_set:
         case _decl_enum:
         case _decl_struct:
         case _decl_union:
@@ -340,9 +339,8 @@ bool _should_copy(decl_ref d)
 {
     /* copy if not one of: 'set', 'enum', 'struct', 'union' and 'function' */
     decl_ref r = cinf_decl_link(d);
-    return !(cinf_is_set(d) || cinf_is_enum(d) ||
-             cinf_is_struct(d) || cinf_is_union(d) ||
-             cinf_is_function(d));
+    return !(cinf_is_enum(d) || cinf_is_struct(d) ||
+             cinf_is_union(d) || cinf_is_function(d));
 }
 
 decl_ref cinf_copy_node(cinf_link_state *state, decl_ref d, decl_ref p,
@@ -398,7 +396,6 @@ decl_ref cinf_copy_node(cinf_link_state *state, decl_ref d, decl_ref p,
          */
         case _decl_archive:
         case _decl_source:
-        case _decl_set:
         case _decl_enum:
         case _decl_struct:
         case _decl_union:

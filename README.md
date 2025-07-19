@@ -4,7 +4,7 @@
 
 The _Cinf_ API and plugin provides access to runtime reflection metadata for
 C interface declarations with support for arbitrarily nested combinations of:
-intrinsic, set, enum, struct, union, field, array, constant, and function.
+intrinsic, enum, struct, union, field, array, constant, and function.
 
 _Cinf_ addresses the following three areas:
 
@@ -81,7 +81,7 @@ in ISO/IEC 9899:9999 with minor changes. The following sections describe:
 - primary types to model the type system.
 - decl node type to model the metadata graph.
 - decl node subtypes to model C structures and interfaces:
-  - _intrinsic, typedef, set, enum, struct, union, field, array, pointer,
+  - _intrinsic, typedef, enum, struct, union, field, array, pointer,
     constant, function, parameter, attribute, value_.
 
 _Cinf_ variations from the C standard:
@@ -142,7 +142,6 @@ This table table lists the properties used by each subtype:
 | `none`      |      |            | empty type                                     |
 | `typedef`   | ✓    |            | alias to another type definition               |
 | `intrinsic` |      | `sz width` | machine type quantified with width in bits     |
-| `set`       | ✓    | `sz width` | machine type with many-of sequence of masks    |
 | `enum`      | ✓    | `sz width` | machine type with one-of sequence of integers  |
 | `struct`    | ✓    |            | sequence of non-overlapping types              |
 | `union`     | ✓    |            | sequence of overlapping types                  |

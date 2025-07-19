@@ -242,7 +242,6 @@ cinf_db_row cinf_db_get_row(decl_db *db, decl_ref r)
     case _decl_parameter:
     case _decl_qualifier:
     case _decl_attribute: props = _props(r, ""); break;
-    case _decl_set:
     case _decl_enum:
     case _decl_pointer:
     case _decl_intrinsic: props = _props(r, "width=" fmt_SZ, d->_width); break;
