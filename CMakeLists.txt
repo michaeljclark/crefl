@@ -56,12 +56,9 @@ target_link_libraries(example3_printer example3_printer_inf cmodel)
 add_executable(bench_asn1 test/bench_asn1.cc)
 target_link_libraries(bench_asn1 cmodel)
 
-add_executable(rand_vf128 test/rand_vf128.cc)
-target_link_libraries(rand_vf128 cmodel)
-
 enable_testing()
 
-foreach(prog IN ITEMS t1 t2 t3 t4 t5 t6 t7 t8)
+foreach(prog IN ITEMS t1 t2 t3 t4 t5 t6 t7)
 	add_executable(${prog} test/${prog}.c)
 	target_link_libraries(${prog} cmodel)
 	add_test(test_${prog} ${prog})

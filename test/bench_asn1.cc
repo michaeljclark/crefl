@@ -49,8 +49,6 @@ char i10_str[] = "2147483648";
 unsigned char i17_asn[] = { 0x02, 0x08, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 unsigned long long i12 = 18014398509481984;
 unsigned char i12_leb[] = { 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x20 };
-unsigned char i12_vlu[] = { 0x7F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40 };
-unsigned char pi_vf8[] = { 0x97, 0x01, 0xA3, 0x85, 0x88, 0x6A, 0x3F, 0x24, 0x03 };
 
 struct bench_result { const char *name; llong count; double t; llong size; };
 
@@ -200,174 +198,6 @@ static bench_result bench_asn1_write_byval_real(llong count)
 
     double t = (double)duration_cast<nanoseconds>(et - st).count();
     return bench_result { "f64-asn.1-write-byval", count, t, 8 * count };
-}
-
-static bench_result bench_vf64_read_byptr_real(llong count)
-{
-    double f;
-    cinf_buf *buf = cinf_buf_new(128);
-    cinf_buf_write_bytes(buf, (const char*)pi_vf8, sizeof(pi_vf8));
-
-    auto st = high_resolution_clock::now();
-    for (llong i = 0; i < count; i++) {
-        cinf_buf_reset(buf);
-        assert(!cinf_vf_f64_read(buf, &f));
-    }
-    auto et = high_resolution_clock::now();
-
-    assert(fabs(f - 3.141592) < 0.0001);
-    cinf_buf_destroy(buf);
-
-    double t = (double)duration_cast<nanoseconds>(et - st).count();
-    return bench_result { "f64-vf128-read-byptr", count, t, 8 * count };
-}
-
-static bench_result bench_vf64_read_byval_real(llong count)
-{
-    f64_result r;
-    cinf_buf *buf = cinf_buf_new(128);
-    cinf_buf_write_bytes(buf, (const char*)pi_vf8, sizeof(pi_vf8));
-
-    auto st = high_resolution_clock::now();
-    for (llong i = 0; i < count; i++) {
-        cinf_buf_reset(buf);
-        r = cinf_vf_f64_read_byval(buf);
-        assert(!r.error);
-    }
-    auto et = high_resolution_clock::now();
-
-    assert(fabs(r.value - 3.141592) < 0.0001);
-    cinf_buf_destroy(buf);
-
-    double t = (double)duration_cast<nanoseconds>(et - st).count();
-    return bench_result { "f64-vf128-read-byval", count, t, 8 * count };
-}
-
-static bench_result bench_vf64_write_byptr_real(llong count)
-{
-    double f = 3.141592653589793;
-    cinf_buf *buf = cinf_buf_new(128);
-
-    auto st = high_resolution_clock::now();
-    for (llong i = 0; i < count; i++) {
-        cinf_buf_reset(buf);
-        assert(!cinf_vf_f64_write(buf, &f));
-    }
-    auto et = high_resolution_clock::now();
-
-    cinf_buf_reset(buf);
-    cinf_vf_f64_read(buf, &f);
-    assert(fabs(f - 3.141592) < 0.0001);
-    cinf_buf_destroy(buf);
-
-    double t = (double)duration_cast<nanoseconds>(et - st).count();
-    return bench_result { "f64-vf128-write-byptr", count, t, 8 * count };
-}
-
-static bench_result bench_vf64_write_byval_real(llong count)
-{
-    f64_result r;
-    double f = 3.141592653589793;
-    cinf_buf *buf = cinf_buf_new(128);
-
-    auto st = high_resolution_clock::now();
-    for (llong i = 0; i < count; i++) {
-        cinf_buf_reset(buf);
-        assert(!cinf_vf_f64_write_byval(buf, f));
-    }
-    auto et = high_resolution_clock::now();
-
-    cinf_buf_reset(buf);
-    r = cinf_vf_f64_read_byval(buf);
-    assert(fabs(r.value - 3.141592) < 0.0001);
-    cinf_buf_destroy(buf);
-
-    double t = (double)duration_cast<nanoseconds>(et - st).count();
-    return bench_result { "f64-vf128-write-byval", count, t, 8 * count };
-}
-
-static bench_result bench_vf32_read_byptr_real(llong count)
-{
-    float f;
-    cinf_buf *buf = cinf_buf_new(128);
-    cinf_buf_write_bytes(buf, (const char*)pi_vf8, sizeof(pi_vf8));
-
-    auto st = high_resolution_clock::now();
-    for (llong i = 0; i < count; i++) {
-        cinf_buf_reset(buf);
-        assert(!cinf_vf_f32_read(buf, &f));
-    }
-    auto et = high_resolution_clock::now();
-
-    assert(fabs(f - 3.141592f) < 0.0001);
-    cinf_buf_destroy(buf);
-
-    double t = (double)duration_cast<nanoseconds>(et - st).count();
-    return bench_result { "f32-vf128-read-byptr", count, t, 4 * count };
-}
-
-static bench_result bench_vf32_read_byval_real(llong count)
-{
-    f32_result r;
-    cinf_buf *buf = cinf_buf_new(128);
-    cinf_buf_write_bytes(buf, (const char*)pi_vf8, sizeof(pi_vf8));
-
-    auto st = high_resolution_clock::now();
-    for (llong i = 0; i < count; i++) {
-        cinf_buf_reset(buf);
-        r = cinf_vf_f32_read_byval(buf);
-        assert(!r.error);
-    }
-    auto et = high_resolution_clock::now();
-
-    assert(fabs(r.value - 3.141592f) < 0.0001);
-    cinf_buf_destroy(buf);
-
-    double t = (double)duration_cast<nanoseconds>(et - st).count();
-    return bench_result { "f32-vf128-read-byval", count, t, 4 * count };
-}
-
-static bench_result bench_vf32_write_byptr_real(llong count)
-{
-    float f = 3.141592f;
-    cinf_buf *buf = cinf_buf_new(128);
-
-    auto st = high_resolution_clock::now();
-    for (llong i = 0; i < count; i++) {
-        cinf_buf_reset(buf);
-        assert(!cinf_vf_f32_write(buf, &f));
-    }
-    auto et = high_resolution_clock::now();
-
-    cinf_buf_reset(buf);
-    cinf_vf_f32_read(buf, &f);
-    assert(fabs(f - 3.141592f) < 0.0001);
-    cinf_buf_destroy(buf);
-
-    double t = (double)duration_cast<nanoseconds>(et - st).count();
-    return bench_result { "f32-vf128-write-byptr", count, t, 4 * count };
-}
-
-static bench_result bench_vf32_write_byval_real(llong count)
-{
-    f32_result r;
-    float f = 3.141592f;
-    cinf_buf *buf = cinf_buf_new(128);
-
-    auto st = high_resolution_clock::now();
-    for (llong i = 0; i < count; i++) {
-        cinf_buf_reset(buf);
-        assert(!cinf_vf_f32_write_byval(buf, f));
-    }
-    auto et = high_resolution_clock::now();
-
-    cinf_buf_reset(buf);
-    r = cinf_vf_f32_read_byval(buf);
-    assert(fabs(r.value - 3.141592f) < 0.0001);
-    cinf_buf_destroy(buf);
-
-    double t = (double)duration_cast<nanoseconds>(et - st).count();
-    return bench_result { "f32-vf128-write-byval", count, t, 4 * count };
 }
 
 static bench_result bench_ascii_atoi(llong count)
@@ -597,89 +427,6 @@ static bench_result bench_leb_write_byval_integer(llong count)
     return bench_result { "u64-leb128-write-byval", count, t, 8 * count };
 }
 
-static bench_result bench_vlu_read_byptr_integer(llong count)
-{
-    unsigned long long d;
-    cinf_buf *buf = cinf_buf_new(128);
-    cinf_buf_write_bytes(buf, (const char*)i12_vlu, sizeof(i12_vlu));
-
-    auto st = high_resolution_clock::now();
-    for (llong i = 0; i < count; i++) {
-        cinf_buf_reset(buf);
-        assert(!cinf_vlu_u64_read(buf, &d));
-    }
-    auto et = high_resolution_clock::now();
-
-    assert(d == i12);
-    cinf_buf_destroy(buf);
-
-    double t = (double)duration_cast<nanoseconds>(et - st).count();
-    return bench_result { "u64-vlu8-read-byptr", count, t, 8 * count };
-}
-
-static bench_result bench_vlu_read_byval_integer(llong count)
-{
-    u64_result r;
-    cinf_buf *buf = cinf_buf_new(128);
-    cinf_buf_write_bytes(buf, (const char*)i12_vlu, sizeof(i12_vlu));
-
-    auto st = high_resolution_clock::now();
-    for (llong i = 0; i < count; i++) {
-        cinf_buf_reset(buf);
-        r = cinf_vlu_u64_read_byval(buf);
-        assert(!r.error);
-    }
-    auto et = high_resolution_clock::now();
-
-    assert(r.value == i12);
-    cinf_buf_destroy(buf);
-
-    double t = (double)duration_cast<nanoseconds>(et - st).count();
-    return bench_result { "u64-vlu8-read-byval", count, t, 8 * count };
-}
-
-static bench_result bench_vlu_write_byptr_integer(llong count)
-{
-    unsigned long long d = i12;
-    cinf_buf *buf = cinf_buf_new(128);
-
-    auto st = high_resolution_clock::now();
-    for (llong i = 0; i < count; i++) {
-        cinf_buf_reset(buf);
-        assert(!cinf_vlu_u64_write(buf, &d));
-    }
-    auto et = high_resolution_clock::now();
-
-    cinf_buf_reset(buf);
-    cinf_vlu_u64_read(buf, &d);
-    assert(d == i12);
-    cinf_buf_destroy(buf);
-
-    double t = (double)duration_cast<nanoseconds>(et - st).count();
-    return bench_result { "u64-vlu8-write-byptr", count, t, 8 * count };
-}
-
-static bench_result bench_vlu_write_byval_integer(llong count)
-{
-    unsigned long long d = i12;
-    cinf_buf *buf = cinf_buf_new(128);
-
-    auto st = high_resolution_clock::now();
-    for (llong i = 0; i < count; i++) {
-        cinf_buf_reset(buf);
-        assert(!cinf_vlu_u64_write_byval(buf, d));
-    }
-    auto et = high_resolution_clock::now();
-
-    cinf_buf_reset(buf);
-    d = cinf_vlu_u64_read_byval(buf).value;
-    assert(d == i12);
-    cinf_buf_destroy(buf);
-
-    double t = (double)duration_cast<nanoseconds>(et - st).count();
-    return bench_result { "u64-vlu8-write-byval", count, t, 8 * count };
-}
-
 static const char* format_unit(llong count)
 {
     static char buf[32];
@@ -723,14 +470,6 @@ static bench_result(* const benchmarks[])(llong) = {
     bench_asn1_read_byval_real,
     bench_asn1_write_byptr_real,
     bench_asn1_write_byval_real,
-    bench_vf32_read_byptr_real,
-    bench_vf32_read_byval_real,
-    bench_vf32_write_byptr_real,
-    bench_vf32_write_byval_real,
-    bench_vf64_read_byptr_real,
-    bench_vf64_read_byval_real,
-    bench_vf64_write_byptr_real,
-    bench_vf64_write_byval_real,
     bench_ascii_atoi,
     bench_ascii_atoll,
     bench_ascii_strtoull,
@@ -743,10 +482,6 @@ static bench_result(* const benchmarks[])(llong) = {
     bench_leb_read_byval_integer,
     bench_leb_write_byptr_integer,
     bench_leb_write_byval_integer,
-    bench_vlu_read_byptr_integer,
-    bench_vlu_read_byval_integer,
-    bench_vlu_write_byptr_integer,
-    bench_vlu_write_byval_integer,
 };
 
 #define array_size(arr) ((sizeof(arr)/sizeof(arr[0])))

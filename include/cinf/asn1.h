@@ -224,25 +224,10 @@ int cinf_asn1_ber_real_f64_write_byval(cinf_buf *buf, size_t len, const double v
 struct f64_result cinf_asn1_der_real_f64_read_byval(cinf_buf *buf, asn1_tag _tag);
 int cinf_asn1_der_real_f64_write_byval(cinf_buf *buf, asn1_tag _tag, const double value);
 
-int cinf_vf_f64_read(cinf_buf *buf, double *value);
-int cinf_vf_f64_write(cinf_buf *buf, const double *value);
-struct f64_result cinf_vf_f64_read_byval(cinf_buf *buf);
-int cinf_vf_f64_write_byval(cinf_buf *buf, const double value);
-
-int cinf_vf_f32_read(cinf_buf *buf, float *value);
-int cinf_vf_f32_write(cinf_buf *buf, const float *value);
-struct f32_result cinf_vf_f32_read_byval(cinf_buf *buf);
-int cinf_vf_f32_write_byval(cinf_buf *buf, const float value);
-
 int cinf_leb_u64_read(cinf_buf *buf, u64 *value);
 int cinf_leb_u64_write(cinf_buf *buf, const u64 *value);
 struct u64_result cinf_leb_u64_read_byval(cinf_buf *buf);
 int cinf_leb_u64_write_byval(cinf_buf *buf, const u64 value);
-
-int cinf_vlu_u64_read(cinf_buf *buf, u64 *value);
-int cinf_vlu_u64_write(cinf_buf *buf, const u64 *value);
-struct u64_result cinf_vlu_u64_read_byval(cinf_buf *buf);
-int cinf_vlu_u64_write_byval(cinf_buf *buf, const u64 value);
 
 size_t cinf_asn1_ber_oid_length(const asn1_oid *obj);
 int cinf_asn1_ber_oid_read(cinf_buf *buf, size_t len, asn1_oid *obj);
