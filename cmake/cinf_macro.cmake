@@ -23,7 +23,7 @@ macro(cinf_target_reflect target target_lib)
             COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/scripts/cinfcc.py -p ${CMAKE_BINARY_DIR}
                 -o ${CMAKE_BINARY_DIR}/${_source}.cinf ${${target}_include_args}
                    ${CMAKE_CURRENT_SOURCE_DIR}/${_source}
-            DEPENDS ${_source} cinf VERBATIM)
+            DEPENDS ${_source} cinfcc VERBATIM)
     endforeach()
     list(TRANSFORM _source_inf PREPEND "${CMAKE_BINARY_DIR}/")
 

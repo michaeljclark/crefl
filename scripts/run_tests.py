@@ -10,8 +10,7 @@ import itertools
 
 bin_path = '/usr/bin'
 search_prefixes = [ '/usr' ]
-_platform_lib_prefix = { 'Linux': 'lib', 'FreeBSD': 'lib', 'Darwin': 'lib', 'Windows': '' }
-_platform_lib_ext = { 'Linux': '.so', 'FreeBSD': '.so', 'Darwin': '.dylib', 'Windows': '.dll' }
+lib_ext = { 'Linux': '.so', 'FreeBSD': '.so', 'Darwin': '.dylib', 'Windows': '.dll' }
 
 for prefix in search_prefixes:
     if os.path.isfile(prefix + '/bin/clang'):
@@ -28,15 +27,15 @@ def xclang_args(args):
     return list(itertools.chain(*zip([ '-Xclang' ] * len(args), args)))
 
 def xplugin_arg(arg):
-    return xclang_args(['-plugin-arg-cinf', arg ])
+    return xclang_args(['-plugin-arg-cinfcc', arg ])
 
 def xclang_plugin(plugin, name):
     sysname = platform.system();
-    return "%s/%s%s%s" % ( plugin, _platform_lib_prefix[sysname], name, _platform_lib_ext[sysname] )
+    return "%s/%s%s" % ( plugin, name, lib_ext[sysname] )
 
 def xclang_cmd(is_cpp, plugin):
     cmd = [ xclang_cxx(), '-c', '-xc++' ] if is_cpp else [ xclang_c(), '-c' ]
-    cmd += xclang_args(['-load', xclang_plugin(plugin, 'cinf'), '-plugin', 'cinf'])
+    cmd += xclang_args(['-load', xclang_plugin(plugin, 'cinfcc'), '-plugin', 'cinfcc'])
     return cmd
 
 def cinf_source(hdr):

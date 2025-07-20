@@ -13,7 +13,7 @@ find_package(Clang REQUIRED CONFIG)
 include_directories(include)
 include_directories(${CLANG_INCLUDE_DIRS})
 
-add_library(cmodel STATIC
+add_library(cinf STATIC
 	src/asn1.cc
 	src/buf.cc
 	src/dump.cc
@@ -25,39 +25,40 @@ add_library(cmodel STATIC
 	src/sha256.cc
 )
 
-add_library(cinf SHARED src/reflect.cc)
-target_link_libraries(cinf PRIVATE cmodel clangAST clangFrontend)
+add_library(cinfcc SHARED src/reflect.cc)
+target_link_libraries(cinfcc PRIVATE cinf clangAST clangFrontend)
+set_target_properties(cinfcc PROPERTIES PREFIX "")
 if(APPLE)
-target_link_libraries(cinf curses)
+target_link_libraries(cinfcc curses)
 endif()
 
 add_executable(cinftool tool/cinftool.cc)
-target_link_libraries(cinftool cmodel)
+target_link_libraries(cinftool cinf)
 
 add_executable(asn1tool tool/asn1tool.cc)
-target_link_libraries(asn1tool cmodel)
+target_link_libraries(asn1tool cinf)
 
 # example using the cinf reflection file api
 add_executable(example1_file samples/example1_file/main.c)
-target_link_libraries(example1_file cmodel)
+target_link_libraries(example1_file cinf)
 
 # example using the cinf reflection embedding
 add_executable(example2_embed samples/example2_embed/main.c)
 cinf_target_reflect(example2_embed example2_embed_inf)
-target_link_libraries(example2_embed example2_embed_inf cmodel)
+target_link_libraries(example2_embed example2_embed_inf cinf)
 
 # example using the cinf embedding and printers
 add_executable(example3_printer samples/example3_printer/main.c samples/example3_printer/printer.c)
 cinf_target_reflect(example3_printer example3_printer_inf)
-target_link_libraries(example3_printer example3_printer_inf cmodel)
+target_link_libraries(example3_printer example3_printer_inf cinf)
 
 add_executable(bench_asn1 test/bench_asn1.cc)
-target_link_libraries(bench_asn1 cmodel)
+target_link_libraries(bench_asn1 cinf)
 
 enable_testing()
 
 foreach(prog IN ITEMS t1 t2 t3 t4 t5 t6 t7)
 	add_executable(${prog} test/${prog}.c)
-	target_link_libraries(${prog} cmodel)
+	target_link_libraries(${prog} cinf)
 	add_test(test_${prog} ${prog})
 endforeach()

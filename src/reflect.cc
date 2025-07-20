@@ -62,7 +62,7 @@ protected:
 };
 
 static FrontendPluginRegistry::Add<ReflectAction>
-    X("cinf", "emit reflection metadata.");
+    X("cinfcc", "emit reflection metadata.");
 
 static void log_debug(const char* fmt, ...)
 {
