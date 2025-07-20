@@ -10,8 +10,8 @@ import itertools
 
 bin_path = '/usr/bin'
 search_prefixes = [ '/usr' ]
-_platform_lib_prefix = { 'Linux': 'lib', 'Darwin': 'lib', 'Windows': '' }
-_platform_lib_ext = { 'Linux': '.so', 'Darwin': '.dylib', 'Windows': '.dll' }
+_platform_lib_prefix = { 'Linux': 'lib', 'FreeBSD': 'lib', 'Darwin': 'lib', 'Windows': '' }
+_platform_lib_ext = { 'Linux': '.so', 'FreeBSD': '.so', 'Darwin': '.dylib', 'Windows': '.dll' }
 
 for prefix in search_prefixes:
     if os.path.isfile(prefix + '/bin/clang'):
