@@ -262,23 +262,23 @@ to run the cinf plugin and dump the reflection table to stdout:
 
 ```shell
 clang test/simple-struct-1.h \
-      -Xclang -load -Xclang build/libcinf.so \
-      -Xclang -plugin -Xclang cinf \
-      -Xclang -plugin-arg-cinf -Xclang -dump
+      -Xclang -load -Xclang build/cinfcc.so \
+      -Xclang -plugin -Xclang cinfcc \
+      -Xclang -plugin-arg-cinfcc -Xclang -dump
 ```
 
 to run the cinf plugin and write the reflection data to a file:
 
 ```shell
 clang test/simple-struct-1.h \
-      -Xclang -load -Xclang build/libcinf.so \
-      -Xclang -plugin -Xclang cinf \
-      -Xclang -plugin-arg-cinf -Xclang -o \
-      -Xclang -plugin-arg-cinf -Xclang tmp/simple-struct-1.refl
+      -Xclang -load -Xclang build/cinfcc.so \
+      -Xclang -plugin -Xclang cinfcc \
+      -Xclang -plugin-arg-cinfcc -Xclang -o \
+      -Xclang -plugin-arg-cinfcc -Xclang tmp/simple-struct-1.refl
 ```
 
 to enable cinf plugin debugging, add the following option:
 
 ```shell
-      -Xclang -plugin-arg-cinf -Xclang -debug
+      -Xclang -plugin-arg-cinfcc -Xclang -debug
 ```
