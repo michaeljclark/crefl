@@ -13,8 +13,6 @@ find_package(Clang REQUIRED CONFIG)
 include_directories(include)
 include_directories(${CLANG_INCLUDE_DIRS})
 
-set(LLVM_LINK_COMPONENTS upport)
-
 add_library(cmodel STATIC
 	src/asn1.cc
 	src/buf.cc
