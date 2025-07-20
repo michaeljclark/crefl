@@ -8,7 +8,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-find_package(Clang REQUIRED CONFIG)
+find_package(Clang REQUIRED CONFIG PATHS /usr/local/llvm19)
+string(REGEX REPLACE "/lib/cmake/.*$" "" CLANG_PREFIX "${Clang_DIR}")
+message(STATUS "Clang prefix: ${CLANG_PREFIX}")
 
 include_directories(include)
 include_directories(${CLANG_INCLUDE_DIRS})

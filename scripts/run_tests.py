@@ -8,20 +8,13 @@ import argparse
 import subprocess
 import itertools
 
-bin_path = '/usr/bin'
-search_prefixes = [ '/usr' ]
 lib_ext = { 'Linux': '.so', 'FreeBSD': '.so', 'Darwin': '.dylib', 'Windows': '.dll' }
 
-for prefix in search_prefixes:
-    if os.path.isfile(prefix + '/bin/clang'):
-        bin_path = prefix + '/bin'
-        break
+def xclang_c(prefix):
+    return '%s/bin/clang' % (prefix)
 
-def xclang_c():
-    return '%s/clang' % (bin_path)
-
-def xclang_cxx():
-    return '%s/clang++' % (bin_path)
+def xclang_cxx(prefix):
+    return '%s/bin/clang++' % (prefix)
 
 def xclang_args(args):
     return list(itertools.chain(*zip([ '-Xclang' ] * len(args), args)))
@@ -33,8 +26,8 @@ def xclang_plugin(plugin, name):
     sysname = platform.system();
     return "%s/%s%s" % ( plugin, name, lib_ext[sysname] )
 
-def xclang_cmd(is_cpp, plugin):
-    cmd = [ xclang_cxx(), '-c', '-xc++' ] if is_cpp else [ xclang_c(), '-c' ]
+def xclang_cmd(is_cpp, plugin, prefix):
+    cmd = [ xclang_cxx(prefix), '-c', '-xc++' ] if is_cpp else [ xclang_c(prefix), '-c' ]
     cmd += xclang_args(['-load', xclang_plugin(plugin, 'cinfcc'), '-plugin', 'cinfcc'])
     return cmd
 
@@ -44,8 +37,8 @@ def cinf_source(hdr):
 def cinf_file(hdr):
     return 'build/tmp/%s.refl' % (os.path.basename(hdr))
 
-def cinf_meta_cmd(hdr, includes, is_cpp, is_debug, plugin):
-    cmd = xclang_cmd(is_cpp, plugin)
+def cinf_meta_cmd(hdr, includes, is_cpp, is_debug, plugin, prefix):
+    cmd = xclang_cmd(is_cpp, plugin, prefix)
     if includes:
         for include in includes:
             cmd += ['-I%s' % (include)]
@@ -73,8 +66,8 @@ def format_cmd(cmd):
         lines.append(str)
     return " \\\n    ".join(lines)
 
-def cinf_meta(hdr, includes, is_cpp, is_debug, no_exec, plugin):
-    cmd = cinf_meta_cmd(hdr, includes, is_cpp, is_debug, plugin)
+def cinf_meta(hdr, includes, is_cpp, is_debug, no_exec, plugin, prefix):
+    cmd = cinf_meta_cmd(hdr, includes, is_cpp, is_debug, plugin, prefix)
     if no_exec:
         print(format_cmd(cmd))
     else:
@@ -96,6 +89,8 @@ parser.add_argument('-I', '--include', action='append',
                     help='include directory')
 parser.add_argument('-p', '--plugin', action='store', default='build',
                     help='directory containing plugin')
+parser.add_argument('-P', '--prefix', type=str, default='/usr',
+                    help='prefix for clang toolchain')
 parser.add_argument('--dump', default=True, action='store_true',
                     help='standard width dump')
 parser.add_argument('--dump-fqn', default=False, action='store_true',
@@ -130,7 +125,7 @@ for f in args.files:
         cinf_header('INPUT', hdr)
         cinf_cat(hdr)
         cinf_header('OUTPUT', hdr)
-        cinf_meta(hdr, args.include, args.cpp, args.debug, args.no_exec, args.plugin)
+        cinf_meta(hdr, args.include, args.cpp, args.debug, args.no_exec, args.plugin, args.prefix)
         if args.no_exec:
             exit(0)
         if args.dump_fqn:

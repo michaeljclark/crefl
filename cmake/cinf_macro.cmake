@@ -20,7 +20,8 @@ macro(cinf_target_reflect target target_lib)
         list(APPEND _source_inf ${_source}.cinf)
         add_custom_command(
             OUTPUT ${_source}.cinf
-            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/scripts/cinfcc.py -p ${CMAKE_BINARY_DIR}
+            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/scripts/cinfcc.py
+                -p ${CMAKE_BINARY_DIR} -P ${CLANG_PREFIX}
                 -o ${CMAKE_BINARY_DIR}/${_source}.cinf ${${target}_include_args}
                    ${CMAKE_CURRENT_SOURCE_DIR}/${_source}
             DEPENDS ${_source} cinfcc VERBATIM)
