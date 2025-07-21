@@ -115,6 +115,7 @@ static int read_asn1(cinf_buf *buf, size_t offset, size_t limit, int depth)
         cinf_buf_seek(buf, current + hdr._length);
         break;
     case asn1_tag_utc_time:
+    case asn1_tag_utf8_string:
     case asn1_tag_printable_string:
         current = cinf_buf_offset(buf);
         printf("%s\"%s\"\n", undent.c_str(),
