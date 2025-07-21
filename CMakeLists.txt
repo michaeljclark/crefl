@@ -17,6 +17,7 @@ include_directories(${CLANG_INCLUDE_DIRS})
 
 add_library(cinf STATIC
 	src/asn1.cc
+	src/base64.cc
 	src/buf.cc
 	src/dump.cc
 	src/db.cc
