@@ -2,9 +2,10 @@
 
 > _Cinf_ - a C-type-reflection-API and clang plug-in to write reflection metadata.
 
-The _Cinf_ API and plugin provides access to runtime reflection metadata for
-C interface declarations with support for arbitrarily nested combinations of:
-intrinsic, enum, struct, union, field, array, constant, and function.
+The _Cinf_ API and plugin enable runtime reflection for the C type system,
+exposing the following primitives:
+- _intrinsic, typedef, enum, struct, union, field, array, pointer,
+  constant, function, parameter, attribute, value_.
 
 _Cinf_ addresses the following three areas:
 
@@ -76,7 +77,7 @@ int main(int argc, const char **argv)
 ## Cinf model
 
 _Cinf_ implements a data model based on the description of the C data types
-in ISO/IEC 9899:9999 with minor changes. The following sections describe:
+in ISO/IEC 9899:9999:
 
 - primary types to model the type system.
 - decl node type to model the metadata graph.
